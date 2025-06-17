@@ -1,7 +1,7 @@
 "use client"
 import { useState } from "react"
 import "./FeaturedProducts.css"
-import meal_data from "../../../data/meal_data.json"
+import meal_data from "../../../data/pizza_data.json"
 
 export default function FeaturedProducts() {
   const [cart, setCart] = useState([])

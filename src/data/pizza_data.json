@@ -1,0 +1,27 @@
+[
+    {
+        "name": "Margherita Pizza",
+        "price": "$40.00",
+        "oldPrice": "$24.00",
+        "image": "https://allforpizza.com/wp-content/uploads/2022/07/1460A7EC-CF3B-40E8-B05F-A21E12E85EC6.jpeg",
+        "tag": "SALE"
+    },
+    {
+        "name": "Mushroom Pizza",
+        "price": "$25.00",
+        "image": "https://www.mushroomcouncil.com/wp-content/uploads/2017/11/P05A_Mushroom-Mozzarella-and-Cherry-Tomato-Pizza-scaled.jpg"
+    },
+    {
+        "name": "Hawaiian Pizza",
+        "price": "$30.00",
+        "image": "https://hips.hearstapps.com/hmg-prod/images/hawaiian-pizza-index-65f4641de4b08.jpg?crop=0.6666666666666666xw:1xh;center,top&resize=1200:*",
+        "tag": "NEW"
+    },
+    {
+        "name": "Pesto Pizza",
+        "price": "$30.00",
+        "oldPrice": "$50.00",
+        "image": "https://piskitchen.com/wp-content/uploads/2024/08/chicken-pesto-pizza-2-sq-014.jpg",
+        "tag": "SALE"
+    }
+]
