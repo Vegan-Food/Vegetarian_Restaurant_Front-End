@@ -1,56 +1,154 @@
-[
-  {
-    "id": 1,
-    "name": "Burger chay đặc biệt",
-    "description": "Burger chay với patty từ đậu đen, rau xanh tươi",
-    "price": 89000,
-    "imageUrl": "/placeholder.svg?height=250&width=250",
-    "category": "Món chính",
-    "isVegetarian": true
-  },
-  {
-    "id": 2,
-    "name": "Phở chay truyền thống",
-    "description": "Phở chay với nước dùng thanh ngọt từ rau củ",
-    "price": 65000,
-    "imageUrl": "/placeholder.svg?height=250&width=250",
-    "category": "Món chính",
-    "isVegetarian": true
-  },
-  {
-    "id": 3,
-    "name": "Pizza chay Margherita",
-    "description": "Pizza với phô mai chay và cà chua tươi",
-    "price": 120000,
-    "imageUrl": "/placeholder.svg?height=250&width=250",
-    "category": "Món chính",
-    "isVegetarian": true
-  },
-  {
-    "id": 4,
-    "name": "Salad quinoa bổ dưỡng",
-    "description": "Salad quinoa với các loại hạt và rau xanh",
-    "price": 75000,
-    "imageUrl": "/placeholder.svg?height=250&width=250",
-    "category": "Khai vị",
-    "isVegetarian": true
-  },
-  {
-    "id": 5,
-    "name": "Smoothie xoài dừa",
-    "description": "Smoothie xoài tươi với nước cốt dừa",
-    "price": 45000,
-    "imageUrl": "/placeholder.svg?height=250&width=250",
-    "category": "Đồ uống",
-    "isVegetarian": true
-  },
-  {
-    "id": 6,
-    "name": "Bánh mì chay Việt Nam",
-    "description": "Bánh mì với chả chay và rau củ tươi",
-    "price": 35000,
-    "imageUrl": "/placeholder.svg?height=250&width=250",
-    "category": "Món chính",
-    "isVegetarian": true
-  }
-]
+{
+  "products": [
+    {
+      "product_id": 1,
+      "name": "Bún Bò Huế Chay",
+      "description": "Bún bò Huế chay với nước dùng đậm đà từ nấm hương, chả chay và rau thơm tươi ngon",
+      "price": 45000.00,
+      "stock_quantity": 25,
+      "image_url": "../../../assets/image/foods/image1.png",
+      "category": "Món nước",
+      "total_order": 152
+    },
+    {
+      "product_id": 2,
+      "name": "Cơm Âm Phủ Chay",
+      "description": "Cơm âm phủ chay với đầy đủ các loại rau củ, đậu hũ, nấm và nước mắm chay thơm ngon",
+      "price": 38000.00,
+      "stock_quantity": 30,
+      "image_url": "https://example.com/images/com-am-phu-chay.jpg",
+      "category": "Cơm",
+      "total_order": 89
+    },
+    {
+      "product_id": 3,
+      "name": "Phở Chay Nấm Hương",
+      "description": "Phở chay với nước dùng trong vắt từ nấm hương, bánh phở tươi và rau thơm",
+      "price": 42000.00,
+      "stock_quantity": 20,
+      "image_url": "https://example.com/images/pho-chay-nam-huong.jpg",
+      "category": "Món nước",
+      "total_order": 203
+    },
+    {
+      "product_id": 4,
+      "name": "Bánh Mì Chả Cá Chay",
+      "description": "Bánh mì giòn với chả cá chay, dưa chua, rau thơm và tương ớt đặc biệt",
+      "price": 25000.00,
+      "stock_quantity": 35,
+      "image_url": "https://example.com/images/banh-mi-cha-ca-chay.jpg",
+      "category": "Bánh mì",
+      "total_order": 167
+    },
+    {
+      "product_id": 5,
+      "name": "Mì Quảng Chay",
+      "description": "Mì Quảng chay với nước dùng đậm đà, bánh tráng nướng, đậu phộng và rau sống",
+      "price": 48000.00,
+      "stock_quantity": 18,
+      "image_url": "https://example.com/images/mi-quang-chay.jpg",
+      "category": "Món nước",
+      "total_order": 94
+    },
+    {
+      "product_id": 6,
+      "name": "Cơm Tấm Sườn Chay",
+      "description": "Cơm tấm với sườn chay nướng thơm lừng, chả trứng, bì chay và nước mắm pha",
+      "price": 40000.00,
+      "stock_quantity": 22,
+      "image_url": "https://example.com/images/com-tam-suon-chay.jpg",
+      "category": "Món nước",
+      "total_order": 128
+    },
+    {
+      "product_id": 7,
+      "name": "Bún Chả Cá Chay",
+      "description": "Bún tươi với chả cá chay chiên giòn, rau sống, đậu phộng và nước mắm chấm",
+      "price": 35000.00,
+      "stock_quantity": 28,
+      "image_url": "https://example.com/images/bun-cha-ca-chay.jpg",
+      "category": "Bún",
+      "total_order": 176
+    },
+    {
+      "product_id": 8,
+      "name": "Bánh Cuốn Chay",
+      "description": "Bánh cuốn mỏng với nhân nấm, mộc nhĩ, hành phi và nước chấm đặc biệt",
+      "price": 32000.00,
+      "stock_quantity": 25,
+      "image_url": "https://example.com/images/banh-cuon-chay.jpg",
+      "category": "Bánh",
+      "total_order": 82
+    },
+    {
+      "product_id": 9,
+      "name": "Hủ Tiếu Nam Vang Chay",
+      "description": "Hủ tiếu Nam Vang chay với nước dùng ngọt thanh, tôm chay, chả lụa chay",
+      "price": 44000.00,
+      "stock_quantity": 20,
+      "image_url": "https://example.com/images/hu-tieu-nam-vang-chay.jpg",
+      "category": "Món nước",
+      "total_order": 111
+    },
+    {
+      "product_id": 10,
+      "name": "Cháo Nấm Chay",
+      "description": "Cháo trắng mịn với nấm hương, nấm rơm, gà chay xé phay và hành phi thơm",
+      "price": 28000.00,
+      "stock_quantity": 30,
+      "image_url": "https://example.com/images/chao-nam-chay.jpg",
+      "category": "Cháo",
+      "total_order": 145
+    },
+    {
+      "product_id": 11,
+      "name": "Bánh Xèo Chay",
+      "description": "Bánh xèo giòn rụm với nhân giá đỗ, nấm, chả chay, ăn kèm rau sống và nước chấm",
+      "price": 36000.00,
+      "stock_quantity": 15,
+      "image_url": "https://example.com/images/banh-xeo-chay.jpg",
+      "category": "Bánh",
+      "total_order": 98
+    },
+    {
+      "product_id": 12,
+      "name": "Bún Riêu Chay",
+      "description": "Bún riêu chay với cua đồng chay, cà chua, rau muống và đậu hũ chiên",
+      "price": 41000.00,
+      "stock_quantity": 24,
+      "image_url": "https://example.com/images/bun-rieu-chay.jpg",
+      "category": "Món nước",
+      "total_order": 134
+    },
+    {
+      "product_id": 13,
+      "name": "Gỏi Cuốn Chay",
+      "description": "Gỏi cuốn tươi với rau sống, bánh tráng, đậu hũ, nấm và tương đậu phộng",
+      "price": 24000.00,
+      "stock_quantity": 40,
+      "image_url": "https://example.com/images/goi-cuon-chay.jpg",
+      "category": "Khai vị",
+      "total_order": 189
+    },
+    {
+      "product_id": 14,
+      "name": "Cơm Chiên Dương Châu Chay",
+      "description": "Cơm chiên Dương Châu chay với xúc xích chay, trứng, đậu Hà Lan và cà rốt",
+      "price": 38000.00,
+      "stock_quantity": 26,
+      "image_url": "https://example.com/images/com-chien-duong-chau-chay.jpg",
+      "category": "Cơm",
+      "total_order": 156
+    },
+    {
+      "product_id": 15,
+      "name": "Canh Chua Chay",
+      "description": "Canh chua chay với đậu hũ, nấm, cà chua, thơm và rau thơm tươi mát",
+      "price": 30000.00,
+      "stock_quantity": 32,
+      "image_url": "https://example.com/images/canh-chua-chay.jpg",
+      "category": "Canh",
+      "total_order": 73
+    }
+  ]
+}
