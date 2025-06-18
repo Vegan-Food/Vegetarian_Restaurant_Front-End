@@ -9,6 +9,8 @@ import ManagerDashboard from './pages/Manager/ManagerDashboard/ManagerDashboard'
 import ManagerProfile from './pages/Manager/ManagerProfile/ManagerProfile';
 import ManagerFoodList from './pages/Manager/FoodManagement/ManagerFoodList';
 import ManagerOrderList from './pages/Manager/ManagerOrderList/ManagerOrderList';
+import ManagerEditFoodPage from './pages/Manager/FoodManagement/ManagerEditFoodPage';
+import ManagerAddFoodPage from './pages/Manager/FoodManagement/ManagerAddFoodPage';
 
 function App() {
   return (
@@ -25,8 +27,9 @@ function App() {
         <Route path="/manager-profile" element={<ManagerProfile />} />
         <Route path="/manager-food" element={<ManagerFoodList />} />
         <Route path="/manager-orders" element={<ManagerOrderList />} />
-        {/* Add other routes as needed */}
-
+        <Route path="/manager-edit-food/:id" element={<ManagerEditFoodPage />} />
+        <Route path ="/manager-add-food" element={<ManagerAddFoodPage />} />
+        
       </Routes>
     </BrowserRouter>
   );
