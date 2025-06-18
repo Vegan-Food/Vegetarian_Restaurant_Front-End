@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import Sidebar from "../ManagerSidebar/Sidebar.jsx"
 import "./ManagerFoodList.css"
 
@@ -48,75 +49,22 @@ const initialFoodList = [
 ]
 
 const ManagerFoodList = () => {
+  const navigate = useNavigate()
   const [foodList, setFoodList] = useState(initialFoodList)
-  const [editingIndex, setEditingIndex] = useState(null)
-  const [newFood, setNewFood] = useState({
-    name: "",
-    category: "",
-    price: "",
-    description: "",
-    stock_quantity: "",
-    image_url: "",
-    status: "Active",
-  })
-  const [showEditPopup, setShowEditPopup] = useState(false)
-  const [showAddPopup, setShowAddPopup] = useState(false)
 
   const handleEditClick = (index) => {
-    setEditingIndex(index)
-    setNewFood({ ...foodList[index] })
-    setShowEditPopup(true)
+    // Navigate to edit page with food ID
+    navigate(`/manager-edit-food/${index}`)
   }
 
   const handleDetailClick = (index) => {
     // Chuyển hướng đến trang chi tiết
-    window.location.href = `#/food-detail/${index}`
-  }
-
-  const handleSaveEdit = () => {
-    const updated = [...foodList]
-    updated[editingIndex] = newFood
-    setFoodList(updated)
-    setShowEditPopup(false)
-    setEditingIndex(null)
+    navigate(`/food-detail/${index}`)
   }
 
   const handleAddClick = () => {
-    setNewFood({
-      name: "",
-      category: "",
-      price: "",
-      description: "",
-      stock_quantity: "",
-      image_url: "",
-      status: "Active",
-    })
-    setShowAddPopup(true)
-  }
-
-  const handleAddSave = () => {
-    setFoodList([...foodList, newFood])
-    setShowAddPopup(false)
-  }
-
-  const handleCancel = () => {
-    setShowEditPopup(false)
-    setShowAddPopup(false)
-    setEditingIndex(null)
-    setNewFood({
-      name: "",
-      category: "",
-      price: "",
-      description: "",
-      stock_quantity: "",
-      image_url: "",
-      status: "Active",
-    })
-  }
-
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setNewFood({ ...newFood, [name]: value })
+    // Navigate to add food page
+    navigate("/manager-add-food")
   }
 
   const handleDeleteClick = (index) => {
@@ -130,13 +78,32 @@ const ManagerFoodList = () => {
     <div className="dashboard-container">
       <Sidebar />
       <main className="main-content">
-        <h3>Food Management</h3>
-        <p>Manage and monitor restaurant dishes</p>
+        <div className="food-management-header">
+          <div className="header-content">
+            <h3>Food Management</h3>
+            <p>Manage and monitor restaurant dishes</p>
+          </div>
+          <div className="header-stats">
+            <div className="stat-card">
+              <span className="stat-number">{foodList.length}</span>
+              <span className="stat-label">Total Items</span>
+            </div>
+            <div className="stat-card">
+              <span className="stat-number">{foodList.filter((food) => food.status === "Active").length}</span>
+              <span className="stat-label">Active</span>
+            </div>
+            <div className="stat-card">
+              <span className="stat-number">{foodList.filter((food) => food.status === "Inactive").length}</span>
+              <span className="stat-label">Inactive</span>
+            </div>
+          </div>
+        </div>
 
         <div className="food-header">
           <input type="text" placeholder="Search food..." className="search-input" />
           <button className="add-food-btn" onClick={handleAddClick}>
-            + Add Food
+            <span className="add-icon">+</span>
+            Add Food
           </button>
         </div>
 
@@ -146,6 +113,7 @@ const ManagerFoodList = () => {
               <th>Food</th>
               <th>Category</th>
               <th>Price</th>
+              <th>Stock</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
@@ -153,21 +121,35 @@ const ManagerFoodList = () => {
           <tbody>
             {foodList.map((food, index) => (
               <tr key={index}>
-                <td>{food.name}</td>
-                <td>{food.category}</td>
-                <td>{food.price.toLocaleString()}đ</td>
+                <td>
+                  <div className="food-info">
+                    {food.image_url && (
+                      <img src={food.image_url || "/placeholder.svg"} alt={food.name} className="food-thumbnail" />
+                    )}
+                    <span className="food-name">{food.name}</span>
+                  </div>
+                </td>
+                <td>
+                  <span className="category-tag">{food.category}</span>
+                </td>
+                <td className="price-cell">{food.price.toLocaleString()}đ</td>
+                <td className="stock-cell">
+                  <span className={`stock-badge ${food.stock_quantity < 10 ? "low-stock" : ""}`}>
+                    {food.stock_quantity}
+                  </span>
+                </td>
                 <td>
                   <span className={`badge ${food.status === "Active" ? "active" : "inactive"}`}>{food.status}</span>
                 </td>
                 <td>
                   <div className="action-buttons">
-                    <button className="detail-btn" onClick={() => handleDetailClick(index)}>
+                    <button className="detail-btn" onClick={() => handleDetailClick(index)} title="View Details">
                       Detail
                     </button>
-                    <button className="edit-btn" onClick={() => handleEditClick(index)}>
+                    <button className="edit-btn" onClick={() => handleEditClick(index)} title="Edit">
                       Edit
                     </button>
-                    <button className="delete-btn" onClick={() => handleDeleteClick(index)}>
+                    <button className="delete-btn" onClick={() => handleDeleteClick(index)} title="Delete">
                       Delete
                     </button>
                   </div>
@@ -177,105 +159,15 @@ const ManagerFoodList = () => {
           </tbody>
         </table>
 
-        {(showEditPopup || showAddPopup) && (
-          <div className="popup-overlay" onClick={handleCancel}>
-            <div className="popup-form" onClick={(e) => e.stopPropagation()}>
-              <h4>{showEditPopup ? "Edit Food Item" : "Add New Food Item"}</h4>
-
-              <div className="form-grid">
-                <div className="form-group">
-                  <label htmlFor="name">Food Name *</label>
-                  <input
-                    id="name"
-                    name="name"
-                    value={newFood.name}
-                    onChange={handleChange}
-                    placeholder="Enter food name"
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="category">Category *</label>
-                  <select id="category" name="category" value={newFood.category} onChange={handleChange} required>
-                    <option value="">Select category</option>
-                    <option value="Main Course">Main Course</option>
-                    <option value="Appetizer">Appetizer</option>
-                    <option value="Dessert">Dessert</option>
-                    <option value="Beverage">Beverage</option>
-                    <option value="Special">Special</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="price">Price (VND) *</label>
-                  <input
-                    id="price"
-                    name="price"
-                    value={newFood.price}
-                    onChange={handleChange}
-                    placeholder="Enter price"
-                    type="number"
-                    min="0"
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="stock_quantity">Stock Quantity *</label>
-                  <input
-                    id="stock_quantity"
-                    name="stock_quantity"
-                    value={newFood.stock_quantity}
-                    onChange={handleChange}
-                    placeholder="Enter stock quantity"
-                    type="number"
-                    min="0"
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="status">Status</label>
-                  <select id="status" name="status" value={newFood.status} onChange={handleChange}>
-                    <option value="Active">Active</option>
-                    <option value="Inactive">Inactive</option>
-                  </select>
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="image_url">Image URL</label>
-                  <input
-                    id="image_url"
-                    name="image_url"
-                    value={newFood.image_url}
-                    onChange={handleChange}
-                    placeholder="Enter image URL"
-                    type="url"
-                  />
-                </div>
-
-                <div className="form-group full-width">
-                  <label htmlFor="description">Description</label>
-                  <textarea
-                    id="description"
-                    name="description"
-                    value={newFood.description}
-                    onChange={handleChange}
-                    placeholder="Enter detailed description of the food item..."
-                    rows="3"
-                  />
-                </div>
-              </div>
-
-              <div className="popup-actions">
-                <button className="cancel-btn" onClick={handleCancel}>
-                  Cancel
-                </button>
-                <button className="save-btn" onClick={showEditPopup ? handleSaveEdit : handleAddSave}>
-                  {showEditPopup ? "Update Food" : "Add Food"}
-                </button>
-              </div>
+        {foodList.length === 0 && (
+          <div className="empty-state">
+            <div className="empty-content">
+              <div className="empty-icon">🍽️</div>
+              <h4>No food items yet</h4>
+              <p>Start by adding your first food item to the menu</p>
+              <button className="add-first-btn" onClick={handleAddClick}>
+                Add First Food Item
+              </button>
             </div>
           </div>
         )}
