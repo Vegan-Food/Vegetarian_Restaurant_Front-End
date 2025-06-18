@@ -74,11 +74,11 @@ const ManagerOrderList = () => {
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [orderToUpdate, setOrderToUpdate] = useState(null)
   const [activeFilter, setActiveFilter] = useState("all")
-  const [updateForm, setUpdateForm] = useState({})
+  const [newStatus, setNewStatus] = useState("")
 
-  const handleUpdateClick = (order) => {
+  const handleUpdateStatusClick = (order) => {
     setOrderToUpdate(order)
-    setUpdateForm({ ...order })
+    setNewStatus(order.status)
   }
 
   const handleDetailsClick = (order) => {
@@ -87,25 +87,48 @@ const ManagerOrderList = () => {
 
   const filteredOrders = activeFilter === "all" ? orders : orders.filter((order) => order.status === activeFilter)
 
-  const handleUpdateChange = (e) => {
-    const { name, value } = e.target
-    setUpdateForm({ ...updateForm, [name]: value })
-  }
-
-  const handleUpdateSubmit = (e) => {
+  const handleStatusUpdate = (e) => {
     e.preventDefault()
-    const updatedOrders = orders.map((order) => (order.order_id === orderToUpdate.order_id ? { ...updateForm } : order))
+    const updatedOrders = orders.map((order) =>
+      order.order_id === orderToUpdate.order_id ? { ...order, status: newStatus } : order,
+    )
     setOrders(updatedOrders)
     setOrderToUpdate(null)
-    alert("Order updated successfully!")
+    alert("Order status updated successfully!")
+  }
+
+  const getStatusCount = (status) => {
+    return orders.filter((order) => order.status === status).length
   }
 
   return (
     <div className="dashboard-container">
       <Sidebar />
       <main className="main-content">
-        <h3>Order Management</h3>
-        <p>Manage and monitor restaurant orders</p>
+        <div className="order-management-header">
+          <div className="header-content">
+            <h3>Order Management</h3>
+            <p>Manage and monitor restaurant orders</p>
+          </div>
+          <div className="header-stats">
+            <div className="stat-card">
+              <span className="stat-number">{orders.length}</span>
+              <span className="stat-label">Total Orders</span>
+            </div>
+            <div className="stat-card">
+              <span className="stat-number">{getStatusCount("pending")}</span>
+              <span className="stat-label">Pending</span>
+            </div>
+            <div className="stat-card">
+              <span className="stat-number">{getStatusCount("preparing")}</span>
+              <span className="stat-label">Preparing</span>
+            </div>
+            <div className="stat-card">
+              <span className="stat-number">{getStatusCount("delivered")}</span>
+              <span className="stat-label">Delivered</span>
+            </div>
+          </div>
+        </div>
 
         <div className="order-filters">
           {["all", "pending", "preparing", "shipped", "delivered", "cancelled"].map((status) => (
@@ -115,6 +138,7 @@ const ManagerOrderList = () => {
               onClick={() => setActiveFilter(status)}
             >
               {status === "all" ? "All" : statusLabels[status]}
+              {status !== "all" && <span className="filter-count">({getStatusCount(status)})</span>}
             </button>
           ))}
         </div>
@@ -124,7 +148,7 @@ const ManagerOrderList = () => {
             <tr>
               <th>Order ID</th>
               <th>Customer</th>
-              <th>Food</th>
+              <th>Food Items</th>
               <th>Total</th>
               <th>Status</th>
               <th>Time</th>
@@ -134,21 +158,32 @@ const ManagerOrderList = () => {
           <tbody>
             {filteredOrders.map((order, index) => (
               <tr key={index}>
-                <td>#{order.order_id}</td>
-                <td>{order.name}</td>
-                <td>{order.food}</td>
-                <td>{order.total_amount.toLocaleString()}đ</td>
+                <td>
+                  <span className="order-id">#{order.order_id}</span>
+                </td>
+                <td>
+                  <div className="customer-info">
+                    <span className="customer-name">{order.name}</span>
+                    <span className="customer-phone">{order.phone_number}</span>
+                  </div>
+                </td>
+                <td>
+                  <span className="food-items">{order.food}</span>
+                </td>
+                <td className="price-cell">{order.total_amount.toLocaleString()}đ</td>
                 <td>
                   <span className={`badge status-${order.status}`}>{statusLabels[order.status] || order.status}</span>
                 </td>
-                <td>{order.time}</td>
+                <td>
+                  <span className="time-cell">{order.time}</span>
+                </td>
                 <td>
                   <div className="action-buttons">
-                    <button className="detail-btn" onClick={() => handleDetailsClick(order)}>
-                      Details
+                    <button className="detail-btn" onClick={() => handleDetailsClick(order)} title="View Details">
+                      Detail
                     </button>
-                    <button className="edit-btn" onClick={() => handleUpdateClick(order)}>
-                      Update
+                    <button className="edit-btn" onClick={() => handleUpdateStatusClick(order)} title="Update Status">
+                      Update Status
                     </button>
                   </div>
                 </td>
@@ -157,255 +192,216 @@ const ManagerOrderList = () => {
           </tbody>
         </table>
 
+        {filteredOrders.length === 0 && (
+          <div className="empty-state">
+            <div className="empty-content">
+              <div className="empty-icon">📋</div>
+              <h4>No orders found</h4>
+              <p>No orders match the selected filter</p>
+            </div>
+          </div>
+        )}
+
         {/* Details Modal */}
         {selectedOrder && (
-          <div
-            className="modal-overlay"
-            onClick={() => setSelectedOrder(null)}
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: "rgba(0, 0, 0, 0.6)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              zIndex: 99999,
-            }}
-          >
-            <div
-              className="modal details"
-              onClick={(e) => e.stopPropagation()}
-              style={{
-                background: "white",
-                padding: "32px",
-                borderRadius: "20px",
-                maxWidth: "600px",
-                width: "90%",
-                maxHeight: "90vh",
-                overflowY: "auto",
-              }}
-            >
-              <h4>Order Details</h4>
-              <div className="details-grid">
-                <p>
-                  <strong>Order ID:</strong> #{selectedOrder.order_id}
-                </p>
-                <p>
-                  <strong>Customer ID:</strong> {selectedOrder.customer_id}
-                </p>
-                <p>
-                  <strong>Customer Name:</strong> {selectedOrder.name}
-                </p>
-                <p>
-                  <strong>Phone Number:</strong> {selectedOrder.phone_number}
-                </p>
-                <p>
-                  <strong>Delivery Address:</strong> {selectedOrder.address}
-                </p>
-                <p>
-                  <strong>Order Date:</strong> {selectedOrder.order_date}
-                </p>
-                <p>
-                  <strong>Food Items:</strong> {selectedOrder.food}
-                </p>
-                <p>
-                  <strong>Total Amount:</strong> {selectedOrder.total_amount.toLocaleString()}đ
-                </p>
-                <p>
-                  <strong>Status:</strong> {statusLabels[selectedOrder.status]}
-                </p>
-                <p>
-                  <strong>Payment Method:</strong> {selectedOrder.payment_method}
-                </p>
-                <p>
-                  <strong>Payment ID:</strong> {selectedOrder.payment_id}
-                </p>
-                <p>
-                  <strong>Discount ID:</strong> {selectedOrder.discount_id || "None"}
-                </p>
-                {selectedOrder.notes && (
-                  <p className="full-width">
-                    <strong>Notes:</strong> {selectedOrder.notes}
-                  </p>
-                )}
-              </div>
-              <div className="modal-actions">
+          <div className="modal-overlay" onClick={() => setSelectedOrder(null)}>
+            <div className="modal-content details-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <div className="header-info">
+                  <h4>Order Details</h4>
+                  <span className="order-id-badge">#{selectedOrder.order_id}</span>
+                </div>
                 <button className="close-btn" onClick={() => setSelectedOrder(null)}>
-                  Close
+                  ×
                 </button>
+              </div>
+              <div className="modal-body">
+                <div className="unified-details-panel">
+                  {/* Top Row - Compact Sections */}
+                  <div className="compact-sections-row">
+                    {/* Customer Information Section */}
+                    <div className="compact-section">
+                      <div className="section-header">
+                        <span className="section-icon">👤</span>
+                        <h5>Customer Information</h5>
+                      </div>
+                      <div className="compact-content">
+                        <div className="info-item">
+                          <span className="info-label">Name:</span>
+                          <span className="info-value customer-name">{selectedOrder.name}</span>
+                        </div>
+                        <div className="info-item">
+                          <span className="info-label">Phone:</span>
+                          <span className="info-value">{selectedOrder.phone_number}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Order Total Section */}
+                    <div className="compact-section">
+                      <div className="section-header">
+                        <span className="section-icon">💰</span>
+                        <h5>Order Total</h5>
+                      </div>
+                      <div className="compact-content">
+                        <div className="info-item">
+                          <span className="info-label">Amount:</span>
+                          <span className="info-value order-amount">
+                            {selectedOrder.total_amount.toLocaleString()}đ
+                          </span>
+                        </div>
+                        <div className="info-item">
+                          <span className="info-label">Payment:</span>
+                          <span className="info-value">{selectedOrder.payment_method}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Order Status Section */}
+                    <div className="compact-section">
+                      <div className="section-header">
+                        <span className="section-icon">📦</span>
+                        <h5>Order Status</h5>
+                      </div>
+                      <div className="compact-content">
+                        <div className="info-item">
+                          <span className="info-label">Status:</span>
+                          <span className={`badge status-${selectedOrder.status}`}>
+                            {statusLabels[selectedOrder.status]}
+                          </span>
+                        </div>
+                        <div className="info-item">
+                          <span className="info-label">Time:</span>
+                          <span className="info-value">{selectedOrder.time}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Food Items Section */}
+                  <div className="details-section">
+                    <div className="section-header">
+                      <span className="section-icon">🍽️</span>
+                      <h5>Food Items</h5>
+                    </div>
+                    <div className="section-content">
+                      <div className="food-items-content">{selectedOrder.food}</div>
+                    </div>
+                  </div>
+
+                  {/* Delivery Information Section */}
+                  <div className="details-section">
+                    <div className="section-header">
+                      <span className="section-icon">📍</span>
+                      <h5>Delivery Information</h5>
+                    </div>
+                    <div className="section-content">
+                      <div className="info-row full-width">
+                        <span className="info-label">Address:</span>
+                        <span className="info-value">{selectedOrder.address}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">Order Date:</span>
+                        <span className="info-value">{selectedOrder.order_date}</span>
+                      </div>
+                      <div className="info-row">
+                        <span className="info-label">Payment ID:</span>
+                        <span className="info-value">{selectedOrder.payment_id}</span>
+                      </div>
+                      {selectedOrder.discount_id && (
+                        <div className="info-row">
+                          <span className="info-label">Discount ID:</span>
+                          <span className="info-value discount-tag">{selectedOrder.discount_id}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Special Notes Section */}
+                  {selectedOrder.notes && (
+                    <div className="details-section">
+                      <div className="section-header">
+                        <span className="section-icon">📝</span>
+                        <h5>Special Notes</h5>
+                      </div>
+                      <div className="section-content">
+                        <div className="notes-content">{selectedOrder.notes}</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Update Modal */}
+        {/* Update Status Modal */}
         {orderToUpdate && (
-          <div
-            className="modal-overlay"
-            onClick={() => setOrderToUpdate(null)}
-            style={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              background: "rgba(0, 0, 0, 0.6)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              zIndex: 99999,
-            }}
-          >
-            <div
-              className="modal update"
-              onClick={(e) => e.stopPropagation()}
-              style={{
-                background: "white",
-                padding: "40px 48px",
-                borderRadius: "20px",
-                maxWidth: "800px",
-                width: "90%",
-                maxHeight: "90vh",
-                overflowY: "auto",
-              }}
-            >
-              <h4>Update Order #{orderToUpdate.order_id}</h4>
-              <form onSubmit={handleUpdateSubmit}>
-                <div className="form-grid">
-                  <div className="form-group">
-                    <label htmlFor="name">Customer Name *</label>
-                    <input
-                      id="name"
-                      name="name"
-                      type="text"
-                      value={updateForm.name || ""}
-                      onChange={handleUpdateChange}
-                      placeholder="Enter customer name"
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="phone_number">Phone Number *</label>
-                    <input
-                      id="phone_number"
-                      name="phone_number"
-                      type="tel"
-                      value={updateForm.phone_number || ""}
-                      onChange={handleUpdateChange}
-                      placeholder="Enter phone number"
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="status">Order Status *</label>
-                    <select
-                      id="status"
-                      name="status"
-                      value={updateForm.status || ""}
-                      onChange={handleUpdateChange}
-                      required
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="preparing">Preparing</option>
-                      <option value="shipped">Shipped</option>
-                      <option value="delivered">Delivered</option>
-                      <option value="cancelled">Cancelled</option>
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="payment_method">Payment Method</label>
-                    <select
-                      id="payment_method"
-                      name="payment_method"
-                      value={updateForm.payment_method || ""}
-                      onChange={handleUpdateChange}
-                    >
-                      <option value="Cash">Cash</option>
-                      <option value="VNPAY">VNPAY</option>
-                      <option value="Credit Card">Credit Card</option>
-                      <option value="Bank Transfer">Bank Transfer</option>
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="total_amount">Total Amount (VND)</label>
-                    <input
-                      id="total_amount"
-                      name="total_amount"
-                      type="number"
-                      value={updateForm.total_amount || ""}
-                      onChange={handleUpdateChange}
-                      placeholder="Enter total amount"
-                      min="0"
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="discount_id">Discount ID</label>
-                    <input
-                      id="discount_id"
-                      name="discount_id"
-                      type="number"
-                      value={updateForm.discount_id || ""}
-                      onChange={handleUpdateChange}
-                      placeholder="Enter discount ID"
-                      min="0"
-                    />
-                  </div>
-
-                  <div className="form-group full-width">
-                    <label htmlFor="address">Delivery Address *</label>
-                    <input
-                      id="address"
-                      name="address"
-                      type="text"
-                      value={updateForm.address || ""}
-                      onChange={handleUpdateChange}
-                      placeholder="Enter full delivery address"
-                      required
-                    />
-                  </div>
-
-                  <div className="form-group full-width">
-                    <label htmlFor="food">Food Items</label>
-                    <textarea
-                      id="food"
-                      name="food"
-                      value={updateForm.food || ""}
-                      onChange={handleUpdateChange}
-                      placeholder="Enter food items (comma separated)"
-                      rows="3"
-                    />
-                  </div>
-
-                  <div className="form-group full-width">
-                    <label htmlFor="notes">Special Notes</label>
-                    <textarea
-                      id="notes"
-                      name="notes"
-                      value={updateForm.notes || ""}
-                      onChange={handleUpdateChange}
-                      placeholder="Enter any special instructions or notes..."
-                      rows="3"
-                    />
+          <div className="modal-overlay" onClick={() => setOrderToUpdate(null)}>
+            <div className="modal-content update-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <div className="header-info">
+                  <h4>Update Order Status</h4>
+                  <span className="order-id-badge">#{orderToUpdate.order_id}</span>
+                </div>
+                <button className="close-btn" onClick={() => setOrderToUpdate(null)}>
+                  ×
+                </button>
+              </div>
+              <div className="modal-body">
+                <div className="current-order-info">
+                  <div className="order-card">
+                    <div className="order-header">
+                      <div className="customer-avatar">
+                        <span>{orderToUpdate.name.charAt(0)}</span>
+                      </div>
+                      <div className="customer-details">
+                        <h6>{orderToUpdate.name}</h6>
+                        <p>{orderToUpdate.phone_number}</p>
+                        <p className="order-total">{orderToUpdate.total_amount.toLocaleString()}đ</p>
+                      </div>
+                    </div>
+                    <div className="current-status">
+                      <span className="status-label">Current Status:</span>
+                      <span className={`badge status-${orderToUpdate.status}`}>
+                        {statusLabels[orderToUpdate.status]}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="modal-actions">
-                  <button type="button" className="cancel-btn" onClick={() => setOrderToUpdate(null)}>
-                    Cancel
-                  </button>
-                  <button type="submit" className="update-btn">
-                    Update Order
-                  </button>
-                </div>
-              </form>
+                <form onSubmit={handleStatusUpdate} className="status-form">
+                  <div className="form-group">
+                    <label htmlFor="status" className="form-label">
+                      <span className="label-icon">🔄</span>
+                      Select New Status
+                    </label>
+                    <div className="status-options">
+                      {Object.entries(statusLabels).map(([value, label]) => (
+                        <label key={value} className={`status-option ${newStatus === value ? "selected" : ""}`}>
+                          <input
+                            type="radio"
+                            name="status"
+                            value={value}
+                            checked={newStatus === value}
+                            onChange={(e) => setNewStatus(e.target.value)}
+                          />
+                          <span className={`status-badge status-${value}`}>{label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="modal-actions">
+                    <button type="button" className="cancel-btn" onClick={() => setOrderToUpdate(null)}>
+                      Cancel
+                    </button>
+                    <button type="submit" className="update-btn">
+                      <span className="btn-icon">✓</span>
+                      Update Status
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
         )}
