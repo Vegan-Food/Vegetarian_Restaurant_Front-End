@@ -1,53 +1,46 @@
 "use client"
-import { useState } from "react"
+import { Navbar, Nav, Container, Button } from "react-bootstrap"
 import { useNavigate } from "react-router-dom"
-import "./Header.css"
-import Logo from '../assets/image/Logo.png'
+import { appTheme } from "../constant/color_constants"
+import Logo from "../assets/image/Logo.png"
 
-export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+const Header = ({ title = "Staff Dashboard" }) => {
   const navigate = useNavigate()
 
-  const handleCartClick = () => {
-    navigate('/cart')
-  }
-
-  const handleHomeClick = () => {
-    navigate('/')
-  }
-
-  const handleProfileClick = () => {
-    navigate('/account/profile')
+  const handleLogout = () => {
+    // Clear any authentication tokens/data
+    localStorage.removeItem("staffToken")
+    navigate("/")
   }
 
   return (
-    <header className="header">
-      <div className="header-container">
-        <div className="logo" onClick={handleHomeClick}>
-          <img src={Logo} alt="Vegan Food" />
-        </div>
-
-        <nav className={`nav ${isMenuOpen ? "nav-open" : ""}`}>
-          <a href="/" onClick={handleHomeClick}>Trang chủ</a>
-          <a href="/menu">Thực đơn</a>
-          <a href="#about">Giới thiệu</a>
-          <a href="#contact">Liên hệ</a>
-        </nav>
-
-        <div className="header-actions">
-
-          <button className="cart-btn" onClick={handleCartClick}>
-            🛒 <span className="cart-count">0</span>
-          </button>
-          <button className="icon-btn" onClick={handleProfileClick}>
-            <img src="/images/header/icon-account-new-v2.svg" alt="Profile" className="profile-icon" />
-          </button>
-        </div>
-
-        <button className="menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-          ☰
-        </button>
-      </div>
-    </header>
+    <Navbar
+      expand="lg"
+      style={{
+        backgroundColor: appTheme.primary,
+        borderBottom: `3px solid ${appTheme.accent}`,
+      }}
+      variant="dark"
+      sticky="top"
+    >
+      <Container fluid>
+        <Navbar.Brand href="/dashboard" className="d-flex align-items-center">
+          <img
+            src={Logo}
+            width="40"
+            height="40"
+            className="d-inline-block align-top me-2"
+            alt="Logo"
+            onError={(e) => {
+              e.target.src =
+                "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%23FCCD2A'/%3E%3Ctext x='20' y='25' textAnchor='middle' fill='%23347928' fontSize='16' fontWeight='bold'%3EL%3C/text%3E%3C/svg%3E"
+            }}
+          />
+          <span style={{ color: appTheme.accent, fontWeight: "bold" }}>{title}</span>
+        </Navbar.Brand>
+      </Container>
+    </Navbar>
   )
 }
+
+export default Header

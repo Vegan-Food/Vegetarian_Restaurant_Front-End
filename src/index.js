@@ -1,12 +1,15 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './AppPage';
-import './index.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import React from "react"
+import ReactDOM from "react-dom/client"
+import HomePage from "./pages/auth/HomePage"
+import "bootstrap/dist/css/bootstrap.min.css"
+import { appTheme } from "./constant/color_constants"
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+// Apply global styles
+document.body.style.backgroundColor = appTheme.background
+
+const root = ReactDOM.createRoot(document.getElementById("root"))
 root.render(
   <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+    <HomePage />
+  </React.StrictMode>,
+)

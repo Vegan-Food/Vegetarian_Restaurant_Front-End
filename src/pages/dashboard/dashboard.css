@@ -1,0 +1,29 @@
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #fffbe6;
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 280px;
+  display: flex;
+  flex-direction: column;
+}
+
+.content-wrapper {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+  }
+}

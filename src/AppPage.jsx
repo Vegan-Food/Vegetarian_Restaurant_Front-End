@@ -11,6 +11,7 @@ import ManagerFoodList from './pages/Manager/FoodManagement/ManagerFoodList';
 import ManagerOrderList from './pages/Manager/ManagerOrderList/ManagerOrderList';
 import ManagerEditFoodPage from './pages/Manager/FoodManagement/ManagerEditFoodPage';
 import ManagerAddFoodPage from './pages/Manager/FoodManagement/ManagerAddFoodPage';
+import Dashboard from '../pages/dashboard/Dashboard';
 
 function App() {
   return (
@@ -21,7 +22,6 @@ function App() {
         <Route path="/payment" element={<PaymentPage />} />
         <Route path="/account/profile" element={<ProfilePage />} />
 
-        {/* Add other routes as needed */}
         {/* Route Manager */}
         <Route path="/manager-dashboard" element={<ManagerDashboard />} />
         <Route path="/manager-profile" element={<ManagerProfile />} />
@@ -29,6 +29,9 @@ function App() {
         <Route path="/manager-orders" element={<ManagerOrderList />} />
         <Route path="/manager-edit-food/:id" element={<ManagerEditFoodPage />} />
         <Route path ="/manager-add-food" element={<ManagerAddFoodPage />} />
+
+        {/* Route Staff */}
+        <Route path ="/dashboard" element={<Dashboard />} />
         
       </Routes>
     </BrowserRouter>
