@@ -2,17 +2,7 @@ import "./dashboard.css"
 
 // SVG icons as components
 const IconChart = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
+  <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <rect x="3" y="3" width="18" height="18" rx="2" />
     <line x1="9" y1="8" x2="9" y2="21" />
     <line x1="15" y1="8" x2="15" y2="21" />
@@ -21,34 +11,14 @@ const IconChart = () => (
 )
 
 const IconDollar = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
+  <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <line x1="12" y1="2" x2="12" y2="22" />
     <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
   </svg>
 )
 
 const IconPercent = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
+  <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <line x1="19" y1="5" x2="5" y2="19" />
     <circle cx="6.5" cy="6.5" r="2.5" />
     <circle cx="17.5" cy="17.5" r="2.5" />
@@ -56,51 +26,21 @@ const IconPercent = () => (
 )
 
 const IconTrendingUp = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
+  <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
     <polyline points="17 6 23 6 23 12" />
   </svg>
 )
 
 const IconTrendingDown = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
+  <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
     <polyline points="17 18 23 18 23 12" />
   </svg>
 )
 
 const IconUsers = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
+  <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
     <circle cx="9" cy="7" r="4" />
     <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
@@ -109,25 +49,14 @@ const IconUsers = () => (
 )
 
 const IconShoppingCart = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
+  <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <circle cx="9" cy="21" r="1" />
     <circle cx="20" cy="21" r="1" />
     <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
   </svg>
 )
 
-const Dashboard = () => {
-  // Sample data for metrics
+const Dashboard = ({ pageTitle = "Dashboard", pageSubtitle = null }) => {
   const metrics = [
     {
       title: "Net Profit Margin",
@@ -164,91 +93,123 @@ const Dashboard = () => {
   ]
 
   return (
-    <div className="dashboard-container">
-      {/* Page header */}
-      <div className="page-header">
-        <h1 className="page-title">Dashboard</h1>
-        <div className="welcome-message">Welcome back, Admin</div>
-      </div>
+    <div className="dashboard-layout">
+      {/* Full Width Header */}
+      <header className="dashboard-header">
+        <div className="header-container">
+          <div className="header-left">
+            <h1 className="dashboard-title">{pageTitle}</h1>
+            {pageSubtitle && <p className="page-subtitle">{pageSubtitle}</p>}
+          </div>
+          <div className="header-right">
+            <div className="welcome-badge">Welcome back, Admin</div>
+          </div>
+        </div>
+      </header>
 
-      {/* Metrics grid */}
-      <div className="metrics-grid">
-        {metrics.map((metric, index) => (
-          <div key={index} className={`metric-card ${metric.color}`}>
-            <div className="metric-icon-container">
-              <div className={`metric-icon ${metric.color}`}>{metric.icon}</div>
+      {/* Content Container */}
+      <div className="dashboard-content">
+        {/* Metrics Section - Only show on Dashboard */}
+        {pageTitle === "Dashboard" && (
+          <section className="metrics-section">
+            <div className="metrics-container">
+              {metrics.map((metric, index) => (
+                <div key={index} className={`metric-card metric-${metric.color}`}>
+                  <div className="metric-icon-wrapper">
+                    <div className={`metric-icon icon-${metric.color}`}>{metric.icon}</div>
+                  </div>
+                  <div className="metric-content">
+                    <h3 className="metric-title">{metric.title}</h3>
+                    <div className="metric-value">{metric.value}</div>
+                    <div className="metric-trend">
+                      <span className={`trend-indicator trend-${metric.trend}`}>
+                        {metric.trend === "up" ? <IconTrendingUp /> : <IconTrendingDown />}
+                        {metric.change}
+                      </span>
+                      <span className="trend-period">vs last month</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-            <div className="metric-details">
-              <div className="metric-title">{metric.title}</div>
-              <div className="metric-value">{metric.value}</div>
-              <div className="metric-change">
-                <span className={`trend-indicator ${metric.trend}`}>
-                  {metric.trend === "up" ? <IconTrendingUp /> : <IconTrendingDown />}
-                  {metric.change}
-                </span>
-                <span className="vs-text">vs last month</span>
+          </section>
+        )}
+
+        {/* Chart Section - Only show on Dashboard */}
+        {pageTitle === "Dashboard" && (
+          <section className="chart-section">
+            <div className="chart-card">
+              <div className="chart-header">
+                <h2 className="chart-title">Revenue Overview</h2>
+                <p className="chart-subtitle">Monthly performance tracking</p>
+              </div>
+              <div className="chart-body">
+                <div className="chart-placeholder">
+                  <IconChart className="chart-icon" />
+                  <p className="chart-text">Revenue data visualization</p>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          </section>
+        )}
 
-      {/* Chart section */}
-      <div className="chart-section">
-        <div className="chart-header">
-          <h2 className="chart-title">Revenue Overview</h2>
-          <p className="chart-subtitle">Monthly performance tracking</p>
-        </div>
-        <div className="chart-container">
-          {/* Chart placeholder */}
-          <div className="chart-placeholder">
-            <IconChart className="placeholder-icon" />
-            <p className="placeholder-text">Revenue data visualization</p>
-          </div>
-        </div>
-      </div>
+        {/* Bottom Section - Only show on Dashboard */}
+        {pageTitle === "Dashboard" && (
+          <section className="bottom-section">
+            <div className="bottom-container">
+              {/* Quick Actions */}
+              <div className="action-card">
+                <div className="card-header">
+                  <h3 className="card-title">Quick Actions</h3>
+                </div>
+                <div className="card-body">
+                  <button className="action-btn primary">
+                    <IconShoppingCart />
+                    <span>View Recent Orders</span>
+                  </button>
+                  <button className="action-btn secondary">
+                    <IconUsers />
+                    <span>Manage Staff Schedule</span>
+                  </button>
+                  <button className="action-btn secondary">
+                    <IconChart />
+                    <span>Generate Reports</span>
+                  </button>
+                </div>
+              </div>
 
-      {/* Additional sections */}
-      <div className="additional-sections">
-        <div className="section-card">
-          <div className="section-header">
-            <h3 className="section-title">Quick Actions</h3>
-          </div>
-          <div className="section-content">
-            <button className="action-button primary">
-              <IconShoppingCart />
-              <span>View Recent Orders</span>
-            </button>
-            <button className="action-button secondary">
-              <IconUsers />
-              <span>Manage Staff Schedule</span>
-            </button>
-            <button className="action-button secondary">
-              <IconChart />
-              <span>Generate Reports</span>
-            </button>
-          </div>
-        </div>
+              {/* System Status */}
+              <div className="status-card">
+                <div className="card-header">
+                  <h3 className="card-title">System Status</h3>
+                </div>
+                <div className="card-body">
+                  <div className="status-item">
+                    <span className="status-label">Orders Processing</span>
+                    <span className="status-badge success">Active</span>
+                  </div>
+                  <div className="status-item">
+                    <span className="status-label">Staff Online</span>
+                    <span className="status-badge info">12 Members</span>
+                  </div>
+                  <div className="status-item">
+                    <span className="status-label">System Health</span>
+                    <span className="status-badge success">Excellent</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
 
-        <div className="section-card">
-          <div className="section-header">
-            <h3 className="section-title">System Status</h3>
-          </div>
-          <div className="section-content">
-            <div className="status-item">
-              <span className="status-label">Orders Processing</span>
-              <span className="status-badge success">Active</span>
+        {/* Content for other pages */}
+        {pageTitle !== "Dashboard" && (
+          <section className="page-content">
+            <div className="content-placeholder">
+              <p>Content for {pageTitle} page will be displayed here.</p>
             </div>
-            <div className="status-item">
-              <span className="status-label">Staff Online</span>
-              <span className="status-badge info">12 Members</span>
-            </div>
-            <div className="status-item">
-              <span className="status-label">System Health</span>
-              <span className="status-badge success">Excellent</span>
-            </div>
-          </div>
-        </div>
+          </section>
+        )}
       </div>
     </div>
   )

@@ -6,6 +6,8 @@ import ManageStaff from "./pages/ManageStaff"
 import ManageOrders from "./pages/ManageOrders"
 import ManageCustomers from "./pages/ManageCustomers"
 import "./App.css"
+// Import your logo
+import logo from "./assets/image/Logo.png"
 
 const navigationItems = [
   { id: "Dashboard", label: "Dashboard", icon: "📊" },
@@ -41,7 +43,10 @@ function App() {
       {/* Sidebar */}
       <div className={`sidebar ${sidebarOpen ? "open" : ""}`}>
         <div className="sidebar-header">
-          <h1 className="sidebar-title">Vegetarian</h1>
+          <div className="logo-container">
+            <img src={logo || "/placeholder.svg"} alt="Vegetarian Restaurant Logo" className="logo-image" />
+            <h1 className="sidebar-title">Vegetarian</h1>
+          </div>
           <button onClick={() => setSidebarOpen(false)} className="close-btn">
             ✕
           </button>

@@ -79,14 +79,58 @@ const ManageOrders = () => {
     return matchesSearch && matchesStatus
   })
 
+  const orderStats = [
+    {
+      label: "Total Orders",
+      value: orders.length,
+      color: "text-blue-600",
+      bgColor: "bg-blue-50",
+      borderColor: "border-blue-200",
+    },
+    {
+      label: "Pending",
+      value: orders.filter((o) => o.status === "Pending").length,
+      color: "text-orange-600",
+      bgColor: "bg-orange-50",
+      borderColor: "border-orange-200",
+    },
+    {
+      label: "Completed",
+      value: orders.filter((o) => o.status === "Completed").length,
+      color: "text-green-600",
+      bgColor: "bg-green-50",
+      borderColor: "border-green-200",
+    },
+    {
+      label: "Cancelled",
+      value: orders.filter((o) => o.status === "Cancelled").length,
+      color: "text-red-600",
+      bgColor: "bg-red-50",
+      borderColor: "border-red-200",
+    },
+  ]
+
   return (
-    <div>
+    <div className="p-6 bg-gray-50 min-h-screen">
       {/* Header */}
-      <div className="page-header">
-        <div className="page-info">
-          <h3>Order Management</h3>
-          <p>Track and manage customer orders</p>
-        </div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Order Management</h1>
+        <p className="text-gray-600">Track and manage customer orders</p>
+      </div>
+
+      {/* Order Stats */}
+      <div className="stats-row">
+        {[
+          { label: "Total Orders", value: orders.length, color: "text-blue-600" },
+          { label: "Pending", value: orders.filter((o) => o.status === "Pending").length, color: "text-yellow-600" },
+          { label: "Completed", value: orders.filter((o) => o.status === "Completed").length, color: "text-green-600" },
+          { label: "Cancelled", value: orders.filter((o) => o.status === "Cancelled").length, color: "text-red-600" },
+        ].map((stat, index) => (
+          <div key={index} className="mini-stat">
+            <div className="mini-stat-value">{stat.value}</div>
+            <div className={`mini-stat-label ${stat.color}`}>{stat.label}</div>
+          </div>
+        ))}
       </div>
 
       {/* Filters */}
@@ -118,7 +162,7 @@ const ManageOrders = () => {
                   backgroundColor: "white",
                 }}
               >
-                <option value="All">All Status</option>
+                <option value="All">Status</option>
                 <option value="Pending">Pending</option>
                 <option value="In Progress">In Progress</option>
                 <option value="Completed">Completed</option>
@@ -135,13 +179,13 @@ const ManageOrders = () => {
           <table className="data-table">
             <thead className="table-header">
               <tr>
-                <th>Order ID</th>
-                <th>Customer</th>
-                <th>Items</th>
-                <th>Total</th>
-                <th>Status</th>
-                <th>Time</th>
-                <th>Actions</th>
+                <th>ORDER ID</th>
+                <th>CUSTOMER</th>
+                <th>ITEMS</th>
+                <th>TOTAL</th>
+                <th>STATUS</th>
+                <th>TIME</th>
+                <th>ACTIONS</th>
               </tr>
             </thead>
             <tbody className="table-body">
@@ -180,20 +224,11 @@ const ManageOrders = () => {
         </div>
       </div>
 
-      {/* Order Stats */}
-      <div className="stats-row">
-        {[
-          { label: "Total Orders", value: orders.length, color: "text-blue-600" },
-          { label: "Pending", value: orders.filter((o) => o.status === "Pending").length, color: "text-yellow-600" },
-          { label: "Completed", value: orders.filter((o) => o.status === "Completed").length, color: "text-green-600" },
-          { label: "Cancelled", value: orders.filter((o) => o.status === "Cancelled").length, color: "text-red-600" },
-        ].map((stat, index) => (
-          <div key={index} className="mini-stat">
-            <div className="mini-stat-value">{stat.value}</div>
-            <div className={`mini-stat-label ${stat.color}`}>{stat.label}</div>
-          </div>
-        ))}
-      </div>
+      {filteredOrders.length === 0 && (
+        <div className="text-center py-8 text-gray-500">
+          <p>No orders found matching your search criteria.</p>
+        </div>
+      )}
     </div>
   )
 }
