@@ -4,6 +4,21 @@
     flex-direction: column;
 }
 
+/* Add margin-top to prevent header overlap */
+.payment-page .container {
+    margin-top: 105px;
+}
+
+/* Additional spacing for the main content */
+.payment-page .d-flex.flex-column.min-vh-100 {
+    padding-top: 105px;
+}
+
+.payment-page .py-4.flex-grow-1.mt-5.pt-5 {
+    margin-top: 105px !important;
+    padding-top: 2rem !important;
+}
+
 .payment-container {
     max-width: 1200px;
     margin: 0 auto;

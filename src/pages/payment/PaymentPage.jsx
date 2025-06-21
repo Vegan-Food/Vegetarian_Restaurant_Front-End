@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Container, Form, Button, Row, Col, ListGroup, Image, Stack } from 'react-bootstrap';
 import Header from '../../components/Header';
+import Footer from '../../components/Footer';
+import Chatbot from '../../components/Chatbot';
 
 const PaymentPage = () => {
     const navigate = useNavigate();
@@ -47,9 +49,9 @@ const PaymentPage = () => {
     };
 
     return (
-        <div className="d-flex flex-column min-vh-100">
+        <div className="d-flex flex-column min-vh-100" style={{ paddingTop: '105px' }}>
             <Header />
-            <Container className="py-4 flex-grow-1 mt-5 pt-5">
+            <Container className="py-4 flex-grow-1" style={{ marginTop: '20px'  }}>
                 <div className="d-flex justify-content-between align-items-start">
                     {/* Left Side - Form */}
                     <div className="w-75 pe-4">
@@ -329,6 +331,8 @@ const PaymentPage = () => {
                     </div>
                 </Container>
             </div>
+            <Footer />
+            <Chatbot />
         </div>
     );
 };
