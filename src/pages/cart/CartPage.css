@@ -7,6 +7,11 @@
   flex-direction: column;
 }
 
+/* Add margin-top for Carousel in CartPage */
+.cart-page .hero-banner {
+  margin-top: 105px;
+}
+
 .cart-container {
   flex: 1;
   padding: 100px 20px;

@@ -4,6 +4,8 @@ import './CartPage.css';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import meal_data from '../../data/meal_data.json';
+import Carousel from '../../components/Carousel';
+import Chatbot from '../../components/Chatbot';
 
 // CartItem Component
 const CartItem = ({ item, onUpdateQuantity, onRemove }) => (
@@ -103,6 +105,7 @@ const CartPage = () => {
   return (
     <div className="cart-page">
       <Header />
+      <Carousel />
       <main className="cart-container">
         <h1>My Cart</h1>
         <div className="cart-content">
@@ -123,6 +126,7 @@ const CartPage = () => {
         </div>
       </main>
       <Footer />
+      <Chatbot />
     </div>
   );
 };

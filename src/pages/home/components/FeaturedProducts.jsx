@@ -1,47 +1,32 @@
 "use client"
-import { useState } from "react"
-import "./FeaturedProducts.css"
+
+import { Container, Row, Col } from "react-bootstrap"
+import ProductCard from "../../../components/ProductCard"
 import meal_data from "../../../data/meal_data.json"
+import "./FeaturedProducts.css"
 
-export default function FeaturedProducts() {
-  const [cart, setCart] = useState([])
-
-  const addToCart = (meal) => {
-    setCart([...cart, meal])
-    alert(`Đã thêm ${meal.name} vào giỏ hàng!`)
-  }
+const FeaturedProducts = () => {
+  // Lấy toàn bộ sản phẩm từ meal_data.json
+  const products = meal_data.products
+  console.log("Sản phẩm từ meal_data.json:", products)
 
   return (
     <section className="featured-products">
-      <div className="products-container">
-        <h2>Sản phẩm nổi bật</h2>
-        <p>Những món ăn chay được yêu thích nhất</p>
-
-        <div className="products-grid">
-          {meal_data.map((meal) => (
-            <div key={meal.id} className="product-card">
-              <div className="product-image">
-                <img src={meal.imageUrl || "/placeholder.svg"} alt={meal.name} />
-                <div className="product-overlay">
-                  <button className="quick-view-btn" onClick={() => addToCart(meal)}>
-                    Thêm vào giỏ
-                  </button>
-                </div>
-              </div>
-              <div className="product-info">
-                <h3>{meal.name}</h3>
-                <p>{meal.description}</p>
-                <div className="product-footer">
-                  <span className="price">{meal.price.toLocaleString()}₫</span>
-                  <button className="add-to-cart-btn" onClick={() => addToCart(meal)}>
-                    +
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
+      <Container>
+        <div className="section-header text-center mb-5">
+          <h2 className="section-title">Thực Đơn Đặc Biệt</h2>
+          <p className="section-subtitle">Những món ăn được yêu thích nhất</p>
         </div>
-      </div>
+        <Row>
+          {products.map((product) => (
+            <Col lg={4} md={6} className="mb-4" key={product.product_id}>
+              <ProductCard product={product} />
+            </Col>
+          ))}
+        </Row>
+      </Container>
     </section>
   )
 }
+
+export default FeaturedProducts
