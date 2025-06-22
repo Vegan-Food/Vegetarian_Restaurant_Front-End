@@ -3,7 +3,7 @@ import { MessageCircle, X, Send, Bot, User } from 'lucide-react';
 import './Chatbot.css';
 import mealData from '../data/meal_data.json';
 
-const GEMINI_API_KEY = 'AIzaSyCaaYPKYiTeHXIHyU3OPHFWbCN8su3yL7E'; // Thay bằng API key thật
+const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
 
 async function callGeminiAPI(userInput) {
   // Lấy danh sách sản phẩm (ví dụ 5 sản phẩm đầu)
