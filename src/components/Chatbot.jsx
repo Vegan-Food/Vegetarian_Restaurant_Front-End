@@ -1,13 +1,54 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Bot, User } from 'lucide-react';
 import './Chatbot.css';
+import mealData from '../data/meal_data.json';
+
+const GEMINI_API_KEY = 'AIzaSyCaaYPKYiTeHXIHyU3OPHFWbCN8su3yL7E'; // Thay bằng API key thật
+
+async function callGeminiAPI(userInput) {
+  // Lấy danh sách sản phẩm (ví dụ 5 sản phẩm đầu)
+  const productList = mealData.products.slice(0, 5).map(p => `${p.name}: ${p.description}`).join('\n');
+  const prompt = `
+    Dưới đây là danh sách món ăn chay của nhà hàng:
+    ${productList}
+    Câu hỏi của khách: ${userInput}
+    Chỉ trả lời dựa trên danh sách trên.
+  `;
+
+  const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_API_KEY;
+  const body = {
+    contents: [
+      {
+        role: "user",
+        parts: [
+          {
+            text: "Bạn là trợ lý ảo theo phong cách GenZ của nhà hàng chay Vegan Food. Chỉ trả lời các câu hỏi liên quan đến thực phẩm chay, món ăn chay, dinh dưỡng chay, và không trả lời các chủ đề khác. Nếu câu hỏi không liên quan, hãy lịch sự từ chối."
+          }
+        ]
+      },
+      {
+        role: "user",
+        parts: [
+          { text: prompt }
+        ]
+      }
+    ]
+  };
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  const data = await response.json();
+  return data?.candidates?.[0]?.content?.parts?.[0]?.text || "Xin lỗi, tôi chỉ hỗ trợ các câu hỏi về thực phẩm chay.";
+}
 
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
       id: 1,
-      text: "Xin chào! Tôi là trợ lý ảo của nhà hàng chay. Tôi có thể giúp gì cho bạn?",
+      text: "Xin chào! Tôi là trợ lý ảo của nhà hàng chay Vegan Food. Tôi có thể giúp gì cho bạn?",
       sender: 'bot',
       timestamp: new Date()
     }
@@ -38,9 +79,9 @@ const Chatbot = () => {
     setInputMessage('');
     setIsTyping(true);
 
-    // Simulate bot response
-    setTimeout(() => {
-      const botResponse = generateBotResponse(inputMessage);
+    // Gọi Gemini API thay vì generateBotResponse
+    try {
+      const botResponse = await callGeminiAPI(inputMessage);
       const botMessage = {
         id: messages.length + 2,
         text: botResponse,
@@ -48,38 +89,18 @@ const Chatbot = () => {
         timestamp: new Date()
       };
       setMessages(prev => [...prev, botMessage]);
-      setIsTyping(false);
-    }, 1000);
-  };
-
-  const generateBotResponse = (userInput) => {
-    const input = userInput.toLowerCase();
-    
-    if (input.includes('menu') || input.includes('thực đơn')) {
-      return "Chúng tôi có nhiều món chay ngon như: Phở chay, Burger chay, Cơm chay, và nhiều món khác. Bạn muốn xem món nào cụ thể không?";
+    } catch (err) {
+      setMessages(prev => [
+        ...prev,
+        {
+          id: messages.length + 2,
+          text: "Xin lỗi, có lỗi xảy ra khi kết nối đến AI.",
+          sender: 'bot',
+          timestamp: new Date()
+        }
+      ]);
     }
-    
-    if (input.includes('giá') || input.includes('price') || input.includes('bao nhiêu')) {
-      return "Giá cả của chúng tôi rất hợp lý, từ 45,000đ - 150,000đ. Bạn có thể xem chi tiết giá trong menu hoặc tôi có thể tư vấn cụ thể hơn.";
-    }
-    
-    if (input.includes('giao hàng') || input.includes('delivery') || input.includes('ship')) {
-      return "Chúng tôi giao hàng trong vòng 30 phút với đơn từ 200,000đ trở lên. Phí ship chỉ 15,000đ cho đơn dưới 200,000đ.";
-    }
-    
-    if (input.includes('giờ') || input.includes('mở cửa') || input.includes('open')) {
-      return "Nhà hàng mở cửa từ 6:00 sáng đến 22:00 tối, 7 ngày trong tuần. Bạn có thể đặt hàng online 24/7.";
-    }
-    
-    if (input.includes('chay') || input.includes('vegetarian')) {
-      return "Tất cả món ăn của chúng tôi đều 100% thuần chay, không sử dụng thịt, cá hay các sản phẩm từ động vật. Nguyên liệu organic tươi sạch.";
-    }
-    
-    if (input.includes('cảm ơn') || input.includes('thank')) {
-      return "Rất vui được phục vụ bạn! Nếu cần thêm thông tin gì, đừng ngại hỏi nhé! 😊";
-    }
-    
-    return "Xin lỗi, tôi chưa hiểu rõ câu hỏi của bạn. Bạn có thể hỏi về menu, giá cả, giao hàng, giờ mở cửa hoặc thông tin về món chay.";
+    setIsTyping(false);
   };
 
   const handleKeyPress = (e) => {
@@ -129,15 +150,15 @@ const Chatbot = () => {
                   <div className="message-content">
                     <p className="message-text">{message.text}</p>
                     <span className="message-time">
-                      {message.timestamp.toLocaleTimeString('vi-VN', { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
+                      {message.timestamp.toLocaleTimeString('vi-VN', {
+                        hour: '2-digit',
+                        minute: '2-digit'
                       })}
                     </span>
                   </div>
                 </div>
               ))}
-              
+
               {isTyping && (
                 <div className="message bot-message">
                   <div className="message-avatar">
@@ -152,7 +173,7 @@ const Chatbot = () => {
                   </div>
                 </div>
               )}
-              
+
               <div ref={messagesEndRef} />
             </div>
 
@@ -166,7 +187,7 @@ const Chatbot = () => {
                 onKeyPress={handleKeyPress}
                 className="chatbot-input-field"
               />
-              <button 
+              <button
                 className="chatbot-send-btn"
                 onClick={handleSendMessage}
                 disabled={!inputMessage.trim()}
@@ -181,4 +202,4 @@ const Chatbot = () => {
   );
 };
 
-export default Chatbot; 
+export default Chatbot;

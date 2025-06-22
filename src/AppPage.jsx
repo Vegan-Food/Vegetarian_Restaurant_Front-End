@@ -13,6 +13,11 @@ import ManagerAddFoodPage from './pages/Manager/FoodManagement/ManagerAddFoodPag
 import FoodDetail from './pages/foodDetail/FoodDetail';
 import Home from './pages/home/Home';
 import Login from './pages/auth/Login';
+import StaffDashboard from "./pages/Staff/StaffDashboard/StaffDashboard"
+import StaffOrderList from "./pages/Staff/StaffOrderList/StaffOrderList"
+import StaffFoodList from "./pages/Staff/StaffFoodList/StaffFoodList"
+import StaffSupport from "./pages/Staff/StaffSupport/StaffSupport"
+import StaffProfile from "./pages/Staff/StaffProfile/StaffProfile"
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 function App() {
@@ -35,6 +40,13 @@ function App() {
             <Route path="/manager-edit-food/:id" element={<ManagerEditFoodPage />} />
             <Route path="/manager-add-food" element={<ManagerAddFoodPage />} />
             <Route path="/login" element={<Login />} />
+
+            {/* Route Staff */}
+            <Route path="/staff-dashboard" element={<StaffDashboard />} />
+            <Route path="/staff-orders" element={<StaffOrderList />} />
+            <Route path="/staff-food" element={<StaffFoodList />} />
+            <Route path="/staff-support" element={<StaffSupport />} />
+            <Route path="/staff-profile" element={<StaffProfile />} />
           </Routes>
         </BrowserRouter>
       </CartProvider>
