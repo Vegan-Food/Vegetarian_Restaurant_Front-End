@@ -24,14 +24,10 @@ const Login = () => {
   const handleSuccess = async (credentialResponse) => {
     const decoded = jwtDecode(credentialResponse.credential);
     localStorage.setItem('user', JSON.stringify(decoded));
-    toast.success(
-      <div>
-        <h4>Đăng nhập thành công!</h4>
-        <p><strong>Tên:</strong> {decoded.name}</p>
-        <p><strong>Email:</strong> {decoded.email}</p>
-      </div>,
-      { position: "top-right", autoClose: 3000 }
-    );
+    // In ra console thông tin cần thiết
+    console.log('Tên:', decoded.name);
+    console.log('Email:', decoded.email);
+    console.log('Token:', credentialResponse.credential);
     setTimeout(() => {
       navigate('/');
     }, 3000);
