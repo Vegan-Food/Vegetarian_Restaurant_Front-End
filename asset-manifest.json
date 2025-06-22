@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/vegan-food/static/css/main.b2482f84.css",
+    "main.js": "/vegan-food/static/js/main.dee63f61.js",
+    "static/media/Logo.png": "/vegan-food/static/media/Logo.fd73dbc6dfc49b1f31eb.png",
+    "index.html": "/vegan-food/index.html",
+    "static/media/placeholder.svg": "/vegan-food/static/media/placeholder.382c01ffc0512924fd635ea439bbaf98.svg",
+    "main.b2482f84.css.map": "/vegan-food/static/css/main.b2482f84.css.map",
+    "main.dee63f61.js.map": "/vegan-food/static/js/main.dee63f61.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.b2482f84.css",
+    "static/js/main.dee63f61.js"
+  ]
+}
