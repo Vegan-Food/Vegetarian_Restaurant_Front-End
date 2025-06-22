@@ -1,20 +1,27 @@
-import { BrowserRouter } from 'react-router-dom';
-import { Routes, Route } from 'react-router-dom';
-import { CartProvider } from './context/CartContext';
-import CartAlert from './components/CartAlert';
-import CartPage from './pages/cart/CartPage';
-import PaymentPage from './pages/payment/PaymentPage';
-import ProfilePage from './pages/profile/ProfilePage';
-import ManagerDashboard from './pages/Manager/ManagerDashboard/ManagerDashboard';
+import { BrowserRouter } from "react-router-dom"
+import { Routes, Route } from "react-router-dom"
+import { CartProvider } from "./context/CartContext"
+import CartAlert from "./components/CartAlert"
+import CartPage from "./pages/cart/CartPage"
+import PaymentPage from "./pages/payment/PaymentPage"
+import ProfilePage from "./pages/profile/ProfilePage"
+import ManagerDashboard from "./pages/Manager/ManagerDashboard/ManagerDashboard"
 
-import ManagerProfile from './pages/Manager/ManagerProfile/ManagerProfile';
-import ManagerFoodList from './pages/Manager/FoodManagement/ManagerFoodList';
-import ManagerOrderList from './pages/Manager/ManagerOrderList/ManagerOrderList';
-import ManagerEditFoodPage from './pages/Manager/FoodManagement/ManagerEditFoodPage';
-import ManagerAddFoodPage from './pages/Manager/FoodManagement/ManagerAddFoodPage';
+import ManagerProfile from "./pages/Manager/ManagerProfile/ManagerProfile"
+import ManagerFoodList from "./pages/Manager/FoodManagement/ManagerFoodList"
+import ManagerOrderList from "./pages/Manager/ManagerOrderList/ManagerOrderList"
+import ManagerEditFoodPage from "./pages/Manager/FoodManagement/ManagerEditFoodPage"
+import ManagerAddFoodPage from "./pages/Manager/FoodManagement/ManagerAddFoodPage"
 
-import FoodDetail from './pages/foodDetail/FoodDetail';
-import Home from './pages/home/Home';
+// Staff Components
+import StaffDashboard from "./pages/Staff/StaffDashboard/StaffDashboard"
+import StaffOrderList from "./pages/Staff/StaffOrderList/StaffOrderList"
+import StaffFoodList from "./pages/Staff/StaffFoodList/StaffFoodList"
+import StaffSupport from "./pages/Staff/StaffSupport/StaffSupport"
+import StaffProfile from "./pages/Staff/StaffProfile/StaffProfile"
+
+import FoodDetail from "./pages/foodDetail/FoodDetail"
+import Home from "./pages/home/Home"
 
 function App() {
   return (
@@ -38,10 +45,16 @@ function App() {
           <Route path="/manager-edit-food/:id" element={<ManagerEditFoodPage />} />
           <Route path="/manager-add-food" element={<ManagerAddFoodPage />} />
 
+          {/* Staff Routes */}
+          <Route path="/staff-dashboard" element={<StaffDashboard />} />
+          <Route path="/staff-orders" element={<StaffOrderList />} />
+          <Route path="/staff-food" element={<StaffFoodList />} />
+          <Route path="/staff-support" element={<StaffSupport />} />
+          <Route path="/staff-profile" element={<StaffProfile />} />
         </Routes>
       </BrowserRouter>
     </CartProvider>
-  );
+  )
 }
 
-export default App;
+export default App
