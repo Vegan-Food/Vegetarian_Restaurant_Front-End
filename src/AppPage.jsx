@@ -18,6 +18,10 @@ import StaffOrderList from "./pages/Staff/StaffOrderList/StaffOrderList"
 import StaffFoodList from "./pages/Staff/StaffFoodList/StaffFoodList"
 import StaffSupport from "./pages/Staff/StaffSupport/StaffSupport"
 import StaffProfile from "./pages/Staff/StaffProfile/StaffProfile"
+import OwnerDashboard from './pages/Owner/OwnerDashboard/OwnerDashboard';
+import ManageCustomers from './pages/Owner/OwnerCustomer/ManageCustomers';
+import ManageOrders from './pages/Owner/OwnerOrders/ManageOrders';
+import ManageStaff from './pages/Owner/OwnerStaff/ManageStaff';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
 function App() {
@@ -47,6 +51,15 @@ function App() {
             <Route path="/staff-food" element={<StaffFoodList />} />
             <Route path="/staff-support" element={<StaffSupport />} />
             <Route path="/staff-profile" element={<StaffProfile />} />
+
+            {/* Route Owner */}
+            <Route path="/owner-dashboard" element={<OwnerDashboard />} />
+            <Route path="/owner-customermanagement" element={<ManageCustomers/>} />
+            <Route path="/owner-ordersmanagement" element={<ManageOrders/>} />
+            <Route path="/owner-staffmanagement" element={<ManageStaff/>} />
+
+
+            
           </Routes>
         </BrowserRouter>
       </CartProvider>
