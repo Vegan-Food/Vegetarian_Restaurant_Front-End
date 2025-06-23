@@ -114,6 +114,7 @@ body {
   flex-direction: column;
   gap: 20px;
   background: #f8fafc;
+  margin-left: 250px;
 }
 
 /* Overview Section - cải thiện */

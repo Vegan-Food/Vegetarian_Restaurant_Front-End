@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import Sidebar from "../OwnerSidebar/Sidebar.jsx"
+import Sidebar from "../OwnerSidebar/OwnerSidebar.jsx"
 import "./ManageCustomers.css"
 
 const ManageCustomers = () => {

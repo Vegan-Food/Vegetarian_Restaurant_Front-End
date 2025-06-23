@@ -97,7 +97,6 @@
   flex: 1;
   padding: 30px;
   overflow-y: auto;
-  margin-left: 240px; /* Thêm margin để tránh bị sidebar đè */
   min-height: 100vh;
 }
 

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./OwnerDashboard.css";
-import Sidebar from '../OwnerSidebar/Sidebar.jsx';
+import OwnerSidebar from '../OwnerSidebar/OwnerSidebar.jsx';
 
 
 // SVG icons as components
@@ -105,8 +105,7 @@ const OwnerDashboard = ({ pageTitle = "Dashboard", pageSubtitle = null }) => {
 
       {/* Full Width Header */}
       <header className="dashboard-header">
-        <Sidebar />
-
+        <OwnerSidebar />
         <div className="header-container">
           <div className="header-left">
             <h1 className="dashboard-title">{pageTitle}</h1>

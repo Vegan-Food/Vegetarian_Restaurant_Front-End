@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import "./Sidebar.css";
+import "./OwnerSidebar.css";
 
 const BarChart3 = ({ size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
