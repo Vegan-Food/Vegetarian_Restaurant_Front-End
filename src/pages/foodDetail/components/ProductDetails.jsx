@@ -112,24 +112,46 @@ const ProductDetails = () => {
               <div className="product-info">
                 {/* Category & Title */}
                 <div className="mb-4">
-                  <Badge bg="success" className="mb-3 px-3 py-2 fs-6 text-uppercase fw-bold">
+                  <span
+                    style={{
+                      background: '#347928',
+                      color: '#FFFFFF',
+                      border:'#347928',
+                      borderRadius: 20,
+                      fontWeight: 700,
+                      padding: '0.5rem 1.5rem',
+                      fontSize: '1rem',
+                      letterSpacing: 1,
+                      display: 'inline-block'
+                    }}
+                    className="mb-3 text-uppercase"
+                  >
                     {product.category}
-                  </Badge>
-                  <h1 className="display-4 fw-bold text-dark mb-3 lh-sm">{product.name}</h1>
+                  </span>
+                  <h1
+                    style={{
+                      color: product.name === 'Cơm chiên rau củ' ? '#000' : '#000000',
+                      fontWeight: 700,
+                      fontSize: '2.5rem'
+                    }}
+                    className="mb-3 lh-sm"
+                  >
+                    {product.name}
+                  </h1>
                 </div>
 
                 {/* Price */}
                 <div className="price-section mb-4">
-                  <div className="d-flex align-items-baseline mb-2">
-                    <h2 className="display-5 fw-bold text-danger me-3 mb-0">
+                  <div className="mb-2" style={{ textAlign: 'left', width: '100%' }}>
+                    <h2 style={{ color: '#e53e3e', fontWeight: 700, fontSize: '2rem', margin: 0 }}>
                       {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(product?.price || 0)}
                     </h2>
                   </div>
                 </div>
 
                 {/* Rating */}
-                <Card className="border-0 bg-warning bg-opacity-10 mb-4">
-                  <Card.Body className="p-3">
+                <Card className="mb-4" style={{ border: '1.5px solid #FCCD2A', boxShadow: '0 4px 18px 0 rgba(52, 121, 40, 0.10)', background: '#fff', borderRadius: 16 }}>
+                  <Card.Body className="p-3 rounded-3">
                     <Row className="align-items-center">
                       <Col xs="auto">
                         <div className="d-flex">
@@ -140,8 +162,9 @@ const ProductDetails = () => {
                             return (
                               <StarFill 
                                 key={index} 
-                                className={`me-1 ${isFilled ? 'text-warning' : 'text-muted'}`} 
-                                size={20} 
+                                className={`me-1`}
+                                size={20}
+                                style={{ color: isFilled ? '#FCCD2A' : '#E2E8F0' }}
                               />
                             )
                           })}
@@ -156,35 +179,29 @@ const ProductDetails = () => {
 
                 {/* Quantity & Actions */}
                 <Row className="g-3 mb-4">
-                  <Col md={6}>
-                    <div className="quantity-section">
-                      <label className="form-label fw-bold mb-2">Số lượng:</label>
-                      <ButtonGroup size="lg" className="w-100">
-                        <Button variant="outline-success" onClick={decrementQuantity} className="px-4">
-                          <Dash size={20} />
-                        </Button>
-                        <Button variant="outline-success" disabled className="px-4 fw-bold">
-                          {quantity}
-                        </Button>
-                        <Button variant="outline-success" onClick={incrementQuantity} className="px-4">
-                          <Plus size={20} />
-                        </Button>
-                      </ButtonGroup>
-                      <small className="text-muted d-block mt-2">
-                        Còn <span className="fw-bold text-success">{product?.stock_quantity || 0}</span> sản phẩm
-                      </small>
-                    </div>
-                  </Col>
-                  <Col md={6}>
-                    <div className="action-buttons">
-                      <label className="form-label fw-bold mb-2">Thao tác:</label>
+                  <Col md={12}>
+                    <div className="d-flex align-items-end gap-2">
+                      <div className="quantity-section flex-grow-1" style={{ maxWidth: 300 }}>
+                        <label className="form-label fw-bold mb-2">Số lượng:</label>
+                        <ButtonGroup size="lg" className="w-100">
+                          <Button variant="outline-success" onClick={decrementQuantity} className="px-3">
+                            <Dash size={18} />
+                          </Button>
+                          <Button variant="outline-success" disabled className="px-3 fw-bold">
+                            {quantity}
+                          </Button>
+                          <Button variant="outline-success" onClick={incrementQuantity} className="px-3">
+                            <Plus size={18} />
+                          </Button>
+                        </ButtonGroup>
+                      </div>
                       <Button 
-                        variant="success" 
                         size="lg" 
-                        className="w-100 py-3 fw-bold d-flex align-items-center justify-content-center gap-2" 
+                        className="py-2 px-4 fw-bold d-flex align-items-center justify-content-center gap-2 border-0" 
+                        style={{ minWidth: 180, background: '#FCCD2A', color: '#347928', borderRadius: 12, boxShadow: '0 2px 8px rgba(52,121,40,0.08)', fontWeight: 700 }}
                         onClick={handleAddToCart}
                       >
-                        <Cart size={24} />
+                        <Cart size={20} style={{ color: '#347928' }} />
                         Thêm vào giỏ
                       </Button>
                     </div>
@@ -201,43 +218,49 @@ const ProductDetails = () => {
         <Container>
           <Row>
             <Col lg={8}>
-              <Card className="border-0 shadow-sm">
-                <Card.Header className="bg-light border-0 py-3">
-                  <h4 className="mb-0 fw-bold">Thông tin chi tiết</h4>
+              <Card className="border-0 shadow-sm" style={{ borderLeft: '6px solid #347928', borderRadius: 16 }}>
+                <Card.Header className="border-0 py-3" style={{ background: '#347928', color: '#fff', borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
+                  <h5 className="mb-0 fw-bold" style={{ color: '#fff' }}>Thông tin chi tiết</h5>
                 </Card.Header>
                 <Card.Body className="p-4">
                   <ListGroup variant="flush">
-                    <ListGroup.Item className="border-0 px-0 py-3">
+                    <ListGroup.Item className="border-0 px-0 py-3" style={{ background: '#F8FAF5', borderRadius: 12, marginBottom: 10 }}>
                       <Row>
-                        <Col sm={4} className="fw-semibold text-muted">
+                        <Col sm={4} className="fw-semibold" style={{ color: '#347928' }}>
                           Danh mục:
                         </Col>
                         <Col sm={8}>
-                          <span className="text-dark">
+                          <span
+                            style={
+                              ["Gạo", "Ngũ cốc"].includes(product.category)
+                                ? { background: '#347928', color: '#fff', borderRadius: 8, padding: '4px 12px', display: 'inline-block' }
+                                : { color: '#2d3748' }
+                            }
+                          >
                             {product.category}
                           </span>
                         </Col>
                       </Row>
                     </ListGroup.Item>
-                    <ListGroup.Item className="border-0 px-0 py-3">
+                    <ListGroup.Item className="border-0 px-0 py-3" style={{ background: '#F8FAF5', borderRadius: 12, marginBottom: 10 }}>
                       <Row>
-                        <Col sm={4} className="fw-semibold text-muted">
+                        <Col sm={4} className="fw-semibold" style={{ color: '#347928' }}>
                           Tình trạng:
                         </Col>
                         <Col sm={8}>
-                          <span className="text-dark">
+                          <span style={{ color: '#2d3748' }}>
                             Còn hàng
                           </span>
                         </Col>
                       </Row>
                     </ListGroup.Item>
-                    <ListGroup.Item className="border-0 px-0 py-3">
+                    <ListGroup.Item className="border-0 px-0 py-3" style={{ background: '#F8FAF5', borderRadius: 12 }}>
                       <Row>
-                        <Col sm={4} className="fw-semibold text-muted">
+                        <Col sm={4} className="fw-semibold" style={{ color: '#347928' }}>
                           Mô tả:
                         </Col>
                         <Col sm={8}>
-                          <p className="mb-0 text-muted lh-base">{product.description}</p>
+                          <p className="mb-0" style={{ color: '#718096' }}>{product.description}</p>
                         </Col>
                       </Row>
                     </ListGroup.Item>
@@ -246,17 +269,17 @@ const ProductDetails = () => {
               </Card>
             </Col>
             <Col lg={4}>
-              <Card className="border-0 shadow-sm">
-                <Card.Header className="bg-success text-white border-0 py-3">
-                  <h5 className="mb-0 fw-bold">Chính sách bán hàng</h5>
+              <Card className="border-0 shadow-sm" style={{ borderLeft: '6px solid #347928', borderRadius: 16 }}>
+                <Card.Header className="border-0 py-3" style={{ background: '#347928', color: '#fff', borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
+                  <h5 className="mb-0 fw-bold" style={{ color: '#fff' }}>Chính sách bán hàng</h5>
                 </Card.Header>
                 <Card.Body className="p-4">
                   <ListGroup variant="flush">
-                    <ListGroup.Item className="border-0 px-0 py-2 d-flex align-items-center">
-                      <Truck className="text-success me-3" size={20} />
+                    <ListGroup.Item className="border-0 px-0 py-3 d-flex align-items-center" style={{ background: '#F8FAF5', borderRadius: 12 }}>
+                      <Truck className="me-3" size={20} style={{ color: '#347928' }} />
                       <div>
-                        <div className="fw-semibold">Miễn phí vận chuyển</div>
-                        <small className="text-muted">Đơn hàng từ 200.000đ</small>
+                        <div className="fw-semibold" style={{ color: '#347928' }}>Miễn phí vận chuyển</div>
+                        <small style={{ color: '#2d3748' }}>Đơn hàng từ 200.000đ</small>
                       </div>
                     </ListGroup.Item>
                   </ListGroup>

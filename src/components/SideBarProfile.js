@@ -13,12 +13,6 @@ const SideBar = [
     link: "/account/orders",
   },
   {
-    id: 3,
-    icon: "https://mcdn.coolmate.me/image/September2023/mceclip2_76.png",
-    title: "Sổ địa chỉ",
-    link: "/account/addresses",
-  },
-  {
     id: 4,
     icon: "https://mcdn.coolmate.me/image/September2023/mceclip4_6.png",
     title: "Đăng xuất",
