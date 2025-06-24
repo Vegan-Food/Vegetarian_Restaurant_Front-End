@@ -1,6 +1,6 @@
 import React from 'react';
 import './ManagerDashboard.css';
-import Sidebar from '../ManagerSidebar/Sidebar.jsx';
+import Sidebar from "../ManagerSidebar/ManagerSidebar.jsx"
 
 // Data
 const overviewData = [

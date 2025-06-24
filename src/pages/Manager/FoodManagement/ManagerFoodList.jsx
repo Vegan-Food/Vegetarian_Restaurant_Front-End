@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
-import Sidebar from "../ManagerSidebar/Sidebar.jsx"
+import Sidebar from "../ManagerSidebar/ManagerSidebar.jsx"
 import "./ManagerFoodList.css"
 
 const initialFoodList = [

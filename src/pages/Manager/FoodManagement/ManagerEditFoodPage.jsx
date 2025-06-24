@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import Sidebar from "../ManagerSidebar/Sidebar.jsx"
+import Sidebar from "../ManagerSidebar/ManagerSidebar.jsx"
 import "./EditFoodPage.css"
 
 const EditFoodPage = ({ foodIndex, foodData, onSave }) => {

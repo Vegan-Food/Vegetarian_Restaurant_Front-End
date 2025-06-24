@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './ManagerProfile.css';
-import Sidebar from '../ManagerSidebar/Sidebar.jsx';
+import Sidebar from "../ManagerSidebar/ManagerSidebar.jsx"
 
 const ManagerProfile = () => {
   const [profile] = useState({});
