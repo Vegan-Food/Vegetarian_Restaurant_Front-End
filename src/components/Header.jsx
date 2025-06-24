@@ -13,18 +13,6 @@ const Header = () => {
     navigate('/cart')
   }
 
-  const handleHomeClick = () => {
-    navigate('/')
-  }
-
-  const handleProfileClick = () => {
-    navigate('/account/profile')
-  }
-
-  const handleSignInClick = () => {
-    navigate('/login')
-  }
-
   return (
     <header className="main-header">
       <Navbar expand="lg" className="main-navbar">
@@ -32,9 +20,9 @@ const Header = () => {
           {/* Logo Section */}
           <Navbar.Brand href="/" className="brand-logo">
             <div className="logo-container">
-              <img
-                src={logoImage}
-                alt="Logo"
+              <img 
+                src={logoImage} 
+                alt="Logo" 
                 className="logo-image"
                 style={{ height: "80px", width: "auto", maxWidth: "200px" }}
               />
@@ -56,10 +44,10 @@ const Header = () => {
           <div className="search-section">
             <Form className="search-form">
               <InputGroup>
-                <Form.Control
-                  type="text"
-                  placeholder="Tìm kiếm món ăn chay..."
-                  className="search-input"
+                <Form.Control 
+                  type="text" 
+                  placeholder="Tìm kiếm món ăn chay..." 
+                  className="search-input" 
                 />
                 <Button variant="success" className="search-btn">
                   <Search size={18} />
@@ -75,8 +63,8 @@ const Header = () => {
               <span className="cart-text">Giỏ hàng</span>
               <span className="cart-badge">{getCartCount()}</span>
             </Button>
-
-            <Button variant="success" className="auth-btn" onClick={handleSignInClick}>
+            
+            <Button variant="success" className="auth-btn">
               <User size={16} className="me-2" />
               <span className="auth-text">Đăng nhập</span>
             </Button>

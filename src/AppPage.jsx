@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import CartAlert from './components/CartAlert';
+import Chatbot from './components/Chatbot';
 import CartPage from './pages/cart/CartPage';
 import PaymentPage from './pages/payment/PaymentPage';
 import ProfilePage from './pages/profile/ProfilePage';
@@ -19,6 +20,8 @@ import StaffFoodList from "./pages/Staff/StaffFoodList/StaffFoodList"
 import StaffSupport from "./pages/Staff/StaffSupport/StaffSupport"
 import StaffProfile from "./pages/Staff/StaffProfile/StaffProfile"
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import OrderHistory from './pages/orderHistory/OrderHistory';
+import OrderDetail from './pages/orderDetail/OrderDetail';
 
 function App() {
   return (
@@ -26,12 +29,15 @@ function App() {
       <CartProvider>
         <BrowserRouter>
           <CartAlert />
+          <Chatbot />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/payment" element={<PaymentPage />} />
             <Route path="/foodDetail/:productId" element={<FoodDetail />} />
             <Route path="/account/profile" element={<ProfilePage />} />
+            <Route path="/account/orders" element={<OrderHistory />} />
+            <Route path="/account/orders/:orderId" element={<OrderDetail />} />
             {/* Route Manager */}
             <Route path="/manager-dashboard" element={<ManagerDashboard />} />
             <Route path="/manager-profile" element={<ManagerProfile />} />
