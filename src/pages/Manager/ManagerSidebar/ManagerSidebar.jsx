@@ -2,10 +2,9 @@
 
 import { useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
-import "./Sidebar.css"
+import styles from "./ManagerSidebar.module.css"
 import Logo from "../../../assets/image/Logo.png"
 
-// Icon components
 const BarChart3 = ({ size = 24 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M3 3v18h18" />
@@ -45,7 +44,7 @@ const LogOut = ({ size = 24 }) => (
   </svg>
 )
 
-const Sidebar = () => {
+const ManagerSidebar = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const [activeItem, setActiveItem] = useState(location.pathname)
@@ -56,40 +55,40 @@ const Sidebar = () => {
   }
 
   return (
-    <aside className="sidebar">
-      <div className="sidebar-header">
-        <div className="logo-container">
-          <img src={Logo || "/placeholder.svg"} alt="Logo" className="logo" />
-          <div className="brand-info">
-            <span className="user-role">Manager</span>
+    <aside className={styles.sidebar}>
+      <div className={styles.sidebarHeader}>
+        <div className={styles.logoContainer}>
+          <img src={Logo || "/placeholder.svg"} alt="Logo" className={styles.logo} />
+          <div className={styles.brandInfo}>
+            <span className={styles.userRole}>Manager</span>
           </div>
         </div>
       </div>
-      <nav>
-        <ul>
+      <nav className={styles.nav}>
+        <ul className={styles.menuList}>
           <li
-            className={`menu-item ${activeItem === "/manager-dashboard" ? "active" : ""}`}
+            className={`${styles.menuItem} ${activeItem === "/manager-dashboard" ? styles.active : ""}`}
             onClick={() => handleItemClick("/manager-dashboard")}
           >
             <BarChart3 size={20} />
             <span>Dashboard</span>
           </li>
           <li
-            className={`menu-item ${activeItem === "/manager-food" ? "active" : ""}`}
+            className={`${styles.menuItem} ${activeItem === "/manager-food" ? styles.active : ""}`}
             onClick={() => handleItemClick("/manager-food")}
           >
             <UtensilsCrossed size={20} />
             <span>Food Management</span>
           </li>
           <li
-            className={`menu-item ${activeItem === "/manager-orders" ? "active" : ""}`}
+            className={`${styles.menuItem} ${activeItem === "/manager-orders" ? styles.active : ""}`}
             onClick={() => handleItemClick("/manager-orders")}
           >
             <ShoppingCart size={20} />
             <span>Order Management</span>
           </li>
           <li
-            className={`menu-item ${activeItem === "/manager-profile" ? "active" : ""}`}
+            className={`${styles.menuItem} ${activeItem === "/manager-profile" ? styles.active : ""}`}
             onClick={() => handleItemClick("/manager-profile")}
           >
             <User size={20} />
@@ -97,9 +96,8 @@ const Sidebar = () => {
           </li>
         </ul>
 
-        {/* Logout button */}
         <button
-          className={`logout-btn ${activeItem === "/manager-logout" ? "active" : ""}`}
+          className={`${styles.logoutBtn} ${activeItem === "/manager-logout" ? styles.active : ""}`}
           onClick={() => handleItemClick("/manager-logout")}
         >
           <LogOut size={20} />
@@ -110,4 +108,4 @@ const Sidebar = () => {
   )
 }
 
-export default Sidebar
+export default ManagerSidebar

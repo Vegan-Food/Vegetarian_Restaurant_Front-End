@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import Sidebar from "../ManagerSidebar/Sidebar.jsx"
+import Sidebar from "../ManagerSidebar/ManagerSidebar.jsx"
 import "./ManagerOrderList.css"
 
 const sampleOrders = [

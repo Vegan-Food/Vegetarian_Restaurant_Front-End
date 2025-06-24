@@ -14,70 +14,75 @@
   overflow-y: auto;
 }
 
-/* Sidebar Header với Logo */
-.sidebar-header {
+.sidebarHeader {
   margin-bottom: 24px;
   padding-bottom: 16px;
   border-bottom: 2px solid rgba(255, 255, 255, 0.1);
 }
 
-.logo-container {
+.logoContainer {
   display: flex;
-  flex-direction: column; /* Thay đổi thành column để logo ở trên, MANAGER ở dưới */
-  align-items: center; /* Căn giữa */
+  flex-direction: column;
+  align-items: center;
   gap: 8px;
 }
 
 .logo {
-  width: 80px; /* Tăng kích thước logo */
-  height: 80px; /* Tăng kích thước logo */
-  border-radius: 12px; /* Tăng border radius */
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
   object-fit: cover;
   border: 2px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Tăng shadow */
-  /* Background màu trắng cho logo */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   background-color: white;
-  padding: 8px; /* Tăng padding */
+  padding: 8px;
+  transition: all 0.3s ease;
 }
 
-.brand-info {
+.logo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+  background-color: white;
+}
+
+.brandInfo {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  align-items: center; /* Căn giữa */
+  align-items: center;
 }
 
-/* Xóa style cho h2 vì không còn dùng */
-.sidebar h2 {
-  display: none; /* Ẩn hoàn toàn */
-}
-
-.user-role {
-  color: rgba(255, 255, 255, 0.9); /* Tăng độ sáng */
-  font-size: 0.85rem; /* Tăng font size một chút */
-  font-weight: 600; /* Tăng font weight */
+.userRole {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.85rem;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 1px;
-  background: rgba(255, 255, 255, 0.15); /* Tăng độ sáng background */
-  padding: 4px 12px; /* Tăng padding */
+  background: rgba(255, 255, 255, 0.15);
+  padding: 4px 12px;
   border-radius: 12px;
   text-align: center;
 }
 
-.sidebar nav {
+.userRole:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+}
+
+.nav {
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
-.sidebar ul {
+.menuList {
   list-style: none;
   padding: 0;
   margin: 0;
   flex-grow: 1;
 }
 
-.sidebar .menu-item {
+.menuItem {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -92,7 +97,7 @@
   position: relative;
 }
 
-.sidebar .menu-item:hover {
+.menuItem:hover {
   background: rgba(255, 255, 255, 0.15);
   color: white;
   font-weight: 600;
@@ -100,28 +105,19 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
 }
 
-.sidebar .menu-item.active {
+.menuItem.active {
   background: rgba(255, 255, 255, 0.25);
   color: white;
   font-weight: 600;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
-.sidebar .menu-item:active {
+.menuItem:active {
   background: rgba(255, 255, 255, 0.25);
   transform: translateX(2px);
 }
 
-.sidebar .menu-item svg {
-  flex-shrink: 0;
-  vertical-align: middle;
-  stroke-width: 2;
-  color: inherit;
-  width: 18px;
-  height: 18px;
-}
-
-.sidebar .logout-btn {
+.logoutBtn {
   padding: 12px 16px;
   color: white;
   background: rgba(255, 255, 255, 0.1);
@@ -139,7 +135,7 @@
   text-align: left;
 }
 
-.sidebar .logout-btn:hover {
+.logoutBtn:hover {
   background: rgba(255, 255, 255, 0.2);
   border-color: rgba(255, 255, 255, 0.4);
   font-weight: 600;
@@ -147,22 +143,13 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-.sidebar .logout-btn.active {
+.logoutBtn.active {
   background: rgba(255, 255, 255, 0.25);
   border-color: rgba(255, 255, 255, 0.4);
   font-weight: 600;
 }
 
-.sidebar .logout-btn svg {
-  flex-shrink: 0;
-  vertical-align: middle;
-  stroke-width: 2;
-  color: inherit;
-  width: 18px;
-  height: 18px;
-}
-
-/* Responsive Design */
+/* Responsive */
 @media (max-width: 768px) {
   .sidebar {
     width: 100%;
@@ -172,27 +159,26 @@
   }
 
   .logo {
-    width: 60px; /* Giảm kích thước cho mobile */
+    width: 60px;
     height: 60px;
     padding: 6px;
   }
 
-  .user-role {
+  .userRole {
     font-size: 0.75rem;
   }
 
-  .sidebar .menu-item {
+  .menuItem {
     padding: 10px 14px;
     font-size: 13px;
   }
 
-  .sidebar .logout-btn {
+  .logoutBtn {
     padding: 10px 14px;
     font-size: 13px;
   }
 }
 
-/* Custom scrollbar cho sidebar */
 .sidebar::-webkit-scrollbar {
   width: 6px;
 }
@@ -209,40 +195,4 @@
 
 .sidebar::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.5);
-}
-
-/* Đảm bảo main content có margin để không bị che bởi sidebar */
-.dashboard-container {
-  display: flex;
-}
-
-.main-content {
-  margin-left: 240px;
-  flex: 1;
-  min-height: 100vh;
-}
-
-/* Mobile responsive cho main content */
-@media (max-width: 768px) {
-  .main-content {
-    margin-left: 0;
-  }
-}
-
-/* Animation cho logo với background trắng */
-.logo {
-  transition: all 0.3s ease;
-}
-
-.logo:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-  /* Giữ background trắng khi hover */
-  background-color: white;
-}
-
-/* Hover effect cho user role */
-.brand-info:hover .user-role {
-  background: rgba(255, 255, 255, 0.25);
-  transform: scale(1.05);
 }
