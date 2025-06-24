@@ -5,7 +5,7 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import Chatbot from '../../components/Chatbot';
 
-const PaymentPage = () => {
+const OrderPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const cartItems = location.state?.cartItems || [];
@@ -337,4 +337,4 @@ const PaymentPage = () => {
     );
 };
 
-export default PaymentPage;
+export default OrderPage;

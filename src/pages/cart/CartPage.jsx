@@ -30,7 +30,7 @@ const CartSummary = ({ subtotal, shippingFee = 30000, cartItems }) => {
   const navigate = useNavigate();
 
   const handleCheckout = () => {
-    navigate('/payment', {
+    navigate('/cart/order', {
       state: {
         cartItems,
         subtotal,

@@ -13,6 +13,10 @@ const Header = () => {
     navigate('/cart')
   }
 
+  const handleLoginClick = () => {
+    navigate('/login')
+  }
+
   return (
     <header className="main-header">
       <Navbar expand="lg" className="main-navbar">
@@ -63,8 +67,7 @@ const Header = () => {
               <span className="cart-text">Giỏ hàng</span>
               <span className="cart-badge">{getCartCount()}</span>
             </Button>
-            
-            <Button variant="success" className="auth-btn">
+            <Button variant="success" className="auth-btn" onClick={handleLoginClick}>
               <User size={16} className="me-2" />
               <span className="auth-text">Đăng nhập</span>
             </Button>
