@@ -27,6 +27,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import OrderHistory from './pages/orderHistory/OrderHistory';
 import OrderDetail from './pages/orderDetail/OrderDetail';
 import Payment from './pages/payment/Payment';
+import BillPage from './pages/bill/BillPage';
 
 function App() {
   return (
@@ -45,6 +46,8 @@ function App() {
             <Route path="/account/orders/:orderId" element={<OrderDetail />} />
             <Route path="/order" element={<OrderHistory />} />
             <Route path="/cart/order/payment" element={<Payment />} />
+            <Route path="/billing" element={<BillPage />} />
+
             {/* Route Manager */}
             <Route path="/manager-dashboard" element={<ManagerDashboard />} />
             <Route path="/manager-profile" element={<ManagerProfile />} />

@@ -57,12 +57,12 @@ const Carousels = () => {
 
   return (
     <div className="hero-banner">
-      <Carousel 
-        activeIndex={index} 
-        onSelect={handleSelect} 
-        interval={5000} 
-        fade 
-        controls={false} 
+      <Carousel
+        activeIndex={index}
+        onSelect={handleSelect}
+        interval={5000}
+        fade
+        controls={false}
         indicators={false}
         className="modern-carousel"
       >
@@ -76,23 +76,30 @@ const Carousels = () => {
                   <div className="banner-badge">
                     <span>{slide.badge}</span>
                   </div>
-                  
+
                   {/* Title */}
                   <h2 className="banner-title">{slide.title}</h2>
-                  
+
                   {/* Subtitle */}
                   <p className="banner-subtitle">{slide.subtitle}</p>
-                  
+
                   {/* Features */}
                   <div className="banner-features">
-                    {slide.features.map((feature, idx) => (
-                      <div key={idx} className="feature-item">
-                        <Star size={16} />
-                        <span>{feature}</span>
-                      </div>
-                    ))}
+                    {slide.features.map((feature, idx) => {
+                      let Icon = Star;
+                      if (idx === 1) Icon = Clock;
+                      if (idx === 2) Icon = Truck;
+                      return (
+                        <div key={idx} className="feature-item">
+                          <Icon size={16} color={"#A19700FF"} />
+                          <span style={{ color: '#388e3c', marginLeft: 6 }}>
+                            {feature}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
-                  
+
                   {/* CTA Button */}
                   <div className="banner-actions">
                     <a href={slide.link} className="banner-btn primary">
@@ -108,16 +115,16 @@ const Carousels = () => {
           </Carousel.Item>
         ))}
       </Carousel>
-      
+
       {/* Custom Navigation */}
       <div className="carousel-navigation">
-        <button 
-          className="nav-btn prev-btn" 
+        <button
+          className="nav-btn prev-btn"
           onClick={() => setIndex(index === 0 ? bannerSlides.length - 1 : index - 1)}
         >
           <ChevronLeft size={24} />
         </button>
-        
+
         <div className="carousel-indicators-custom">
           {bannerSlides.map((_, idx) => (
             <button
@@ -127,9 +134,9 @@ const Carousels = () => {
             />
           ))}
         </div>
-        
-        <button 
-          className="nav-btn next-btn" 
+
+        <button
+          className="nav-btn next-btn"
           onClick={() => setIndex(index === bannerSlides.length - 1 ? 0 : index + 1)}
         >
           <ChevronRight size={24} />
