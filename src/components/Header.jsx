@@ -1,4 +1,5 @@
-import { Container, Navbar, Form, InputGroup, Button, Nav } from "react-bootstrap"
+import React, { useEffect, useState } from "react"
+import { Container, Navbar, Form, InputGroup, Button } from "react-bootstrap"
 import { Search, User, Phone, ShoppingCart } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { useCart } from "../context/CartContext"
@@ -8,6 +9,20 @@ import logoImage from "../assets/image/Logo.png"
 const Header = () => {
   const navigate = useNavigate()
   const { getCartCount } = useCart()
+  const [user, setUser] = useState(null)
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user")
+    if (userData) setUser(JSON.parse(userData))
+    else setUser(null)
+  }, [])
+
+  // Đăng xuất (nếu muốn)
+  const handleLogout = () => {
+    localStorage.removeItem("user")
+    setUser(null)
+    navigate("/login")
+  }
 
   const handleCartClick = () => {
     navigate('/cart')
@@ -67,10 +82,24 @@ const Header = () => {
               <span className="cart-text">Giỏ hàng</span>
               <span className="cart-badge">{getCartCount()}</span>
             </Button>
-            <Button variant="success" className="auth-btn" onClick={handleLoginClick}>
-              <User size={16} className="me-2" />
-              <span className="auth-text">Đăng nhập</span>
-            </Button>
+            {!user ? (
+              <Button variant="success" className="auth-btn" onClick={handleLoginClick}>
+                <User size={16} className="me-2" />
+                <span className="auth-text">Đăng nhập</span>
+              </Button>
+            ) : (
+              <div className="d-inline-flex align-items-center ms-2">
+                <img
+                  src={user.picture || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
+                  alt="avatar"
+                  style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover", marginRight: 8 }}
+                />
+                <span className="me-2 fw-bold">{user.name || "User"}</span>
+                <Button variant="outline-danger" size="sm" onClick={handleLogout}>
+                  Đăng xuất
+                </Button>
+              </div>
+            )}
           </div>
         </Container>
       </Navbar>
