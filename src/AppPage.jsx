@@ -27,6 +27,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import OrderHistory from './pages/orderHistory/OrderHistory';
 import OrderDetail from './pages/orderDetail/OrderDetail';
 import BillPage from './pages/bill/BillPage';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
@@ -37,14 +38,41 @@ function App() {
           <Chatbot />
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/cart/order" element={<OrderPage />} />
+            <Route path="/cart" element={
+              <ProtectedRoute>
+                <CartPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/cart/order" element={
+              <ProtectedRoute>
+                <OrderPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/billing" element={
+              <ProtectedRoute>
+                <BillPage />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/account/profile" element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/account/orders" element={
+              <ProtectedRoute>
+                <OrderHistory />
+              </ProtectedRoute>
+            } />
+
+            <Route path="/account/orders/:orderId" element={
+              <ProtectedRoute>
+                <OrderDetail />
+              </ProtectedRoute>
+            } />
+            
             <Route path="/foodDetail/:productId" element={<FoodDetail />} />
-            <Route path="/account/profile" element={<ProfilePage />} />
-            <Route path="/account/orders" element={<OrderHistory />} />
-            <Route path="/account/orders/:orderId" element={<OrderDetail />} />
-            <Route path="/order" element={<OrderHistory />} />
-            <Route path="/billing" element={<BillPage />} />
 
             {/* Route Manager */}
             <Route path="/manager-dashboard" element={<ManagerDashboard />} />
@@ -64,12 +92,12 @@ function App() {
 
             {/* Route Owner */}
             <Route path="/owner-dashboard" element={<OwnerDashboard />} />
-            <Route path="/owner-customermanagement" element={<ManageCustomers/>} />
-            <Route path="/owner-ordersmanagement" element={<ManageOrders/>} />
-            <Route path="/owner-staffmanagement" element={<ManageStaff/>} />
+            <Route path="/owner-customermanagement" element={<ManageCustomers />} />
+            <Route path="/owner-ordersmanagement" element={<ManageOrders />} />
+            <Route path="/owner-staffmanagement" element={<ManageStaff />} />
 
 
-            
+
           </Routes>
         </BrowserRouter>
       </CartProvider>

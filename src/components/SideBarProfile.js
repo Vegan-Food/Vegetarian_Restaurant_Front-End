@@ -12,12 +12,6 @@ const SideBar = [
     title: "Lịch sử đơn hàng",
     link: "/account/orders",
   },
-  {
-    id: 4,
-    icon: "https://mcdn.coolmate.me/image/September2023/mceclip4_6.png",
-    title: "Đăng xuất",
-    link: "/logout",
-  },
 ];
 
 export default SideBar;

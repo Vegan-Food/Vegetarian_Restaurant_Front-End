@@ -92,9 +92,16 @@ const Header = () => {
                 <img
                   src={user.picture || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
                   alt="avatar"
-                  style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover", marginRight: 8 }}
+                  style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover", marginRight: 8, cursor: "pointer" }}
+                  onClick={() => navigate("/account/profile")}
                 />
-                <span className="me-2 fw-bold">{user.name || "User"}</span>
+                <span
+                  className="me-2 fw-bold"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => navigate("/account/profile")}
+                >
+                  {user.name || "User"}
+                </span>
                 <Button variant="outline-danger" size="sm" onClick={handleLogout}>
                   Đăng xuất
                 </Button>
