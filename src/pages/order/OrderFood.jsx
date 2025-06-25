@@ -6,6 +6,8 @@ import Footer from '../../components/Footer';
 import Chatbot from '../../components/Chatbot';
 
 const OrderPage = () => {
+    const [setLoading] = useState(false);
+
     const navigate = useNavigate();
     const location = useLocation();
     const cartItems = location.state?.cartItems || [];
@@ -43,15 +45,41 @@ const OrderPage = () => {
         setSelectedPayment(e.target.value);
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        navigate('/confirmation');
+    const handleSubmit = async () => {
+        setLoading(true);
+        try {
+            // Gọi trực tiếp PayOS API demo (chỉ dùng cho demo, không bảo mật)
+            const response = await fetch('https://api-merchant.payos.vn/v2/payment-requests', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-client-id': process.env.REACT_APP_PAYOS_CLIENT_ID,
+                    'x-api-key': process.env.REACT_APP_PAYOS_API_KEY,
+                },
+                body: JSON.stringify({
+                    orderCode: Math.floor(Math.random() * 1000000000), // mã đơn hàng random
+                    amount: 250000,
+                    description: 'Thanh toán đơn hàng Vegetarian Restaurant',
+                    returnUrl: window.location.origin + '/account/orders', // sau khi thanh toán xong sẽ chuyển về đây
+                    cancelUrl: window.location.href,
+                }),
+            });
+            const data = await response.json();
+            if (data.data && data.data.checkoutUrl) {
+                window.open(data.data.checkoutUrl, '_blank');
+            } else {
+                alert('Không lấy được link thanh toán PayOS!');
+            }
+        } catch (err) {
+            alert('Có lỗi khi kết nối PayOS!');
+        }
+        setLoading(false);
     };
 
     return (
         <div className="d-flex flex-column min-vh-100" style={{ paddingTop: '105px' }}>
             <Header />
-            <Container className="py-4 flex-grow-1" style={{ marginTop: '20px'  }}>
+            <Container className="py-4 flex-grow-1" style={{ marginTop: '20px' }}>
                 <div className="d-flex justify-content-between align-items-start">
                     {/* Left Side - Form */}
                     <div className="w-75 pe-4">
@@ -323,7 +351,16 @@ const OrderPage = () => {
                             <Button
                                 variant="primary"
                                 size="lg"
-                                onClick={handleSubmit}
+                                onClick={() => {
+                                    if (selectedPayment === 'vnpay') {
+                                        handleSubmit();
+                                    } else {
+                                        alert("Đặt món thành công! Bạn sẽ thanh toán khi nhận món.");
+                                        navigate('/billing', {
+                                            state: { success: true, message: 'Đặt món thành công!' }
+                                        });
+                                    }
+                                }}
                             >
                                 Đặt món
                             </Button>
