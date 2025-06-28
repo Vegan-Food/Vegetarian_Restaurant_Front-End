@@ -31,9 +31,9 @@ const StaffDashboard = () => {
   }
 
   return (
-    <div className="d-flex">
+    <div className="dashboard-container">
       <StaffSidebar />
-      <div className="flex-grow-1" style={{ backgroundColor: appTheme.background }}>
+      <div className="main-content" style={{ backgroundColor: appTheme.background }}>
         <Container fluid className="p-4">
           <Row className="mb-4">
             <Col>

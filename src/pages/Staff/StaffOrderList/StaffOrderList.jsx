@@ -75,9 +75,9 @@ const StaffOrderList = () => {
   }
 
   return (
-    <div className="d-flex">
+    <div className="dashboard-container">
       <StaffSidebar />
-      <div className="flex-grow-1" style={{ backgroundColor: appTheme.background }}>
+      <div className="main-content" style={{ backgroundColor: appTheme.background }}>
         <Container fluid className="p-4">
           <Row className="mb-4">
             <Col>
@@ -142,54 +142,54 @@ const StaffOrderList = () => {
             </Col>
           </Row>
         </Container>
+
+        {/* Status Update Modal */}
+        <Modal show={showModal} onHide={() => setShowModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Update Order Status</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {selectedOrder && (
+              <div>
+                <p>
+                  <strong>Order:</strong> {selectedOrder.id}
+                </p>
+                <p>
+                  <strong>Customer:</strong> {selectedOrder.customer}
+                </p>
+                <p>
+                  <strong>Current Status:</strong> {getStatusBadge(selectedOrder.status)}
+                </p>
+
+                <Form.Group className="mt-3">
+                  <Form.Label>New Status</Form.Label>
+                  <Form.Select id="statusSelect">
+                    <option value="Pending">Pending</option>
+                    <option value="Preparing">Preparing</option>
+                    <option value="Ready">Ready</option>
+                    <option value="Delivering">Delivering</option>
+                    <option value="Completed">Completed</option>
+                  </Form.Select>
+                </Form.Group>
+              </div>
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => {
+                const newStatus = document.getElementById("statusSelect").value
+                handleStatusUpdate(selectedOrder.id, newStatus)
+              }}
+            >
+              Update Status
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </div>
-
-      {/* Status Update Modal */}
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Update Order Status</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {selectedOrder && (
-            <div>
-              <p>
-                <strong>Order:</strong> {selectedOrder.id}
-              </p>
-              <p>
-                <strong>Customer:</strong> {selectedOrder.customer}
-              </p>
-              <p>
-                <strong>Current Status:</strong> {getStatusBadge(selectedOrder.status)}
-              </p>
-
-              <Form.Group className="mt-3">
-                <Form.Label>New Status</Form.Label>
-                <Form.Select id="statusSelect">
-                  <option value="Pending">Pending</option>
-                  <option value="Preparing">Preparing</option>
-                  <option value="Ready">Ready</option>
-                  <option value="Delivering">Delivering</option>
-                  <option value="Completed">Completed</option>
-                </Form.Select>
-              </Form.Group>
-            </div>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Cancel
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => {
-              const newStatus = document.getElementById("statusSelect").value
-              handleStatusUpdate(selectedOrder.id, newStatus)
-            }}
-          >
-            Update Status
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </div>
   )
 }

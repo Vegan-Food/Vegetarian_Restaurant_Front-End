@@ -85,9 +85,9 @@ const StaffSupport = () => {
   }
 
   return (
-    <div className="d-flex">
+    <div className="dashboard-container">
       <StaffSidebar />
-      <div className="flex-grow-1" style={{ backgroundColor: appTheme.background }}>
+      <div className="main-content" style={{ backgroundColor: appTheme.background }}>
         <Container fluid className="p-4">
           <Row className="mb-4">
             <Col>
@@ -188,61 +188,61 @@ const StaffSupport = () => {
             </Col>
           </Row>
         </Container>
+
+        {/* Response Modal */}
+        <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
+          <Modal.Header closeButton>
+            <Modal.Title>Respond to Support Request</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {selectedTicket && (
+              <div>
+                <p>
+                  <strong>Ticket:</strong> {selectedTicket.id}
+                </p>
+                <p>
+                  <strong>Customer:</strong> {selectedTicket.customer}
+                </p>
+                <p>
+                  <strong>Subject:</strong> {selectedTicket.subject}
+                </p>
+                <p>
+                  <strong>Description:</strong> {selectedTicket.description}
+                </p>
+
+                <Form.Group className="mt-3">
+                  <Form.Label>Response</Form.Label>
+                  <Form.Control as="textarea" rows={4} placeholder="Type your response here..." />
+                </Form.Group>
+
+                <Form.Group className="mt-3">
+                  <Form.Label>Update Status</Form.Label>
+                  <Form.Select id="ticketStatusSelect">
+                    <option value="Open">Open</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Resolved">Resolved</option>
+                    <option value="Closed">Closed</option>
+                  </Form.Select>
+                </Form.Group>
+              </div>
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => {
+                const newStatus = document.getElementById("ticketStatusSelect").value
+                handleStatusUpdate(selectedTicket.id, newStatus)
+              }}
+            >
+              Send Response
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </div>
-
-      {/* Response Modal */}
-      <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>Respond to Support Request</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {selectedTicket && (
-            <div>
-              <p>
-                <strong>Ticket:</strong> {selectedTicket.id}
-              </p>
-              <p>
-                <strong>Customer:</strong> {selectedTicket.customer}
-              </p>
-              <p>
-                <strong>Subject:</strong> {selectedTicket.subject}
-              </p>
-              <p>
-                <strong>Description:</strong> {selectedTicket.description}
-              </p>
-
-              <Form.Group className="mt-3">
-                <Form.Label>Response</Form.Label>
-                <Form.Control as="textarea" rows={4} placeholder="Type your response here..." />
-              </Form.Group>
-
-              <Form.Group className="mt-3">
-                <Form.Label>Update Status</Form.Label>
-                <Form.Select id="ticketStatusSelect">
-                  <option value="Open">Open</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Resolved">Resolved</option>
-                  <option value="Closed">Closed</option>
-                </Form.Select>
-              </Form.Group>
-            </div>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Cancel
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => {
-              const newStatus = document.getElementById("ticketStatusSelect").value
-              handleStatusUpdate(selectedTicket.id, newStatus)
-            }}
-          >
-            Send Response
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </div>
   )
 }
