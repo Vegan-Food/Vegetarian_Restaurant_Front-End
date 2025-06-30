@@ -13,7 +13,7 @@ import ManagerEditFoodPage from './pages/Manager/FoodManagement/ManagerEditFoodP
 import ManagerAddFoodPage from './pages/Manager/FoodManagement/ManagerAddFoodPage';
 import FoodDetail from './pages/foodDetail/FoodDetail';
 import Home from './pages/home/Home';
-import Login from './pages/auth/Login';
+import Login from './pages/auth/login';
 import StaffDashboard from "./pages/Staff/StaffDashboard/StaffDashboard"
 import StaffOrderList from "./pages/Staff/StaffOrderList/StaffOrderList"
 import StaffFoodList from "./pages/Staff/StaffFoodList/StaffFoodList"
