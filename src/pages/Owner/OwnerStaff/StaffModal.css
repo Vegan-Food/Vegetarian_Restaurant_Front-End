@@ -1,0 +1,126 @@
+/* Nền mờ sáng, phủ toàn màn hình */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.6) !important;
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+/* Hộp chứa nội dung modal */
+.modal-box {
+  background-color: #ffffff !important;
+  border-radius: 12px;
+  padding: 24px 32px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  animation: zoomIn 0.3s ease;
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;
+}
+
+/* Tiêu đề */
+.modal-box h2 {
+  font-size: 22px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+}
+
+/* Các dòng thông tin */
+.modal-box p,
+.modal-box label {
+  font-size: 16px;
+  margin: 10px 0;
+  color: #333;
+}
+
+/* Input nhập liệu */
+.modal-box input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-top: 6px;
+  margin-bottom: 12px;
+}
+
+/* Vùng chứa các nút */
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* Nút mặc định */
+.btn-close,
+.btn-save,
+.btn-cancel {
+  flex: 1;
+  padding: 10px 16px;
+  font-size: 15px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: white;
+  transition: all 0.2s ease;
+}
+
+/* Nút Close với chữ rõ ràng */
+.btn-close {
+  background-color: #3b82f6;
+  position: relative;
+}
+.btn-close::before {
+  content: "Close"; /* Thay đổi thành chữ "Close" rõ ràng */
+  font-size: 16px; /* Tăng kích thước chữ */
+  font-weight: 500; /* Điều chỉnh độ đậm */
+  z-index: 1;
+}
+.btn-close:hover {
+  background-color: #2563eb;
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.4);
+}
+
+/* Nút Save */
+.btn-save {
+  background-color: #10b981;
+}
+.btn-save:hover {
+  background-color: #059669;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+}
+
+/* Nút Cancel */
+.btn-cancel {
+  background-color: #ef4444;
+}
+.btn-cancel:hover {
+  background-color: #dc2626;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
+}
+
+/* Hiệu ứng mở */
+@keyframes zoomIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
