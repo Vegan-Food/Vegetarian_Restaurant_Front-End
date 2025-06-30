@@ -100,14 +100,6 @@ const ManageOrders = () => {
         <Sidebar />
         <div className="header-container">
           <div className="header-left">
-            <h1 className="dashboard-title">Order Management</h1>
-            <p className="page-subtitle">Track and manage customer orders</p>
-          </div>
-          <div className="header-right">
-            <div className="welcome-badge">Welcome back, Admin</div>
-            <button className="logout-btn" onClick={handleLogout}>
-              Log Out
-            </button>
           </div>
         </div>
       </header>
@@ -116,7 +108,7 @@ const ManageOrders = () => {
       <div className="dashboard-content main-content">
         <div className="manage-orders">
           {/* Order Stats */}
-<div className="stats-row">
+          <div className="stats-row">
             {[
               { label: "Total Orders", value: orders.length, color: "blue" },
               { label: "Pending", value: orders.filter((o) => o.status === "Pending").length, color: "orange" },
@@ -185,7 +177,7 @@ const ManageOrders = () => {
                   {filteredOrders.map((order) => (
                     <tr key={order.id} className="table-row">
                       <td>
-<div className="order-id">#{order.id}</div>
+                        <div className="order-id">#{order.id}</div>
                       </td>
                       <td>
                         <div className="customer-name">{order.customer}</div>

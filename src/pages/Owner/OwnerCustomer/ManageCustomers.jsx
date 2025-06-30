@@ -68,14 +68,6 @@ const ManageCustomers = () => {
         <Sidebar />
         <div className="header-container">
           <div className="header-left">
-            <h1 className="dashboard-title">Customer Management</h1>
-            <p className="page-subtitle">Manage your restaurant customers</p>
-          </div>
-          <div className="header-right">
-            <div className="welcome-badge">Welcome back, Admin</div>
-            <button className="logout-btn" onClick={handleLogout}>
-              Log Out
-            </button>
           </div>
         </div>
       </header>
@@ -106,7 +98,7 @@ const ManageCustomers = () => {
           </div>
 
           {/* Customer Stats */}
-<div className="stats-row">
+          <div className="stats-row">
             {[
               { label: "Total Customers", value: customers.length, color: "blue" },
               {
@@ -175,7 +167,7 @@ const ManageCustomers = () => {
                         </div>
                       </td>
                       <td>
-<div className="contact-info">
+                        <div className="contact-info">
                           <span className="contact-icon">📍</span>
                           <span className="contact-text address-text">{customer.address}</span>
                         </div>

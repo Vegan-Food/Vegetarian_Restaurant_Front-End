@@ -29,7 +29,6 @@
 
 @media (min-width: 1025px) {
   .sidebar {
-    position: static;
     transform: translateX(0) !important; /* Luôn hiển thị trên desktop */
   }
 }

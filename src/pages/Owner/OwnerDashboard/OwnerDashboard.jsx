@@ -112,12 +112,6 @@ const OwnerDashboard = ({ pageTitle = "Dashboard", pageSubtitle = null }) => {
             <h1 className="dashboard-title">{pageTitle}</h1>
             {pageSubtitle && <p className="page-subtitle">{pageSubtitle}</p>}
           </div>
-          <div className="header-right">
-            <div className="welcome-badge">Welcome back, Admin</div>
-            <button className="logout-btn" onClick={() => { localStorage.removeItem("token"); navigate("/login"); }}>
-              Log Out
-            </button>
-          </div>
         </div>
       </header>
 
@@ -269,4 +263,4 @@ const OwnerDashboard = ({ pageTitle = "Dashboard", pageSubtitle = null }) => {
   );
 };
 
-export default OwnerDashboard
+export default OwnerDashboard;

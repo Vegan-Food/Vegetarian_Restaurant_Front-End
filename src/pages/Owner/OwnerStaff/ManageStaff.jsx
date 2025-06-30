@@ -69,14 +69,6 @@ const ManageStaff = () => {
         <Sidebar />
         <div className="header-container">
           <div className="header-left">
-            <h1 className="dashboard-title">Staff Management</h1>
-            <p className="page-subtitle">Manage your restaurant staff members</p>
-          </div>
-          <div className="header-right">
-            <div className="welcome-badge">Welcome back, Admin</div>
-            <button className="logout-btn" onClick={handleLogout}>
-              Log Out
-            </button>
           </div>
         </div>
       </header>
@@ -99,7 +91,7 @@ const ManageStaff = () => {
               { label: "Active", value: staffMembers.filter((s) => s.status === "Active").length, color: "green" },
               {
                 label: "Kitchen Staff",
-value: staffMembers.filter((s) => s.department === "Kitchen").length,
+                value: staffMembers.filter((s) => s.department === "Kitchen").length,
                 color: "purple",
               },
               {
@@ -173,7 +165,7 @@ value: staffMembers.filter((s) => s.department === "Kitchen").length,
                           </span>
                         </div>
                       </td>
-<td>
+                      <td>
                         <div className="contact-info">
                           <span className="contact-icon">📧</span>
                           <span className="contact-text">{staff.email}</span>
