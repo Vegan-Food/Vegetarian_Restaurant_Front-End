@@ -3,6 +3,7 @@ import { Container, Row, Col, Nav, Card, Form, Button } from 'react-bootstrap';
 import Header from '../../components/Header';
 import './ProfilePage.css';
 import SideBarProfile from '../../components/SideBarProfile';
+import { getCustomerProfile } from '../../api/customer_profile';
 
 const ProfilePage = () => {
     // State cho địa chỉ động
@@ -13,6 +14,30 @@ const ProfilePage = () => {
     const [selectedProvince, setSelectedProvince] = useState('');
     const [selectedDistrict, setSelectedDistrict] = useState('');
     const [selectedWard, setSelectedWard] = useState('');
+
+    // State cho thông tin profile
+    const [profile, setProfile] = useState({
+        email: '',
+        name: '',
+        phoneNumber: '',
+        address: ''
+    });
+
+    // Fetch profile data
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const data = await getCustomerProfile();
+                console.log('Profile data:', data); // Log profile data for debugging
+                setProfile(data);
+
+            } catch (err) {
+                // Xử lý lỗi nếu cần
+                console.error('Error fetching profile:', err);
+            }
+        };
+        fetchProfile();
+    }, []);
 
     // Fetch provinces data
     useEffect(() => {
@@ -40,6 +65,15 @@ const ProfilePage = () => {
             setSelectedWard('');
         }
     }, [selectedDistrict, districts]);
+
+    // Thêm hàm xử lý thay đổi input profile
+    const handleProfileChange = (e) => {
+        const { name, value } = e.target;
+        setProfile(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
 
     return (
         <div className="min-vh-100 d-flex flex-column" style={{ backgroundColor: '#FFFBE6' }}>
@@ -69,13 +103,18 @@ const ProfilePage = () => {
                                 <Form>
                                     <Form.Group className="mb-3">
                                         <Form.Label>Email</Form.Label>
-                                        <Form.Control type="email" defaultValue="lvtuankiet2103@gmail.com" readOnly />
+                                        <Form.Control type="email" value={profile.email} readOnly />
                                     </Form.Group>
                                     <Row>
                                         <Col md={6}>
                                             <Form.Group className="mb-3">
                                                 <Form.Label>Full Name</Form.Label>
-                                                <Form.Control type="text" defaultValue="Lương Văn Tuấn Kiệt" />
+                                                <Form.Control
+                                                    type="text"
+                                                    name="name"
+                                                    value={profile.name}
+                                                    onChange={handleProfileChange}
+                                                />
                                             </Form.Group>
                                         </Col>
                                         <Col md={6}>
@@ -83,31 +122,10 @@ const ProfilePage = () => {
                                                 <Form.Label>Phone Number</Form.Label>
                                                 <Form.Control
                                                     type="tel"
-                                                    defaultValue="0866601711"
-                                                    inputMode="numeric"
-                                                    pattern="[0-9]*"
-                                                    maxLength={10}
-                                                    onInput={e => e.target.value = e.target.value.replace(/[^0-9]/g, '')}
+                                                    name="phoneNumber"
+                                                    value={profile.phoneNumber}
+                                                    onChange={handleProfileChange}
                                                 />
-                                            </Form.Group>
-                                        </Col>
-                                    </Row>
-
-                                    <Row>
-                                        <Col md={6}>
-                                            <Form.Group className="mb-3">
-                                                <Form.Label>Gender</Form.Label>
-                                                <Form.Select defaultValue="male">
-                                                    <option value="male">Male</option>
-                                                    <option value="female">Female</option>
-                                                    <option value="other">Other</option>
-                                                </Form.Select>
-                                            </Form.Group>
-                                        </Col>
-                                        <Col md={6}>
-                                            <Form.Group className="mb-3">
-                                                <Form.Label>Date of Birth</Form.Label>
-                                                <Form.Control type="date" defaultValue="2004-03-21" />
                                             </Form.Group>
                                         </Col>
                                     </Row>
@@ -128,7 +146,8 @@ const ProfilePage = () => {
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="House number, street name"
-                                                    defaultValue=""
+                                                    value={profile.address}
+                                                    readOnly
                                                 />
                                             </Form.Group>
                                         </Col>
