@@ -2,12 +2,14 @@
 
 import { useState } from "react"
 import Sidebar from "../OwnerSidebar/OwnerSidebar.jsx"
+import StaffViewModal from "./StaffViewModal"
+import StaffEditModal from "./StaffEditModal"
 import "./ManageStaff.css"
+import "./StaffModal.css"
 
 const ManageStaff = () => {
   const [searchTerm, setSearchTerm] = useState("")
-
-  const staffMembers = [
+  const [staffMembers, setStaffMembers] = useState([
     {
       id: 1,
       name: "John Doe",
@@ -48,39 +50,56 @@ const ManageStaff = () => {
       joinDate: "2022-11-05",
       department: "Management",
     },
-  ]
+  ])
 
-  const filteredStaff = staffMembers.filter(
-    (staff) =>
-      staff.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      staff.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      staff.department.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+  const [selectedStaff, setSelectedStaff] = useState(null)
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false)
 
-  const handleLogout = () => {
-    localStorage.removeItem("token")
-    // navigate("/login")
+  const handleView = (staff) => {
+    setSelectedStaff(staff)
+    setIsViewModalOpen(true)
   }
+
+  const handleEdit = (staff) => {
+    setSelectedStaff(staff)
+    setIsEditModalOpen(true)
+  }
+
+  const handleDelete = (id) => {
+    if (window.confirm("Are you sure you want to delete this staff member?")) {
+      setStaffMembers((prev) => prev.filter((staff) => staff.id !== id))
+    }
+  }
+
+  const handleUpdate = (updatedStaff) => {
+    const updatedList = staffMembers.map((staff) =>
+      staff.id === updatedStaff.id ? updatedStaff : staff
+    )
+    setStaffMembers(updatedList)
+    setIsEditModalOpen(false)
+  }
+
+  const filteredStaff = staffMembers.filter((staff) =>
+    [staff.name, staff.position, staff.department]
+      .join(" ")
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
+  )
 
   return (
     <div className="dashboard-layout">
-      {/* Header với Sidebar */}
       <header className="dashboard-header">
         <Sidebar />
-        <div className="header-container">
-          <div className="header-left">
-          </div>
-        </div>
+        <div className="header-container" />
       </header>
 
-      {/* Main Content */}
-      <div className="dashboard-content main-content">
+      <main className="dashboard-content main-content">
         <div className="manage-staff">
-          {/* Add Staff Button */}
+          {/* Action Button */}
           <div className="page-actions">
             <button className="add-btn">
-              <span className="add-icon">➕</span>
-              Add Staff Member
+              <span className="add-icon">➕</span> Add Staff Member
             </button>
           </div>
 
@@ -88,7 +107,11 @@ const ManageStaff = () => {
           <div className="stats-row">
             {[
               { label: "Total Staff", value: staffMembers.length, color: "blue" },
-              { label: "Active", value: staffMembers.filter((s) => s.status === "Active").length, color: "green" },
+              {
+                label: "Active",
+                value: staffMembers.filter((s) => s.status === "Active").length,
+                color: "green",
+              },
               {
                 label: "Kitchen Staff",
                 value: staffMembers.filter((s) => s.department === "Kitchen").length,
@@ -99,8 +122,8 @@ const ManageStaff = () => {
                 value: staffMembers.filter((s) => s.department === "Service").length,
                 color: "orange",
               },
-            ].map((stat, index) => (
-              <div key={index} className="mini-stat">
+            ].map((stat, i) => (
+              <div key={i} className="mini-stat">
                 <div className="mini-stat-value">{stat.value}</div>
                 <div className={`mini-stat-label color-${stat.color}`}>{stat.label}</div>
               </div>
@@ -121,7 +144,7 @@ const ManageStaff = () => {
             </div>
           </div>
 
-          {/* Staff List */}
+          {/* Staff Table */}
           <div className="table-card">
             <div className="table-container">
               <table className="data-table">
@@ -153,18 +176,8 @@ const ManageStaff = () => {
                           </div>
                         </div>
                       </td>
-                      <td>
-                        <div className="position-info">
-                          <span className="position-title">{staff.position}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="department-info">
-                          <span className={`department-badge dept-${staff.department.toLowerCase()}`}>
-                            {staff.department}
-                          </span>
-                        </div>
-                      </td>
+                      <td>{staff.position}</td>
+                      <td>{staff.department}</td>
                       <td>
                         <div className="contact-info">
                           <span className="contact-icon">📧</span>
@@ -175,27 +188,21 @@ const ManageStaff = () => {
                           <span className="contact-text">{staff.phone}</span>
                         </div>
                       </td>
-                      <td>
-                        <div className="date-value">{staff.joinDate}</div>
-                      </td>
+                      <td>{staff.joinDate}</td>
                       <td>
                         <span
-                          className={`status-badge ${staff.status === "Active" ? "status-active" : "status-inactive"}`}
+                          className={`status-badge ${
+                            staff.status === "Active" ? "status-active" : "status-inactive"
+                          }`}
                         >
                           {staff.status}
                         </span>
                       </td>
                       <td>
                         <div className="action-buttons">
-                          <button className="action-btn view" title="View Staff Details">
-                            <span>👁️</span>
-                          </button>
-                          <button className="action-btn edit" title="Edit Staff">
-                            <span>✏️</span>
-                          </button>
-                          <button className="action-btn delete" title="Delete Staff">
-                            <span>🗑️</span>
-                          </button>
+                          <button className="action-btn view" onClick={() => handleView(staff)}>👁️</button>
+                          <button className="action-btn edit" onClick={() => handleEdit(staff)}>✏️</button>
+                          <button className="action-btn delete" onClick={() => handleDelete(staff.id)}>🗑️</button>
                         </div>
                       </td>
                     </tr>
@@ -208,12 +215,26 @@ const ManageStaff = () => {
               <div className="empty-state">
                 <div className="empty-icon">👥</div>
                 <h4>No staff members found</h4>
-                <p>No staff members match your search criteria. Try adjusting your search terms.</p>
+                <p>No staff match your search criteria.</p>
               </div>
             )}
           </div>
         </div>
-      </div>
+      </main>
+
+      {/* View Modal */}
+      {isViewModalOpen && selectedStaff && (
+        <StaffViewModal staff={selectedStaff} onClose={() => setIsViewModalOpen(false)} />
+      )}
+
+      {/* Edit Modal */}
+      {isEditModalOpen && selectedStaff && (
+        <StaffEditModal
+          staff={selectedStaff}
+          onUpdate={handleUpdate}
+          onClose={() => setIsEditModalOpen(false)}
+        />
+      )}
     </div>
   )
 }
