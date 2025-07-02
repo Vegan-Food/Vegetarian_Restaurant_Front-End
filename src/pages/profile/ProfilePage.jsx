@@ -65,7 +65,7 @@ const ProfilePage = () => {
                     <Col md={9}>
                         <Card className="content-card">
                             <Card.Body>
-                                <h3 className="mb-4">Thông tin tài khoản</h3>
+                                <h3 className="mb-4">Account Information</h3>
                                 <Form>
                                     <Form.Group className="mb-3">
                                         <Form.Label>Email</Form.Label>
@@ -74,13 +74,13 @@ const ProfilePage = () => {
                                     <Row>
                                         <Col md={6}>
                                             <Form.Group className="mb-3">
-                                                <Form.Label>Họ và tên</Form.Label>
+                                                <Form.Label>Full Name</Form.Label>
                                                 <Form.Control type="text" defaultValue="Lương Văn Tuấn Kiệt" />
                                             </Form.Group>
                                         </Col>
                                         <Col md={6}>
                                             <Form.Group className="mb-3">
-                                                <Form.Label>Số điện thoại</Form.Label>
+                                                <Form.Label>Phone Number</Form.Label>
                                                 <Form.Control
                                                     type="tel"
                                                     defaultValue="0866601711"
@@ -96,39 +96,38 @@ const ProfilePage = () => {
                                     <Row>
                                         <Col md={6}>
                                             <Form.Group className="mb-3">
-                                                <Form.Label>Giới tính</Form.Label>
+                                                <Form.Label>Gender</Form.Label>
                                                 <Form.Select defaultValue="male">
-                                                    <option value="male">Nam</option>
-                                                    <option value="female">Nữ</option>
-                                                    <option value="other">Khác</option>
+                                                    <option value="male">Male</option>
+                                                    <option value="female">Female</option>
+                                                    <option value="other">Other</option>
                                                 </Form.Select>
                                             </Form.Group>
                                         </Col>
                                         <Col md={6}>
                                             <Form.Group className="mb-3">
-                                                <Form.Label>Ngày sinh</Form.Label>
+                                                <Form.Label>Date of Birth</Form.Label>
                                                 <Form.Control type="date" defaultValue="2004-03-21" />
                                             </Form.Group>
                                         </Col>
                                     </Row>
 
                                     <Button variant="success" className="mt-3 end-btn">
-                                        Cập nhật thông tin
+                                        Update Information
                                     </Button>
                                 </Form>
 
-
                                 <hr className="my-4" />
 
-                                <h3 className="mb-4">Địa chỉ giao hàng</h3>
+                                <h3 className="mb-4">Shipping Address</h3>
                                 <Form>
                                     <Row>
                                         <Col md={12}>
                                             <Form.Group className="mb-3">
-                                                <Form.Label>Địa chỉ</Form.Label>
+                                                <Form.Label>Address</Form.Label>
                                                 <Form.Control
                                                     type="text"
-                                                    placeholder="Số nhà, tên đường"
+                                                    placeholder="House number, street name"
                                                     defaultValue=""
                                                 />
                                             </Form.Group>
@@ -137,12 +136,12 @@ const ProfilePage = () => {
                                     <Row>
                                         <Col md={4}>
                                             <Form.Group className="mb-3">
-                                                <Form.Label>Tỉnh/Thành phố</Form.Label>
+                                                <Form.Label>Province/City</Form.Label>
                                                 <Form.Select
                                                     value={selectedProvince}
                                                     onChange={e => setSelectedProvince(e.target.value)}
                                                 >
-                                                    <option value="">Chọn tỉnh/thành</option>
+                                                    <option value="">Select province/city</option>
                                                     {provinces.map(province => (
                                                         <option key={province.code} value={province.code}>
                                                             {province.name}
@@ -153,13 +152,13 @@ const ProfilePage = () => {
                                         </Col>
                                         <Col md={4}>
                                             <Form.Group className="mb-3">
-                                                <Form.Label>Quận/Huyện</Form.Label>
+                                                <Form.Label>District</Form.Label>
                                                 <Form.Select
                                                     value={selectedDistrict}
                                                     onChange={e => setSelectedDistrict(e.target.value)}
                                                     disabled={!districts.length}
                                                 >
-                                                    <option value="">Chọn quận/huyện</option>
+                                                    <option value="">Select district</option>
                                                     {districts.map(district => (
                                                         <option key={district.code} value={district.code}>
                                                             {district.name}
@@ -170,13 +169,13 @@ const ProfilePage = () => {
                                         </Col>
                                         <Col md={4}>
                                             <Form.Group className="mb-3">
-                                                <Form.Label>Phường/Xã</Form.Label>
+                                                <Form.Label>Ward</Form.Label>
                                                 <Form.Select
                                                     value={selectedWard}
                                                     onChange={e => setSelectedWard(e.target.value)}
                                                     disabled={!wards.length}
                                                 >
-                                                    <option value="">Chọn phường/xã</option>
+                                                    <option value="">Select ward</option>
                                                     {wards.map(ward => (
                                                         <option key={ward.code} value={ward.code}>
                                                             {ward.name}
@@ -187,7 +186,7 @@ const ProfilePage = () => {
                                         </Col>
                                     </Row>
                                     <Button variant="success" className="mt-3">
-                                        Cập nhật địa chỉ
+                                        Update Address
                                     </Button>
                                 </Form>
                             </Card.Body>

@@ -45,23 +45,23 @@ const CartSummary = ({ subtotal, shippingFee = 30000, cartItems }) => {
 
   return (
     <div className="cart-summary">
-      <h2>Tổng giỏ hàng</h2>
+      <h2>Cart Summary</h2>
       <div className="summary-row">
-        <span>Tạm tính:</span>
+        <span>Subtotal:</span>
         <span>{subtotal.toLocaleString()}₫</span>
       </div>
       <div className="summary-row">
-        <span>Phí vận chuyển:</span>
+        <span>Shipping Fee:</span>
         <span>{shippingFee.toLocaleString()}₫</span>
       </div>
       <div className="summary-row total">
-        <span>Tổng cộng:</span>
+        <span>Total:</span>
         <span>{(subtotal + shippingFee).toLocaleString()}₫</span>
       </div>
       <button className="checkout-btn" onClick={handleCheckout}>
-        Tiến hành thanh toán
+        Proceed to Checkout
       </button>
-      <button className="continue-shopping" onClick={handleContinueBuy}>Tiếp tục mua hàng</button>
+      <button className="continue-shopping" onClick={handleContinueBuy}>Continue Shopping</button>
     </div>
   );
 };

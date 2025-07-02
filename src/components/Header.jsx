@@ -17,7 +17,7 @@ const Header = () => {
     else setUser(null)
   }, [])
 
-  // Đăng xuất (nếu muốn)
+  // Logout (if needed)
   const handleLogout = () => {
     localStorage.removeItem("user")
     setUser(null)
@@ -39,9 +39,9 @@ const Header = () => {
           {/* Logo Section */}
           <Navbar.Brand href="/" className="brand-logo">
             <div className="logo-container">
-              <img 
-                src={logoImage} 
-                alt="Logo" 
+              <img
+                src={logoImage}
+                alt="Logo"
                 className="logo-image"
                 style={{ height: "80px", width: "auto", maxWidth: "200px" }}
               />
@@ -55,7 +55,7 @@ const Header = () => {
             </div>
             <div className="hotline-content">
               <div className="hotline-number">1900-6066</div>
-              <div className="hotline-text">Giao hàng nhanh 24/7</div>
+              <div className="hotline-text">Fast delivery 24/7</div>
             </div>
           </div>
 
@@ -63,10 +63,10 @@ const Header = () => {
           <div className="search-section">
             <Form className="search-form">
               <InputGroup>
-                <Form.Control 
-                  type="text" 
-                  placeholder="Tìm kiếm món ăn chay..." 
-                  className="search-input" 
+                <Form.Control
+                  type="text"
+                  placeholder="Search vegetarian dishes..."
+                  className="search-input"
                 />
                 <Button variant="success" className="search-btn">
                   <Search size={18} />
@@ -79,13 +79,13 @@ const Header = () => {
           <div className="user-actions">
             <Button variant="outline-success" className="cart-btn" onClick={handleCartClick}>
               <ShoppingCart size={18} className="me-2" />
-              <span className="cart-text">Giỏ hàng</span>
+              <span className="cart-text">Cart</span>
               <span className="cart-badge">{getCartCount()}</span>
             </Button>
             {!user ? (
               <Button variant="success" className="auth-btn" onClick={handleLoginClick}>
                 <User size={16} className="me-2" />
-                <span className="auth-text">Đăng nhập</span>
+                <span className="auth-text">Login</span>
               </Button>
             ) : (
               <div className="d-inline-flex align-items-center ms-2">
@@ -103,7 +103,7 @@ const Header = () => {
                   {user.name || "User"}
                 </span>
                 <Button variant="outline-danger" size="sm" onClick={handleLogout}>
-                  Đăng xuất
+                  Logout
                 </Button>
               </div>
             )}

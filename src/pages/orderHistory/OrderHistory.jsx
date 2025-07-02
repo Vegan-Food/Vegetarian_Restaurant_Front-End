@@ -9,19 +9,19 @@ import { useNavigate } from 'react-router-dom';
 import orderHistoryData from '../../data/order_history.json';
 
 const statusMap = {
-  delivered: 'Đã giao',
-  shipped: 'Đang xử lý',
-  pending: 'Đang xử lý',
-  cancelled: 'Đã huỷ',
+  delivered: 'Delivered',
+  shipped: 'Processing',
+  pending: 'Processing',
+  cancelled: 'Cancelled',
 };
 
 const statusVariant = (status) => {
   switch (status) {
-    case 'Hoàn thành':
+    case 'Completed':
       return 'success';
-    case 'Đang xử lý':
+    case 'Processing':
       return 'warning';
-    case 'Đã huỷ':
+    case 'Cancelled':
       return 'danger';
     default:
       return 'secondary';
@@ -29,7 +29,7 @@ const statusVariant = (status) => {
 };
 
 function formatCurrency(amount) {
-  return amount.toLocaleString('vi-VN') + '₫';
+  return amount.toLocaleString('en-US') + '₫';
 }
 
 function formatDateTime(dateTimeStr) {
@@ -60,14 +60,14 @@ const OrderHistory = () => {
     orderDate: order.order_date,
     deliveryDate: order.status === 'Hoàn thành' ? order.order_date : '', // No delivery date in JSON, so use order_date for completed
     total: order.total_amount,
-    status: order.status,
-    paymentMethod: order.payment_method,
-    method: order.method,
+    status: order.status === 'Hoàn thành' ? 'Completed' : order.status === 'Đang xử lý' ? 'Processing' : order.status === 'Đã huỷ' ? 'Cancelled' : order.status,
+    paymentMethod: order.payment_method === 'Tiền mặt' ? 'Cash' : order.payment_method === 'Chuyển khoản' ? 'Bank Transfer' : order.payment_method,
+    method: order.method === 'Giao hàng' ? 'Delivery' : order.method === 'Lấy ngay' ? 'Pickup' : order.method,
   }));
 
   // Filter logic
   const filteredOrders = orders.filter(order => {
-    // Ngày đặt (khoảng)
+    // Order date (range)
     let matchOrderDate = true;
     if (orderDateFrom) {
       const orderDateOnly = order.orderDate.split(' ')[0];
@@ -77,18 +77,18 @@ const OrderHistory = () => {
       const orderDateOnly = order.orderDate.split(' ')[0];
       matchOrderDate = matchOrderDate && orderDateOnly <= orderDateTo;
     }
-    // Tổng tiền
+    // Total
     let matchMinTotal = true;
     let matchMaxTotal = true;
     if (minTotal) matchMinTotal = order.total >= parseInt(minTotal);
     if (maxTotal) matchMaxTotal = order.total <= parseInt(maxTotal);
-    // Trạng thái
+    // Status
     let matchStatus = true;
     if (status) matchStatus = order.status === status;
-    // Thanh toán
+    // Payment
     let matchPayment = true;
     if (paymentMethod) matchPayment = order.paymentMethod === paymentMethod;
-    // Nhận hàng
+    // Delivery
     let matchDelivery = true;
     if (deliveryMethod) matchDelivery = order.method === deliveryMethod;
     return matchOrderDate && matchMinTotal && matchMaxTotal && matchStatus && matchPayment && matchDelivery;
@@ -110,43 +110,43 @@ const OrderHistory = () => {
           <Card.Body>
             <h2 className="mb-4 order-history-title text-center">
               <ClockHistory className="history-icon" />
-              Lịch sử đơn hàng
+              Order History
             </h2>
             {/* Inline Filter Bar under title */}
             <Form className="order-inline-filter mb-4 w-100 d-flex flex-row align-items-center justify-content-center" style={{gap: 24, flexWrap: 'wrap'}}>
               <div className="d-flex align-items-center gap-2">
-                <Form.Label className="filter-label mb-0">Ngày đặt</Form.Label>
+                <Form.Label className="filter-label mb-0">Order Date</Form.Label>
                 <Form.Control type="date" value={orderDateFrom} onChange={e => setOrderDateFrom(e.target.value)} className="filter-input" style={{minWidth: 120}} />
                 <span className="filter-arrow"><ArrowRight size={18} /></span>
                 <Form.Control type="date" value={orderDateTo} onChange={e => setOrderDateTo(e.target.value)} className="filter-input" style={{minWidth: 120}} />
               </div>
               <div className="d-flex align-items-center gap-2">
-                <Form.Label className="filter-label mb-0">Trạng thái</Form.Label>
+                <Form.Label className="filter-label mb-0">Status</Form.Label>
                 <Form.Select value={status} onChange={e => setStatus(e.target.value)} className="filter-input">
-                  <option value="">Tất cả</option>
-                  <option value="Hoàn thành">Hoàn thành</option>
-                  <option value="Đang xử lý">Đang xử lý</option>
-                  <option value="Đã huỷ">Đã huỷ</option>
+                  <option value="">All</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Processing">Processing</option>
+                  <option value="Cancelled">Cancelled</option>
                 </Form.Select>
               </div>
               <div className="d-flex align-items-center gap-2">
-                <Form.Label className="filter-label mb-0">Thanh toán</Form.Label>
+                <Form.Label className="filter-label mb-0">Payment</Form.Label>
                 <Form.Select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)} className="filter-input">
-                  <option value="">Tất cả</option>
-                  <option value="Tiền mặt">Tiền mặt</option>
-                  <option value="Chuyển khoản">Chuyển khoản</option>
+                  <option value="">All</option>
+                  <option value="Cash">Cash</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
                 </Form.Select>
               </div>
               <div className="d-flex align-items-center gap-2">
-                <Form.Label className="filter-label mb-0">Nhận hàng</Form.Label>
+                <Form.Label className="filter-label mb-0">Delivery</Form.Label>
                 <Form.Select value={deliveryMethod} onChange={e => setDeliveryMethod(e.target.value)} className="filter-input">
-                  <option value="">Tất cả</option>
-                  <option value="Giao hàng">Giao hàng</option>
-                  <option value="Lấy ngay">Lấy ngay</option>
+                  <option value="">All</option>
+                  <option value="Delivery">Delivery</option>
+                  <option value="Pickup">Pickup</option>
                 </Form.Select>
               </div>
               <div className="d-flex align-items-center gap-2">
-                <Form.Label className="filter-label mb-0">Tổng tiền</Form.Label>
+                <Form.Label className="filter-label mb-0">Total</Form.Label>
                 <Form.Control type="text" inputMode="numeric" pattern="[0-9]*" value={minTotal} onChange={e => setMinTotal(e.target.value.replace(/\D/g, ''))} className="filter-input" style={{minWidth: 90}} />
                 <span className="filter-arrow"><ArrowRight size={18} /></span>
                 <Form.Control type="text" inputMode="numeric" pattern="[0-9]*" value={maxTotal} onChange={e => setMaxTotal(e.target.value.replace(/\D/g, ''))} className="filter-input" style={{minWidth: 90}} />
@@ -156,33 +156,33 @@ const OrderHistory = () => {
               <Table className="order-history-table align-middle text-center" bordered hover style={{width: '100%', background: '#FFFBE6', minWidth: 1100}}>
                 <thead>
                   <tr>
-                    <th className="rounded-top-left" style={{minWidth: 90, padding: '18px 18px'}}>Mã đơn</th>
+                    <th className="rounded-top-left" style={{minWidth: 90, padding: '18px 18px'}}>Order ID</th>
                     <th style={{minWidth: 140, padding: '18px 18px'}}>
-                      Thời điểm đặt
+                      Order Time
                       <div className="date-format-hint">(mm/dd/yyyy)</div>
                     </th>
                     <th style={{minWidth: 140, padding: '18px 18px'}}>
-                      Thời điểm giao
+                      Delivery Time
                       <div className="date-format-hint">(mm/dd/yyyy)</div>
                     </th>
-                    <th style={{minWidth: 120, padding: '18px 18px'}}>Tổng tiền</th>
-                    <th style={{minWidth: 120, padding: '18px 18px'}}>Trạng thái</th>
-                    <th style={{minWidth: 120, padding: '18px 18px'}}>Thanh toán</th>
-                    <th style={{minWidth: 120, padding: '18px 18px'}}>Nhận hàng</th>
-                    <th className="rounded-top-right" style={{minWidth: 90, padding: '18px 18px'}}>Chi tiết</th>
+                    <th style={{minWidth: 120, padding: '18px 18px'}}>Total</th>
+                    <th style={{minWidth: 120, padding: '18px 18px'}}>Status</th>
+                    <th style={{minWidth: 120, padding: '18px 18px'}}>Payment</th>
+                    <th style={{minWidth: 120, padding: '18px 18px'}}>Delivery</th>
+                    <th className="rounded-top-right" style={{minWidth: 90, padding: '18px 18px'}}>Details</th>
                   </tr>
                 </thead>
                 <tbody>
                   {paginatedOrders.length === 0 && (
                     <tr>
-                      <td colSpan={8} className="text-center text-muted py-4">Không có đơn hàng phù hợp</td>
+                      <td colSpan={8} className="text-center text-muted py-4">No matching orders</td>
                     </tr>
                   )}
                   {paginatedOrders.map((order) => (
                     <tr key={order.id} className="order-row">
                       <td className="rounded-cell-left" style={{padding: '16px 18px'}}><strong>{order.id}</strong></td>
                       <td style={{padding: '16px 18px'}}>{formatDateTime(order.orderDate)}</td>
-                      <td style={{padding: '16px 18px'}}>{order.deliveryDate ? formatDateTime(order.deliveryDate) : <span className="text-muted">Chưa giao</span>}</td>
+                      <td style={{padding: '16px 18px'}}>{order.deliveryDate ? formatDateTime(order.deliveryDate) : <span className="text-muted">Not delivered</span>}</td>
                       <td style={{padding: '16px 18px'}}><span className="fw-bold text-success">{formatCurrency(order.total)}</span></td>
                       <td style={{padding: '16px 18px'}}>
                         <Badge bg={statusVariant(order.status)} className="order-status-badge px-3 py-2 fs-6 rounded-pill shadow-sm">
@@ -207,17 +207,17 @@ const OrderHistory = () => {
               <div className="d-flex justify-content-between align-items-center mt-3 px-2 flex-wrap">
                 <div className="text-muted" style={{fontSize: '0.98rem'}}>
                   {totalPages === 1
-                    ? `Hiển thị ${filteredOrders.length} trong tổng số ${filteredOrders.length} đơn hàng`
-                    : `Hiển thị ${filteredOrders.length === 0 ? 0 : ((currentPage-1)*PAGE_SIZE)+1} đến ${Math.min(currentPage*PAGE_SIZE, filteredOrders.length)} trong tổng số ${filteredOrders.length} đơn hàng`}
+                    ? `Showing ${filteredOrders.length} of ${filteredOrders.length} orders`
+                    : `Showing ${filteredOrders.length === 0 ? 0 : ((currentPage-1)*PAGE_SIZE)+1} to ${Math.min(currentPage*PAGE_SIZE, filteredOrders.length)} of ${filteredOrders.length} orders`}
                 </div>
                 <Pagination className="mb-0">
-                  <Pagination.First onClick={() => handlePageChange(1)} disabled={currentPage === 1}>Đầu</Pagination.First>
-                  <Pagination.Prev onClick={() => handlePageChange(currentPage-1)} disabled={currentPage === 1}>Trước</Pagination.Prev>
+                  <Pagination.First onClick={() => handlePageChange(1)} disabled={currentPage === 1}>First</Pagination.First>
+                  <Pagination.Prev onClick={() => handlePageChange(currentPage-1)} disabled={currentPage === 1}>Prev</Pagination.Prev>
                   {[...Array(totalPages)].map((_, idx) => (
                     <Pagination.Item key={idx+1} active={currentPage === idx+1} onClick={() => handlePageChange(idx+1)}>{idx+1}</Pagination.Item>
                   ))}
-                  <Pagination.Next onClick={() => handlePageChange(currentPage+1)} disabled={currentPage === totalPages}>Tiếp</Pagination.Next>
-                  <Pagination.Last onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages}>Cuối</Pagination.Last>
+                  <Pagination.Next onClick={() => handlePageChange(currentPage+1)} disabled={currentPage === totalPages}>Next</Pagination.Next>
+                  <Pagination.Last onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages}>Last</Pagination.Last>
                 </Pagination>
               </div>
             </div>
@@ -229,4 +229,4 @@ const OrderHistory = () => {
   );
 };
 
-export default OrderHistory; 
+export default OrderHistory;

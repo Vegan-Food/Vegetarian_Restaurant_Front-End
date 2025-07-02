@@ -14,10 +14,14 @@ const statusVariant = (status) => {
   switch (status) {
     case 'Hoàn thành':
     case 'Đã giao':
+    case 'Completed':
+    case 'Delivered':
       return 'success';
     case 'Đang xử lý':
+    case 'Processing':
       return 'warning';
     case 'Đã huỷ':
+    case 'Cancelled':
       return 'danger';
     default:
       return 'secondary';
@@ -26,7 +30,7 @@ const statusVariant = (status) => {
 
 function formatCurrency(amount) {
   if (typeof amount !== 'number') return '';
-  return amount.toLocaleString('vi-VN') + '₫';
+  return amount.toLocaleString('en-US') + '₫';
 }
 
 function formatDateTime(dateTimeStr) {
@@ -42,23 +46,23 @@ const OrderDetail = () => {
   const order = orderHistoryData.orders.find(o => o.order_id === Number(orderId));
   const orderItems = orderItemData.order_items.filter(item => item.order_id === Number(orderId));
 
-  // Lấy tên món từ meal_data.json nếu có
+  // Get product name from meal_data.json if available
   const getProductName = (product_id) => {
     if (mealData && mealData.meals) {
       const meal = mealData.meals.find(m => m.id === product_id);
-      return meal ? meal.name : `Món #${product_id}`;
+      return meal ? meal.name : `Product #${product_id}`;
     }
-    return `Món #${product_id}`;
+    return `Product #${product_id}`;
   };
 
-  // Lấy thông tin mã giảm giá nếu có
+  // Get discount info if available
   let discountCode = null;
   let discountAmount = 0;
   if (order && order.discount_id && discountData && discountData.discounts) {
     const discount = discountData.discounts.find(d => d.discount_id === order.discount_id);
     if (discount) {
       discountCode = discount.discount_code;
-      // Tính giảm giá dựa trên loại discount
+      // Calculate discount based on type
       if (discount.type === 'percent') {
         discountAmount = Math.round(order.total_amount / (1 - discount.value/100) * (discount.value/100));
       } else if (discount.type === 'fixed') {
@@ -67,14 +71,14 @@ const OrderDetail = () => {
     }
   }
 
-  // Tính tạm tính (subtotal) = tổng thành tiền các món
+  // Calculate subtotal = sum of all items
   const subtotal = orderItems.reduce((sum, item) => sum + item.price_at_time * item.quantity, 0);
-  // Nếu có giảm giá, tổng cộng = subtotal - discountAmount
+  // If discount, total = subtotal - discountAmount
   const total = order ? order.total_amount : 0;
 
-  // Lấy thời điểm giao nếu có (giả sử là order_date + 1 ngày nếu trạng thái hoàn thành)
+  // Get delivery time if available (assume order_date + 1 day if completed)
   let deliveryDate = '';
-  if (order && order.status === 'Hoàn thành' && order.order_date) {
+  if (order && (order.status === 'Hoàn thành' || order.status === 'Completed') && order.order_date) {
     const dateObj = new Date(order.order_date.replace(' ', 'T'));
     dateObj.setDate(dateObj.getDate() + 1);
     const yyyy = dateObj.getFullYear();
@@ -93,10 +97,10 @@ const OrderDetail = () => {
           <Card className="order-detail-card p-4" style={{ maxWidth: 1000, width: '100%', borderRadius: 24, boxShadow: '0 8px 40px rgba(52,121,40,0.13)' }}>
             <Card.Body>
               <Button variant="outline-success" className="mb-3" onClick={() => navigate(-1)}>
-                <ArrowLeft className="me-2" /> Quay lại
+                <ArrowLeft className="me-2" /> Back
               </Button>
               <div className="text-center mb-4">
-                <h2 className="order-detail-title">Không tìm thấy đơn hàng</h2>
+                <h2 className="order-detail-title">Order not found</h2>
               </div>
             </Card.Body>
           </Card>
@@ -113,37 +117,37 @@ const OrderDetail = () => {
         <Card className="order-detail-card p-4" style={{ maxWidth: 1000, width: '100%', borderRadius: 24, boxShadow: '0 8px 40px rgba(52,121,40,0.13)' }}>
           <Card.Body>
             <Button variant="outline-success" className="mb-3" onClick={() => navigate(-1)}>
-              <ArrowLeft className="me-2" /> Quay lại
+              <ArrowLeft className="me-2" /> Back
             </Button>
             <div className="text-center mb-4">
-              <h2 className="order-detail-title">Chi tiết đơn hàng #{order.order_id}</h2>
+              <h2 className="order-detail-title">Order Detail #{order.order_id}</h2>
               <Badge bg={statusVariant(order.status)} className="order-status-badge">{order.status}</Badge>
             </div>
             <div className="order-info mb-4 w-100">
               <div className="order-info-col" style={{ width: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', rowGap: 12, columnGap: 36 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <strong>Tên khách hàng:</strong> <span>{order.name}</span>
+                  <strong>Customer Name:</strong> <span>{order.name}</span>
                 </div>
                 <div style={{ gridColumn: '2 / 3', marginTop: '-8px',marginTop: '0px',marginBottom: '9px', paddingLeft: '70px' }}>
-                  <strong>Số điện thoại:</strong> <span>{order.phone_number}</span>
+                  <strong>Phone Number:</strong> <span>{order.phone_number}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <strong>Thời điểm đặt:</strong> <span>{formatDateTime(order.order_date)}</span>
+                  <strong>Order Time:</strong> <span>{formatDateTime(order.order_date)}</span>
                 </div>
                 <div style={{ gridColumn: '2 / 3', marginTop: '-8px', marginBottom: '8px', paddingLeft: '70px' }}>
-                  <strong>Thời điểm giao:</strong> <span>{deliveryDate ? formatDateTime(deliveryDate) : <span className="text-muted">Chưa giao</span>}</span>
+                  <strong>Delivery Time:</strong> <span>{deliveryDate ? formatDateTime(deliveryDate) : <span className="text-muted">Not delivered</span>}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <strong>Phương thức thanh toán:</strong> <span>{order.payment_method}</span>
+                  <strong>Payment Method:</strong> <span>{order.payment_method === 'Tiền mặt' ? 'Cash' : order.payment_method === 'Chuyển khoản' ? 'Bank Transfer' : order.payment_method}</span>
                 </div>
                 <div style={{ gridColumn: '2 / 3', marginTop: '-8px', marginBottom: '8px', paddingLeft: '70px' }}>
-                  <strong>Nhận hàng:</strong> <span>{order.method}</span>
+                  <strong>Receiving Method:</strong> <span>{order.method === 'Giao hàng' ? 'Delivery' : order.method === 'Lấy ngay' ? 'Pickup' : order.method}</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <strong>Mã giảm giá:</strong> <span>{discountCode ? discountCode : 'Không có'}</span>
+                  <strong>Discount Code:</strong> <span>{discountCode ? discountCode : 'None'}</span>
                 </div>
                 <div style={{ gridColumn: '2 / 3', marginTop: '-8px', marginBottom: '8px', paddingLeft: '70px' }}>
-                  <strong>Địa chỉ giao hàng:</strong>
+                  <strong>Shipping Address:</strong>
                 </div>
                 <div style={{ gridColumn: '2 / 3', marginTop: '-8px', marginBottom: '8px', paddingLeft: '70px' }}>
                   <span>{order.address}</span>
@@ -154,21 +158,21 @@ const OrderDetail = () => {
               <Table hover className="order-items-table align-middle text-center mb-4">
                 <thead>
                   <tr>
-                    <th>Sản phẩm</th>
-                    <th>Số lượng</th>
-                    <th>Đơn giá</th>
-                    <th>Thành tiền</th>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Subtotal</th>
                     <th></th>
                   </tr>
                 </thead>
                 <tbody>
                   {orderItems.length === 0 ? (
-                    <tr><td colSpan={5} className="text-muted">Không có sản phẩm nào trong đơn hàng này</td></tr>
+                    <tr><td colSpan={5} className="text-muted">No products in this order</td></tr>
                   ) : (
                     orderItems.map(item => {
-                      // Lấy tên sản phẩm từ meal_data.json
+                      // Get product name from meal_data.json
                       let product = mealData && mealData.products ? mealData.products.find(m => m.product_id === item.product_id) : null;
-                      let productName = product ? product.name : `Món #${item.product_id}`;
+                      let productName = product ? product.name : `Product #${item.product_id}`;
                       let originalPrice = product ? product.price : '-';
                       return (
                         <tr key={item.order_item_id}>
@@ -178,7 +182,7 @@ const OrderDetail = () => {
                           <td>{formatCurrency(item.price_at_time)}</td>
                           <td>
                             <Button variant="outline-success" size="sm" style={{ borderRadius: 16, fontWeight: 600 }} onClick={() => navigate(`/foodDetail/${item.product_id}`)}>
-                              Mua lại
+                              Buy Again
                             </Button>
                           </td>
                         </tr>
@@ -191,11 +195,11 @@ const OrderDetail = () => {
             <div className="order-total text-end">
               <div className="total-breakdown">
                 <div className="total-row">
-                  <span>Tạm tính:</span>
+                  <span>Subtotal:</span>
                   <span>{formatCurrency(orderItems.reduce((sum, item) => sum + item.price_at_time, 0))}</span>
                 </div>
                 <div className="total-row">
-                  <span>Giảm giá:</span>
+                  <span>Discount:</span>
                   <span>-{discountCode && discountData && discountData.discounts ? (() => {
                     const discount = discountData.discounts.find(d => d.discount_id === order.discount_id);
                     if (discount && discount.value) return formatCurrency(discount.value);
@@ -204,7 +208,7 @@ const OrderDetail = () => {
                 </div>
                 <hr className="total-divider" />
                 <div className="total-row final-total">
-                  <span><strong>Tổng cộng:</strong></span>
+                  <span><strong>Total:</strong></span>
                   <span><strong className="text-success fs-4">{formatCurrency(order.total_amount)}</strong></span>
                 </div>
               </div>
