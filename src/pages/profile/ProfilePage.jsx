@@ -1,18 +1,54 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Nav, Card, Form, Button } from 'react-bootstrap';
 import Header from '../../components/Header';
 import './ProfilePage.css';
 import SideBarProfile from '../../components/SideBarProfile';
 
 const ProfilePage = () => {
+    // State cho địa chỉ động
+    const [provinces, setProvinces] = useState([]);
+    const [districts, setDistricts] = useState([]);
+    const [wards, setWards] = useState([]);
+
+    const [selectedProvince, setSelectedProvince] = useState('');
+    const [selectedDistrict, setSelectedDistrict] = useState('');
+    const [selectedWard, setSelectedWard] = useState('');
+
+    // Fetch provinces data
+    useEffect(() => {
+        fetch('https://provinces.open-api.vn/api/?depth=3')
+            .then(res => res.json())
+            .then(data => setProvinces(data));
+    }, []);
+
+    // Update districts when province changes
+    useEffect(() => {
+        if (selectedProvince) {
+            const province = provinces.find(p => p.code === Number(selectedProvince));
+            setDistricts(province ? province.districts : []);
+            setSelectedDistrict('');
+            setWards([]);
+            setSelectedWard('');
+        }
+    }, [selectedProvince, provinces]);
+
+    // Update wards when district changes
+    useEffect(() => {
+        if (selectedDistrict) {
+            const district = districts.find(d => d.code === Number(selectedDistrict));
+            setWards(district ? district.wards : []);
+            setSelectedWard('');
+        }
+    }, [selectedDistrict, districts]);
+
     return (
         <div className="min-vh-100 d-flex flex-column" style={{ backgroundColor: '#FFFBE6' }}>
             <Header />
             <Container className="flex-grow-1 py-4 mt-100">
                 <Row>
-                    <Col md={3} >
+                    <Col md={3}>
                         {SideBarProfile.map(item => (
-                            <Card className="sidebarprofile" style={{ marginBottom: '10px', borderRadius: '20' }} key={item.id}>
+                            <Card className="sidebarprofile" style={{ marginBottom: '10px', borderRadius: '0' }} key={item.id}>
                                 <Nav className="flex-column">
                                     <Nav.Link
                                         key={item.id}
@@ -25,14 +61,16 @@ const ProfilePage = () => {
                                 </Nav>
                             </Card>
                         ))}
-
                     </Col>
-
                     <Col md={9}>
                         <Card className="content-card">
                             <Card.Body>
                                 <h3 className="mb-4">Thông tin tài khoản</h3>
                                 <Form>
+                                    <Form.Group className="mb-3">
+                                        <Form.Label>Email</Form.Label>
+                                        <Form.Control type="email" defaultValue="lvtuankiet2103@gmail.com" readOnly />
+                                    </Form.Group>
                                     <Row>
                                         <Col md={6}>
                                             <Form.Group className="mb-3">
@@ -43,7 +81,14 @@ const ProfilePage = () => {
                                         <Col md={6}>
                                             <Form.Group className="mb-3">
                                                 <Form.Label>Số điện thoại</Form.Label>
-                                                <Form.Control type="tel" defaultValue="0866601711" />
+                                                <Form.Control
+                                                    type="tel"
+                                                    defaultValue="0866601711"
+                                                    inputMode="numeric"
+                                                    pattern="[0-9]*"
+                                                    maxLength={10}
+                                                    onInput={e => e.target.value = e.target.value.replace(/[^0-9]/g, '')}
+                                                />
                                             </Form.Group>
                                         </Col>
                                     </Row>
@@ -84,43 +129,59 @@ const ProfilePage = () => {
                                                 <Form.Control
                                                     type="text"
                                                     placeholder="Số nhà, tên đường"
-                                                    defaultValue="123 Nguyễn Văn A"
+                                                    defaultValue=""
                                                 />
                                             </Form.Group>
                                         </Col>
                                     </Row>
-
                                     <Row>
                                         <Col md={4}>
                                             <Form.Group className="mb-3">
                                                 <Form.Label>Tỉnh/Thành phố</Form.Label>
-                                                <Form.Select defaultValue="HCM">
+                                                <Form.Select
+                                                    value={selectedProvince}
+                                                    onChange={e => setSelectedProvince(e.target.value)}
+                                                >
                                                     <option value="">Chọn tỉnh/thành</option>
-                                                    <option value="HCM">TP. Hồ Chí Minh</option>
-                                                    <option value="HN">Hà Nội</option>
-                                                    {/* Add more cities */}
+                                                    {provinces.map(province => (
+                                                        <option key={province.code} value={province.code}>
+                                                            {province.name}
+                                                        </option>
+                                                    ))}
                                                 </Form.Select>
                                             </Form.Group>
                                         </Col>
                                         <Col md={4}>
                                             <Form.Group className="mb-3">
                                                 <Form.Label>Quận/Huyện</Form.Label>
-                                                <Form.Select defaultValue="Q1">
+                                                <Form.Select
+                                                    value={selectedDistrict}
+                                                    onChange={e => setSelectedDistrict(e.target.value)}
+                                                    disabled={!districts.length}
+                                                >
                                                     <option value="">Chọn quận/huyện</option>
-                                                    <option value="Q1">Quận 1</option>
-                                                    <option value="Q2">Quận 2</option>
-                                                    {/* Add more districts */}
+                                                    {districts.map(district => (
+                                                        <option key={district.code} value={district.code}>
+                                                            {district.name}
+                                                        </option>
+                                                    ))}
                                                 </Form.Select>
                                             </Form.Group>
                                         </Col>
                                         <Col md={4}>
                                             <Form.Group className="mb-3">
                                                 <Form.Label>Phường/Xã</Form.Label>
-                                                <Form.Select defaultValue="P1">
+                                                <Form.Select
+                                                    value={selectedWard}
+                                                    onChange={e => setSelectedWard(e.target.value)}
+                                                    disabled={!wards.length}
+                                                >
                                                     <option value="">Chọn phường/xã</option>
-                                                    <option value="P1">Phường 1</option>
-                                                    <option value="P2">Phường 2</option>
-                                                    {/* Add more wards */}
+                                                    {wards.map(ward => (
+                                                        <option key={ward.code} value={ward.code}>
+                                                            {ward.name}
+                                                        </option>
+                                                    ))}
                                                 </Form.Select>
                                             </Form.Group>
                                         </Col>
@@ -129,26 +190,6 @@ const ProfilePage = () => {
                                         Cập nhật địa chỉ
                                     </Button>
                                 </Form>
-
-                                <hr className="my-4" />
-
-                                <h3 className="mb-4">Thông tin đăng nhập</h3>
-                                <Form>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Email</Form.Label>
-                                        <Form.Control type="email" defaultValue="lvtuankiet2103@gmail.com" readOnly />
-                                    </Form.Group>
-
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>Mật khẩu</Form.Label>
-                                        <Form.Control type="password" defaultValue="password" readOnly />
-                                    </Form.Group>
-
-                                    <Button variant="outline-success">
-                                        Đổi mật khẩu
-                                    </Button>
-                                </Form>
-
                             </Card.Body>
                         </Card>
                     </Col>
