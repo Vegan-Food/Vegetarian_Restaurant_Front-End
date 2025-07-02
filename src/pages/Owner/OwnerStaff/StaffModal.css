@@ -1,0 +1,115 @@
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.6) !important;
+  backdrop-filter: blur(6px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal-box {
+  background-color: #ffffff !important;
+  border-radius: 12px;
+  padding: 24px 32px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  animation: zoomIn 0.3s ease;
+  font-family: 'Segoe UI', sans-serif;
+  color: #333;
+}
+
+.modal-box h2 {
+  font-size: 22px;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+}
+
+.modal-box p,
+.modal-box label {
+  font-size: 16px;
+  margin: 10px 0;
+  color: #333;
+}
+
+.modal-box input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-top: 6px;
+  margin-bottom: 12px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.modal-actions.center {
+  justify-content: center;
+}
+
+/* Nút chung */
+.btn-modal-close,
+.btn-save,
+.btn-cancel {
+  width: 100%;
+  padding: 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+/* Nút Close */
+.btn-modal-close {
+  background-color: #2563eb;
+}
+.btn-modal-close:hover {
+  background-color: #1d4ed8;
+  box-shadow: 0 0 6px rgba(37, 99, 235, 0.4);
+}
+
+/* Nút Save */
+.btn-save {
+  background-color: #10b981;
+}
+.btn-save:hover {
+  background-color: #059669;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+}
+
+/* Nút Cancel */
+.btn-cancel {
+  background-color: #ef4444;
+}
+.btn-cancel:hover {
+  background-color: #dc2626;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
