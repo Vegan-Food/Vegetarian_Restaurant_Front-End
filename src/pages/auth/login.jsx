@@ -7,6 +7,7 @@ import { Container, Row, Col, Form, Button, Card, ToggleButton, ButtonGroup } fr
 import 'react-toastify/dist/ReactToastify.css';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
+import { login } from '../../api/auth';
 
 const appTheme = {
   primary: '#347928',
@@ -24,10 +25,19 @@ const Login = () => {
   const handleSuccess = async (credentialResponse) => {
     const decoded = jwtDecode(credentialResponse.credential);
     localStorage.setItem('user', JSON.stringify(decoded));
+    try {
+      const res = await login(decoded.email, decoded.name);
+      // Lưu token vào localStorage
+      if (res && res.token) {
+        localStorage.setItem('token', res.token);
+        console.log('Token:', res.token);
+      }
+    } catch (err) {
+      toast.error('Lỗi gửi thông tin đến server!');
+    }
     // In ra console thông tin cần thiết
     console.log('Tên:', decoded.name);
     console.log('Email:', decoded.email);
-    console.log('Token:', credentialResponse.credential);
     setTimeout(() => {
       navigate('/');
     }, 3000);
