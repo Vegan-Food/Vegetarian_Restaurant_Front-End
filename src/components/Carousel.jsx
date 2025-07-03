@@ -12,43 +12,27 @@ const Carousels = () => {
     {
       id: 1,
       image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2080&q=80",
-      title: "Ẩm Thực Chay Tươi Ngon",
-      subtitle: "Khám phá thế giới ẩm thực thuần chay với nguyên liệu organic tươi sạch",
-      features: ["100% Organic", "Không chất bảo quản", "Giao hàng nhanh"],
-      buttonText: "Khám phá ngay",
-      link: "#menu",
-      badge: "Mới"
+      title: "Fresh Cuisine",
+      subtitle: "Discover the world of vegan cuisine with fresh organic ingredients",
+      features: ["100% Organic", "No preservatives", "Fast delivery"],
+      badge: "New"
     },
     {
       id: 2,
-      image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-      title: "Combo Gia Đình Siêu Tiết Kiệm",
-      subtitle: "Thực đơn đa dạng cho cả gia đình - Giảm 25% cho combo từ 4 người",
-      features: ["Giảm 25%", "Đa dạng món", "Phù hợp gia đình"],
-      buttonText: "Xem combo",
-      link: "#combo-family",
-      badge: "Hot"
+      image: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2080&q=80",
+      title: "Free Delivery 24/7",
+      subtitle: "Order online - Delivery in 30 minutes - Free shipping for orders from 200K",
+      features: ["30min fast delivery", "Free shipping", "24/7"],
+      badge: "Free Ship"
     },
     {
       id: 3,
       image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ca4b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2081&q=80",
-      title: "Món Chay Cao Cấp",
-      subtitle: "Trải nghiệm ẩm thực chay đẳng cấp với các món được chế biến tinh tế",
-      features: ["Cao cấp", "Tinh tế", "Độc đáo"],
-      buttonText: "Thưởng thức",
-      link: "#premium",
+      title: "Premium Vegan Dishes",
+      subtitle: "Experience high-class vegan cuisine with delicately prepared dishes",
+      features: ["Premium", "Delicate", "Unique"],
       badge: "Premium"
-    },
-    {
-      id: 4,
-      image: "https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2080&q=80",
-      title: "Giao Hàng Miễn Phí 24/7",
-      subtitle: "Đặt hàng online - Giao hàng trong 30 phút - Miễn phí ship cho đơn từ 200K",
-      features: ["Giao nhanh 30p", "Miễn phí ship", "24/7"],
-      buttonText: "Đặt hàng ngay",
-      link: "#delivery",
-      badge: "Free Ship"
-    },
+    }
   ]
 
   const handleSelect = (selectedIndex) => {
@@ -77,11 +61,15 @@ const Carousels = () => {
                     <span>{slide.badge}</span>
                   </div>
 
-                  {/* Title */}
-                  <h2 className="banner-title">{slide.title}</h2>
-
-                  {/* Subtitle */}
-                  <p className="banner-subtitle">{slide.subtitle}</p>
+                  {/* Title and Subtitle */}
+                  <div className="banner-text-wrapper">
+                    <h2 className="banner-title">
+                      <span className="title-text">{slide.title}</span>
+                    </h2>
+                    <p className="banner-subtitle">
+                      <span className="subtitle-text">{slide.subtitle}</span>
+                    </p>
+                  </div>
 
                   {/* Features */}
                   <div className="banner-features">
@@ -98,16 +86,6 @@ const Carousels = () => {
                         </div>
                       );
                     })}
-                  </div>
-
-                  {/* CTA Button */}
-                  <div className="banner-actions">
-                    <a href={slide.link} className="banner-btn primary">
-                      {slide.buttonText}
-                    </a>
-                    <a href="#menu" className="banner-btn secondary">
-                      Xem thực đơn
-                    </a>
                   </div>
                 </div>
               </div>
@@ -137,6 +115,7 @@ const Carousels = () => {
 
         <button
           className="nav-btn next-btn"
+          style={{ marginRight: "20px" }}
           onClick={() => setIndex(index === bannerSlides.length - 1 ? 0 : index + 1)}
         >
           <ChevronRight size={24} />
