@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Sidebar from "../ManagerSidebar/ManagerSidebar.jsx"
+import { createProduct } from "../../../api/product" // Thêm dòng này
 import "./AddFoodPage.css"
 
 const ManagerAddFoodPage = ({ onSave }) => {
@@ -19,6 +20,7 @@ const ManagerAddFoodPage = ({ onSave }) => {
   const [imagePreview, setImagePreview] = useState("")
   const [imageFile, setImageFile] = useState(null)
   const [errors, setErrors] = useState({})
+  const [loading, setLoading] = useState(false) // Thêm loading state
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -90,27 +92,34 @@ const ManagerAddFoodPage = ({ onSave }) => {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
 
     if (!validateForm()) {
       return
     }
 
-    // Convert price and stock_quantity to numbers
+    // Chuẩn hóa dữ liệu gửi lên API
     const foodData = {
-      ...formData,
+      name: formData.name,
+      description: formData.description,
       price: Number.parseInt(formData.price),
       stock_quantity: Number.parseInt(formData.stock_quantity),
+      image_url: formData.image_url,
+      category: formData.category,
+      total_order: 0
     }
 
-    if (onSave) {
-      onSave(foodData)
+    setLoading(true)
+    try {
+      await createProduct(foodData)
+      alert("Food item added successfully!")
+      navigate("/manager-food")
+    } catch (error) {
+      alert("Failed to add food item. Please try again!")
+    } finally {
+      setLoading(false)
     }
-
-    // Show success message
-    alert("Food item added successfully!")
-    navigate("/manager-food")
   }
 
   const handleCancel = () => {
@@ -326,9 +335,9 @@ const ManagerAddFoodPage = ({ onSave }) => {
                 <button type="button" className="reset-btn-secondary" onClick={resetForm}>
                   Reset
                 </button>
-                <button type="submit" className="add-btn">
+                <button type="submit" className="add-btn" disabled={loading}>
                   <span className="add-icon">+</span>
-                  Add Food Item
+                  {loading ? "Adding..." : "Add Food Item"}
                 </button>
               </div>
             </form>

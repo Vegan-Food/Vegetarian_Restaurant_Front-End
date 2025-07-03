@@ -7,7 +7,7 @@ import { Container, Row, Col, Form, Button, Card, ToggleButton, ButtonGroup } fr
 import 'react-toastify/dist/ReactToastify.css';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import { login } from '../../api/auth';
+import { loginByGoogle } from '../../api/auth';
 
 const appTheme = {
   primary: '#347928',
@@ -26,7 +26,7 @@ const Login = () => {
     const decoded = jwtDecode(credentialResponse.credential);
     localStorage.setItem('user', JSON.stringify(decoded));
     try {
-      const res = await login(decoded.email, decoded.name);
+      const res = await loginByGoogle(decoded.email, decoded.name);
       // Lưu token vào localStorage
       if (res && res.token) {
         localStorage.setItem('token', res.token);
