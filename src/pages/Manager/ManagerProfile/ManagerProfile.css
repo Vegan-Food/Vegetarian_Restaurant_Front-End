@@ -241,6 +241,101 @@
   transform: translateY(0);
 }
 
+/* Change Password Modal */
+.change-password-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.change-password-form {
+  background: #fff;
+  padding: 32px 24px;
+  border-radius: 12px;
+  min-width: 340px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.form-group input[type="password"] {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #bdbdbd;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+  outline: none;
+  background: #fafbfc;
+}
+
+.form-group input[type="password"]:focus {
+  border-color: #388e3c;
+  background: #fff;
+}
+
+.form-actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+.update-btn {
+  background: #388e3c;
+  color: #fff;
+  border: none;
+  padding: 8px 22px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.update-btn:hover {
+  background: #256029;
+}
+
+.btn-text {
+  background: none;
+  border: none;
+  color: #388e3c;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-text:hover {
+  background: #f1f1f1;
+  color: #256029;
+}
+
+.error-message {
+  color: #d32f2f;
+  margin-bottom: 8px;
+}
+
+.success-message {
+  color: #388e3c;
+  margin-bottom: 8px;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .dashboard-container {
