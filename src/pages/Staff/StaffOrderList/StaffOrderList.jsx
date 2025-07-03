@@ -66,7 +66,7 @@ const StaffOrderList = () => {
   }
 
   const handleViewDetail = (orderId) => {
-    navigate(`/staff-order-detail/${orderId}`)
+    navigate(`/staff-order-detail/${orderId.replace("#", "")}`)
   }
 
   const openStatusModal = (order) => {

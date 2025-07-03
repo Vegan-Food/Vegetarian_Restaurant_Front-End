@@ -12,16 +12,16 @@ const StaffSupport = () => {
   const [selectedTicket, setSelectedTicket] = useState(null)
   const [supportTickets, setSupportTickets] = useState([
     {
-      id: "#SUP001",
+      id: "SUP001",
       customer: "Nguyen Van A",
       subject: "Order Delay Issue",
       priority: "High",
       status: "Open",
       createdTime: "2 hours ago",
-      description: "My order #ORD001 is delayed. When will it be delivered?",
+      description: "My order ORD001 is delayed. When will it be delivered?",
     },
     {
-      id: "#SUP002",
+      id: "SUP002",
       customer: "Tran Thi B",
       subject: "Food Quality Complaint",
       priority: "Medium",
@@ -30,7 +30,7 @@ const StaffSupport = () => {
       description: "The food quality was not as expected. Need refund.",
     },
     {
-      id: "#SUP003",
+      id: "SUP003",
       customer: "Le Van C",
       subject: "Order Tracking",
       priority: "Low",
@@ -39,7 +39,7 @@ const StaffSupport = () => {
       description: "Cannot track my order status. Please help.",
     },
     {
-      id: "#SUP004",
+      id: "SUP004",
       customer: "Pham Thi D",
       subject: "Payment Issue",
       priority: "High",
@@ -69,7 +69,7 @@ const StaffSupport = () => {
   }
 
   const handleViewDetail = (ticketId) => {
-    navigate(`/staff-support-detail/${ticketId}`)
+  navigate(`/staff-support-detail/${ticketId}`)
   }
 
   const openResponseModal = (ticket) => {

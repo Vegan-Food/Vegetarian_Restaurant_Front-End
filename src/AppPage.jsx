@@ -28,6 +28,9 @@ import OrderHistory from './pages/orderHistory/OrderHistory';
 import OrderDetail from './pages/orderDetail/OrderDetail';
 import BillPage from './pages/bill/BillPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import StaffOrderDetail from './pages/Staff/StaffOrderDetail/StaffOrderDetail';
+import StaffFoodDetail from './pages/Staff/StaffFoodDetail/StaffFoodDetail';
+import StaffSupportDetail from './pages/Staff/StaffSupportDetail/StaffSupportDetail';
 
 function App() {
   return (
@@ -95,7 +98,11 @@ function App() {
             <Route path="/owner-customermanagement" element={<ManageCustomers />} />
             <Route path="/owner-ordersmanagement" element={<ManageOrders />} />
             <Route path="/owner-staffmanagement" element={<ManageStaff />} />
+            <Route path="/staff-order-detail/:orderId" element={<StaffOrderDetail />} />
+            <Route path="/staff-food-detail/:id" element={<StaffFoodDetail />} />
+            <Route path="/staff-support-detail/:ticketId" element={<StaffSupportDetail />} />
 
+            {/* Catch-all route */}
 
 
           </Routes>
