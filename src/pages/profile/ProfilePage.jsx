@@ -6,16 +6,13 @@ import SideBarProfile from '../../components/SideBarProfile';
 import { getCustomerProfile } from '../../api/customer_profile';
 
 const ProfilePage = () => {
-    // State cho địa chỉ động
+    // State for dynamic address
     const [provinces, setProvinces] = useState([]);
-    const [districts, setDistricts] = useState([]);
     const [wards, setWards] = useState([]);
-
     const [selectedProvince, setSelectedProvince] = useState('');
-    const [selectedDistrict, setSelectedDistrict] = useState('');
     const [selectedWard, setSelectedWard] = useState('');
 
-    // State cho thông tin profile
+    // State for profile info
     const [profile, setProfile] = useState({
         email: '',
         name: '',
@@ -28,11 +25,8 @@ const ProfilePage = () => {
         const fetchProfile = async () => {
             try {
                 const data = await getCustomerProfile();
-                console.log('Profile data:', data); // Log profile data for debugging
                 setProfile(data);
-
             } catch (err) {
-                // Xử lý lỗi nếu cần
                 console.error('Error fetching profile:', err);
             }
         };
@@ -41,32 +35,27 @@ const ProfilePage = () => {
 
     // Fetch provinces data
     useEffect(() => {
-        fetch('https://provinces.open-api.vn/api/?depth=3')
+        fetch('https://vietnamlabs.com/api/vietnamprovince')
             .then(res => res.json())
-            .then(data => setProvinces(data));
+            .then(data => {
+                if (Array.isArray(data.data)) setProvinces(data.data);
+                else setProvinces([]);
+            });
     }, []);
 
-    // Update districts when province changes
+    // Update wards when province changes
     useEffect(() => {
         if (selectedProvince) {
-            const province = provinces.find(p => p.code === Number(selectedProvince));
-            setDistricts(province ? province.districts : []);
-            setSelectedDistrict('');
+            const province = provinces.find(p => p.province === selectedProvince);
+            setWards(province ? province.wards : []);
+            setSelectedWard('');
+        } else {
             setWards([]);
             setSelectedWard('');
         }
     }, [selectedProvince, provinces]);
 
-    // Update wards when district changes
-    useEffect(() => {
-        if (selectedDistrict) {
-            const district = districts.find(d => d.code === Number(selectedDistrict));
-            setWards(district ? district.wards : []);
-            setSelectedWard('');
-        }
-    }, [selectedDistrict, districts]);
-
-    // Thêm hàm xử lý thay đổi input profile
+    // Handle profile input change
     const handleProfileChange = (e) => {
         const { name, value } = e.target;
         setProfile(prev => ({
@@ -147,13 +136,12 @@ const ProfilePage = () => {
                                                     type="text"
                                                     placeholder="House number, street name"
                                                     value={profile.address}
-                                                    readOnly
                                                 />
                                             </Form.Group>
                                         </Col>
                                     </Row>
                                     <Row>
-                                        <Col md={4}>
+                                        <Col md={6}>
                                             <Form.Group className="mb-3">
                                                 <Form.Label>Province/City</Form.Label>
                                                 <Form.Select
@@ -162,31 +150,14 @@ const ProfilePage = () => {
                                                 >
                                                     <option value="">Select province/city</option>
                                                     {provinces.map(province => (
-                                                        <option key={province.code} value={province.code}>
-                                                            {province.name}
+                                                        <option key={province.province} value={province.province}>
+                                                            {province.province}
                                                         </option>
                                                     ))}
                                                 </Form.Select>
                                             </Form.Group>
                                         </Col>
-                                        <Col md={4}>
-                                            <Form.Group className="mb-3">
-                                                <Form.Label>District</Form.Label>
-                                                <Form.Select
-                                                    value={selectedDistrict}
-                                                    onChange={e => setSelectedDistrict(e.target.value)}
-                                                    disabled={!districts.length}
-                                                >
-                                                    <option value="">Select district</option>
-                                                    {districts.map(district => (
-                                                        <option key={district.code} value={district.code}>
-                                                            {district.name}
-                                                        </option>
-                                                    ))}
-                                                </Form.Select>
-                                            </Form.Group>
-                                        </Col>
-                                        <Col md={4}>
+                                        <Col md={6}>
                                             <Form.Group className="mb-3">
                                                 <Form.Label>Ward</Form.Label>
                                                 <Form.Select
@@ -196,7 +167,7 @@ const ProfilePage = () => {
                                                 >
                                                     <option value="">Select ward</option>
                                                     {wards.map(ward => (
-                                                        <option key={ward.code} value={ward.code}>
+                                                        <option key={ward.name} value={ward.name}>
                                                             {ward.name}
                                                         </option>
                                                     ))}
