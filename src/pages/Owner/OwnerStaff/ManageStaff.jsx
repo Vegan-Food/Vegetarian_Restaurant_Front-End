@@ -152,7 +152,6 @@ const ManageStaff = () => {
                   <tr>
                     <th>STAFF MEMBER</th>
                     <th>POSITION</th>
-                    <th>DEPARTMENT</th>
                     <th>CONTACT</th>
                     <th>JOIN DATE</th>
                     <th>STATUS</th>
@@ -177,7 +176,6 @@ const ManageStaff = () => {
                         </div>
                       </td>
                       <td>{staff.position}</td>
-                      <td>{staff.department}</td>
                       <td>
                         <div className="contact-info">
                           <span className="contact-icon">📧</span>
