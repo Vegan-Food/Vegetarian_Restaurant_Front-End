@@ -2,12 +2,13 @@
 
 import { useState } from "react"
 import Sidebar from "../OwnerSidebar/OwnerSidebar.jsx"
+import CustomerViewModal from "./CustomerViewModal.jsx"
 import "./ManageCustomers.css"
 
 const ManageCustomers = () => {
   const [searchTerm, setSearchTerm] = useState("")
-
-  const customers = [
+  const [viewCustomer, setViewCustomer] = useState(null)
+  const [customers, setCustomers] = useState([
     {
       id: 1,
       name: "Alice Johnson",
@@ -48,17 +49,25 @@ const ManageCustomers = () => {
       totalSpent: 89.99,
       lastOrder: "2024-01-10",
     },
-  ]
+  ])
 
   const filteredCustomers = customers.filter(
     (customer) =>
       customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.email.toLowerCase().includes(searchTerm.toLowerCase()),
+      customer.email.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   const handleLogout = () => {
     localStorage.removeItem("token")
     // navigate("/login")
+  }
+
+  const handleDelete = (id) => {
+    const confirmed = window.confirm("Are you sure you want to delete this customer?")
+    if (confirmed) {
+      const updated = customers.filter((c) => c.id !== id)
+      setCustomers(updated)
+    }
   }
 
   return (
@@ -67,8 +76,7 @@ const ManageCustomers = () => {
       <header className="dashboard-header">
         <Sidebar />
         <div className="header-container">
-          <div className="header-left">
-          </div>
+          <div className="header-left"></div>
         </div>
       </header>
 
@@ -183,10 +191,18 @@ const ManageCustomers = () => {
                       </td>
                       <td>
                         <div className="action-buttons">
-                          <button className="action-btn edit" title="Edit Customer">
+                          <button
+                            className="action-btn edit"
+                            title="View Customer"
+                            onClick={() => setViewCustomer(customer)}
+                          >
                             <span>✏️</span>
                           </button>
-                          <button className="action-btn delete" title="Delete Customer">
+                          <button
+                            className="action-btn delete"
+                            title="Delete Customer"
+                            onClick={() => handleDelete(customer.id)}
+                          >
                             <span>🗑️</span>
                           </button>
                         </div>
@@ -199,6 +215,13 @@ const ManageCustomers = () => {
           </div>
         </div>
       </div>
+
+      {viewCustomer && (
+        <CustomerViewModal
+          customer={viewCustomer}
+          onClose={() => setViewCustomer(null)}
+        />
+      )}
     </div>
   )
 }
