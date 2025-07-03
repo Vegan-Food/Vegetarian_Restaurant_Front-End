@@ -31,6 +31,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import StaffOrderDetail from './pages/Staff/StaffOrderDetail/StaffOrderDetail';
 import StaffFoodDetail from './pages/Staff/StaffFoodDetail/StaffFoodDetail';
 import StaffSupportDetail from './pages/Staff/StaffSupportDetail/StaffSupportDetail';
+import ManagerFoodDetail from './pages/Manager/FoodManagement/ManagerFoodDetail';
 
 function App() {
   return (
@@ -84,6 +85,7 @@ function App() {
             <Route path="/manager-orders" element={<ManagerOrderList />} />
             <Route path="/manager-edit-food/:id" element={<ManagerEditFoodPage />} />
             <Route path="/manager-add-food" element={<ManagerAddFoodPage />} />
+            <Route path="/manager-food-detail/:id" element={<ManagerFoodDetail />} />
             <Route path="/login" element={<Login />} />
 
             {/* Route Staff */}

@@ -1,72 +1,61 @@
-"use client"
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { Container, Row, Col, Card, Button, Badge, Spinner } from "react-bootstrap";
+import Sidebar from "../ManagerSidebar/ManagerSidebar";
+import { getProductById, feedBack } from "../../../api/product";
+import "./ManagerFoodList.css";
 
-import { useState, useEffect } from "react"
-import { useParams, useNavigate } from "react-router-dom"
-import { Container, Row, Col, Card, Button, Badge, Spinner } from "react-bootstrap"
-import { appTheme } from "../../../constant/color_constants"
-import StaffSidebar from "../StaffSidebar/StaffSidebar"
-import { getProductById, feedBack } from "../../../api/product"
+const getStatusBadge = (status) => {
+  const statusColors = {
+    Active: "success",
+    Inactive: "secondary",
+    Available: "success",
+    "Out of Stock": "danger",
+    Limited: "warning",
+  };
+  return <Badge bg={statusColors[status] || "secondary"}>{status}</Badge>;
+};
 
-const StaffFoodDetail = () => {
-  const { id } = useParams()
-  const navigate = useNavigate()
-  const [food, setFood] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [feedbacks, setFeedbacks] = useState([])
-  const [loadingFeedback, setLoadingFeedback] = useState(true)
+const getStockBadge = (quantity) => {
+  if (quantity === 0) return <Badge bg="danger">Out of Stock</Badge>;
+  if (quantity <= 10) return <Badge bg="warning" text="dark">Low Stock</Badge>;
+  return <Badge bg="success">In Stock</Badge>;
+};
 
+const ManagerFoodDetail = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const [food, setFood] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Feedback state
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [loadingFeedback, setLoadingFeedback] = useState(true);
+
+  // Lấy sản phẩm theo id
   useEffect(() => {
-    const fetchFood = async () => {
-      try {
-        const data = await getProductById(id)
-        setFood(data)
-      } catch (err) {
-        setFood(null)
-      }
-      setLoading(false)
-    }
-    fetchFood()
-  }, [id])
+    setLoading(true);
+    getProductById(id)
+      .then((data) => setFood(data))
+      .catch(() => setFood(null))
+      .finally(() => setLoading(false));
+  }, [id]);
 
+  // Lấy feedback cho sản phẩm
   useEffect(() => {
-    const fetchFeedbacks = async () => {
-      setLoadingFeedback(true)
-      try {
-        const data = await feedBack(id)
-        console.log("Feedbacks:", data)
-        setFeedbacks(data)
-      } catch (err) {
-        setFeedbacks([])
-      }
-      setLoadingFeedback(false)
-    }
-    fetchFeedbacks()
-  }, [id])
-
-  const getStatusBadge = (status) => {
-    const statusColors = {
-      Available: "success",
-      "Out of Stock": "danger",
-      Limited: "warning",
-    }
-    return <Badge bg={statusColors[status]}>{status}</Badge>
-  }
-
-  const getStockBadge = (quantity) => {
-    if (quantity === 0) return <Badge bg="danger">Out of Stock</Badge>
-    if (quantity <= 10) return <Badge bg="warning">Low Stock</Badge>
-    return <Badge bg="success">In Stock</Badge>
-  }
-
-  const handleBack = () => {
-    navigate("/staff-food")
-  }
+    setLoadingFeedback(true);
+    feedBack(id)
+      .then((data) => setFeedbacks(data))
+      .catch(() => setFeedbacks([]))
+      .finally(() => setLoadingFeedback(false));
+  }, [id]);
 
   if (loading) {
     return (
       <div className="dashboard-container">
-        <StaffSidebar />
-        <div className="main-content" style={{ backgroundColor: appTheme.background }}>
+        <Sidebar />
+        <div className="main-content" style={{ backgroundColor: "#FFFBE6" }}>
           <Container fluid className="p-4">
             <div className="text-center">
               <Spinner animation="border" variant="success" />
@@ -74,48 +63,38 @@ const StaffFoodDetail = () => {
           </Container>
         </div>
       </div>
-    )
+    );
   }
 
   if (!food) {
     return (
       <div className="dashboard-container">
-        <StaffSidebar />
-        <div className="main-content" style={{ backgroundColor: appTheme.background }}>
-          <Container fluid className="p-4">
-            <Row className="mb-4">
-              <Col>
-                <h2 style={{ color: appTheme.primary }}>Food Detail</h2>
-                <p className="text-muted">Food item not found.</p>
-              </Col>
-            </Row>
-            <Row>
-              <Col>
-                <Card>
-                  <Card.Body className="text-center">
-                    <h5>Food Item Not Found</h5>
-                    <p className="text-muted">The food item you're looking for doesn't exist.</p>
-                    <Button variant="secondary" onClick={handleBack}>
-                      Back to Food List
-                    </Button>
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
+        <Sidebar />
+        <main className="main-content">
+          <Container className="py-5">
+            <Card className="text-center shadow-sm">
+              <Card.Body>
+                <h3>Food Not Found</h3>
+                <p>The food item you are looking for does not exist.</p>
+                <Button variant="secondary" onClick={() => navigate(-1)}>
+                  Back
+                </Button>
+              </Card.Body>
+            </Card>
           </Container>
-        </div>
+        </main>
       </div>
-    )
+    );
   }
 
   return (
     <div className="dashboard-container">
-      <StaffSidebar />
-      <div className="main-content" style={{ backgroundColor: appTheme.background }}>
+      <Sidebar />
+      <div className="main-content" style={{ backgroundColor: "#FFFBE6" }}>
         <Container fluid className="p-4">
           <Row className="mb-4">
             <Col>
-              <h2 style={{ color: appTheme.primary }}>Food Detail - {food.name}</h2>
+              <h2 style={{ color: "#347928" }}>Food Detail - {food.name}</h2>
               <p className="text-muted">View detailed information about this food item.</p>
             </Col>
           </Row>
@@ -124,7 +103,7 @@ const StaffFoodDetail = () => {
           <Row className="mb-4">
             <Col>
               <Card>
-                <Card.Header style={{ backgroundColor: appTheme.primary, color: "white" }}>
+                <Card.Header style={{ backgroundColor: "#347928", color: "white" }}>
                   <h5 className="mb-0">Product Information</h5>
                 </Card.Header>
                 <Card.Body>
@@ -146,7 +125,7 @@ const StaffFoodDetail = () => {
                     <Col md={8}>
                       <Row className="mb-3">
                         <Col md={6}>
-                          <strong>Product ID:</strong> {food.product_id}
+                          <strong>Name:</strong> {food.name}
                         </Col>
                         <Col md={6}>
                           <strong>Status:</strong> {getStatusBadge(food.status)}
@@ -154,18 +133,7 @@ const StaffFoodDetail = () => {
                       </Row>
                       <Row className="mb-3">
                         <Col md={6}>
-                          <strong>Name:</strong> {food.name}
-                        </Col>
-                        <Col md={6}>
                           <strong>Category:</strong> {food.category}
-                        </Col>
-                      </Row>
-                      <Row className="mb-3">
-                        <Col md={6}>
-                          <strong>Price:</strong>
-                          <span style={{ color: appTheme.primary, fontSize: "1.2em", fontWeight: "bold", marginLeft: "8px" }}>
-                            {food.price}
-                          </span>
                         </Col>
                         <Col md={6}>
                           <strong>Stock Status:</strong> {getStockBadge(food.stock_quantity)}
@@ -173,16 +141,24 @@ const StaffFoodDetail = () => {
                       </Row>
                       <Row className="mb-3">
                         <Col md={6}>
-                          <strong>Stock Quantity:</strong> {food.stock_quantity} units
+                          <strong>Price:</strong>
+                          <span style={{ color: "#347928", fontSize: "1.2em", fontWeight: "bold", marginLeft: "8px" }}>
+                            {food.price?.toLocaleString()}đ
+                          </span>
                         </Col>
                         <Col md={6}>
-                          <strong>Total Orders:</strong> {food.total_order} orders
+                          <strong>Stock Quantity:</strong> {food.stock_quantity} units
                         </Col>
                       </Row>
                       <Row className="mb-3">
                         <Col md={12}>
                           <strong>Description:</strong>
                           <p className="mt-2 text-muted">{food.description}</p>
+                        </Col>
+                      </Row>
+                      <Row className="mb-3">
+                        <Col md={12}>
+                          <strong>Total Orders:</strong> {food.total_order} orders
                         </Col>
                       </Row>
                     </Col>
@@ -196,8 +172,8 @@ const StaffFoodDetail = () => {
           <Row className="mb-4">
             <Col>
               <Card>
-                <Card.Header style={{ backgroundColor: appTheme.secondary }}>
-                  <h5 className="mb-0" style={{ color: appTheme.primary }}>Customer Feedback</h5>
+                <Card.Header style={{ backgroundColor: "#C0EBA6" }}>
+                  <h5 className="mb-0" style={{ color: "#347928" }}>Customer Feedback</h5>
                 </Card.Header>
                 <Card.Body style={{ background: "#f8f9fa", maxHeight: 380, overflowY: "auto" }}>
                   {loadingFeedback ? (
@@ -231,7 +207,7 @@ const StaffFoodDetail = () => {
                                 justifyContent: "center",
                                 fontWeight: "bold",
                                 fontSize: 20,
-                                color: appTheme.primary,
+                                color: "#347928",
                                 marginRight: 16,
                                 flexShrink: 0
                               }}
@@ -260,7 +236,7 @@ const StaffFoodDetail = () => {
           {/* Action Buttons */}
           <Row>
             <Col>
-              <Button variant="secondary" onClick={handleBack} className="me-2">
+              <Button variant="secondary" onClick={() => navigate(-1)} className="me-2">
                 Back to Food List
               </Button>
             </Col>
@@ -268,7 +244,7 @@ const StaffFoodDetail = () => {
         </Container>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default StaffFoodDetail
+export default ManagerFoodDetail;

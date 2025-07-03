@@ -1,4 +1,4 @@
 import { post } from "./config";
 
-export const login = (email, name) =>
+export const loginByGoogle = (email, name) =>
   post("/api/auth/google", { email, name });

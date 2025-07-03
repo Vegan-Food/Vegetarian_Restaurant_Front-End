@@ -1,76 +1,39 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import Sidebar from "../ManagerSidebar/ManagerSidebar.jsx"
+import { getProducts } from "../../../api/product"
 import "./ManagerFoodList.css"
-
-const initialFoodList = [
-  {
-    name: "Vegetarian Pizza",
-    category: "Main Course",
-    price: 65000,
-    status: "Active",
-    description:
-      "Delicious vegetarian pizza with fresh vegetables, bell peppers, mushrooms, and mozzarella cheese on a crispy thin crust",
-    stock_quantity: 10,
-    image_url: "",
-  },
-  {
-    name: "Boiled Artichoke with Mustard Sauce",
-    category: "Main Course",
-    price: 55000,
-    status: "Active",
-    description:
-      "Fresh artichoke served with homemade mustard sauce, garnished with herbs and served with crusty bread",
-    stock_quantity: 20,
-    image_url: "",
-  },
-  {
-    name: "Gourd Soup with Mushroom & Beetroot",
-    category: "Special",
-    price: 85000,
-    status: "Inactive",
-    description:
-      "Special soup with organic ingredients including fresh gourd, wild mushrooms, and roasted beetroot in a rich vegetable broth",
-    stock_quantity: 15,
-    image_url: "",
-  },
-  {
-    name: "Vegan Condensed Milk",
-    category: "Dessert",
-    price: 45000,
-    status: "Active",
-    description:
-      "Creamy vegan condensed milk dessert made from coconut milk and natural sweeteners, perfect for a guilt-free treat",
-    stock_quantity: 25,
-    image_url: "",
-  },
-]
 
 const ManagerFoodList = () => {
   const navigate = useNavigate()
-  const [foodList, setFoodList] = useState(initialFoodList)
+  const [foodList, setFoodList] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  const handleEditClick = (index) => {
-    // Navigate to edit page with food ID
-    navigate(`/manager-edit-food/${index}`)
+  useEffect(() => {
+    setLoading(true)
+    getProducts()
+      .then((data) => setFoodList(data))
+      .catch(() => setFoodList([]))
+      .finally(() => setLoading(false))
+  }, [])
+
+  const handleEditClick = (product_id) => {
+    navigate(`/manager-edit-food/${product_id}`)
   }
 
-  const handleDetailClick = (index) => {
-    // Chuyển hướng đến trang chi tiết
-    navigate(`/food-detail/${index}`)
+  const handleDetailClick = (product_id) => {
+    navigate(`/manager-food-detail/${product_id}`)
   }
 
   const handleAddClick = () => {
-    // Navigate to add food page
     navigate("/manager-add-food")
   }
 
-  const handleDeleteClick = (index) => {
+  const handleDeleteClick = (product_id) => {
     if (window.confirm("Are you sure you want to delete this food item?")) {
-      const updated = foodList.filter((_, i) => i !== index)
-      setFoodList(updated)
+      setFoodList(foodList.filter((food) => food.product_id !== product_id))
     }
   }
 
@@ -107,69 +70,88 @@ const ManagerFoodList = () => {
           </button>
         </div>
 
-        <table className="food-table">
-          <thead>
-            <tr>
-              <th>Food</th>
-              <th>Category</th>
-              <th>Price</th>
-              <th>Stock</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {foodList.map((food, index) => (
-              <tr key={index}>
-                <td>
-                  <div className="food-info">
-                    {food.image_url && (
-                      <img src={food.image_url || "/placeholder.svg"} alt={food.name} className="food-thumbnail" />
-                    )}
-                    <span className="food-name">{food.name}</span>
-                  </div>
-                </td>
-                <td>
-                  <span className="category-tag">{food.category}</span>
-                </td>
-                <td className="price-cell">{food.price.toLocaleString()}đ</td>
-                <td className="stock-cell">
-                  <span className={`stock-badge ${food.stock_quantity < 10 ? "low-stock" : ""}`}>
-                    {food.stock_quantity}
-                  </span>
-                </td>
-                <td>
-                  <span className={`badge ${food.status === "Active" ? "active" : "inactive"}`}>{food.status}</span>
-                </td>
-                <td>
-                  <div className="action-buttons">
-                    <button className="detail-btn" onClick={() => handleDetailClick(index)} title="View Details">
-                      Detail
-                    </button>
-                    <button className="edit-btn" onClick={() => handleEditClick(index)} title="Edit">
-                      Edit
-                    </button>
-                    <button className="delete-btn" onClick={() => handleDeleteClick(index)} title="Delete">
-                      Delete
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {foodList.length === 0 && (
-          <div className="empty-state">
-            <div className="empty-content">
-              <div className="empty-icon">🍽️</div>
-              <h4>No food items yet</h4>
-              <p>Start by adding your first food item to the menu</p>
-              <button className="add-first-btn" onClick={handleAddClick}>
-                Add First Food Item
-              </button>
+        {loading ? (
+          <div className="text-center my-5">Loading...</div>
+        ) : (
+          <>
+            <div
+              style={{
+                background: "#fff",
+                borderRadius: 8,
+                boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+                marginBottom: 24,
+              }}
+            >
+              <table className="food-table" style={{ width: "100%", tableLayout: "fixed" }}>
+                <thead>
+                  <tr>
+                    <th>Food</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+              </table>
+              <div style={{ maxHeight: "50vh", overflowY: "auto" }}>
+                <table className="food-table" style={{ width: "100%", tableLayout: "fixed" }}>
+                  <tbody>
+                    {foodList.map((food) => (
+                      <tr key={food.product_id}>
+                        <td>
+                          <div className="food-info">
+                            {food.image_url && (
+                              <img src={food.image_url || "/placeholder.svg"} alt={food.name} className="food-thumbnail" />
+                            )}
+                            <span className="food-name">{food.name}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <span className="category-tag">{food.category}</span>
+                        </td>
+                        <td className="price-cell">{food.price.toLocaleString()}đ</td>
+                        <td className="stock-cell">
+                          <span className={`stock-badge ${food.stock_quantity < 10 ? "low-stock" : ""}`}>
+                            {food.stock_quantity}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={`badge ${food.status === "Active" ? "active" : "inactive"}`}>{food.status || "Active"}</span>
+                        </td>
+                        <td>
+                          <div className="action-buttons">
+                            <button className="detail-btn" onClick={() => handleDetailClick(food.product_id)} title="View Details">
+                              Detail
+                            </button>
+                            <button className="edit-btn" onClick={() => handleEditClick(food.product_id)} title="Edit">
+                              Edit
+                            </button>
+                            <button className="delete-btn" onClick={() => handleDeleteClick(food.product_id)} title="Delete">
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
+
+            {foodList.length === 0 && !loading && (
+              <div className="empty-state">
+                <div className="empty-content">
+                  <div className="empty-icon">🍽️</div>
+                  <h4>No food items yet</h4>
+                  <p>Start by adding your first food item to the menu</p>
+                  <button className="add-first-btn" onClick={handleAddClick}>
+                    Add First Food Item
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>

@@ -25,11 +25,11 @@ const Header = () => {
   }
 
   const handleCartClick = () => {
-    navigate('/cart')
+    window.location.href = '/cart'
   }
 
   const handleLoginClick = () => {
-    navigate('/login')
+    window.location.href = '/login'
   }
 
   return (
@@ -93,12 +93,12 @@ const Header = () => {
                   src={user.picture || "https://cdn-icons-png.flaticon.com/512/149/149071.png"}
                   alt="avatar"
                   style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover", marginRight: 8, cursor: "pointer" }}
-                  onClick={() => navigate("/account/profile")}
+                  onClick={() => window.location.href = "/account/profile"}
                 />
                 <span
                   className="me-2 fw-bold"
                   style={{ cursor: "pointer" }}
-                  onClick={() => navigate("/account/profile")}
+                  onClick={() => window.location.href = "/account/profile"}
                 >
                   {user.name || "User"}
                 </span>

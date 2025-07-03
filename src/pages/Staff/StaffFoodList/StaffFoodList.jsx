@@ -1,60 +1,34 @@
 "use client"
 
-import { useState } from "react"
-import { Container, Row, Col, Card, Table, Badge, Button, Form, InputGroup } from "react-bootstrap"
+import { useState, useEffect } from "react"
+import { Container, Row, Col, Card, Table, Badge, Button, Form, InputGroup, Spinner } from "react-bootstrap"
 import { useNavigate } from "react-router-dom"
 import { appTheme } from "../../../constant/color_constants"
 import StaffSidebar from "../StaffSidebar/StaffSidebar"
+import { getProducts } from "../../../api/product"
 
 const StaffFoodList = () => {
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState("")
-  const [foods, setFoods] = useState([
-    {
-      id: 1,
-      name: "Beef Pho",
-      category: "Noodles",
-      price: "75,000đ",
-      status: "Available",
-      description: "Traditional Vietnamese beef noodle soup",
-      image: "/placeholder.svg?height=60&width=60",
-    },
-    {
-      id: 2,
-      name: "Grilled Pork",
-      category: "Main Course",
-      price: "65,000đ",
-      status: "Available",
-      description: "Marinated grilled pork with rice",
-      image: "/placeholder.svg?height=60&width=60",
-    },
-    {
-      id: 3,
-      name: "Fish Cake",
-      category: "Appetizer",
-      price: "45,000đ",
-      status: "Out of Stock",
-      description: "Fresh fish cake with herbs",
-      image: "/placeholder.svg?height=60&width=60",
-    },
-    {
-      id: 4,
-      name: "Spring Rolls",
-      category: "Appetizer",
-      price: "35,000đ",
-      status: "Available",
-      description: "Fresh spring rolls with shrimp",
-      image: "/placeholder.svg?height=60&width=60",
-    },
-  ])
+  const [foods, setFoods] = useState([])
+  const [loading, setLoading] = useState(true)
 
-  const getStatusBadge = (status) => {
-    const statusColors = {
-      Available: "success",
-      "Out of Stock": "danger",
-      Limited: "warning",
+  useEffect(() => {
+    const fetchFoods = async () => {
+      try {
+        const data = await getProducts()
+        setFoods(data)
+      } catch (err) {
+        setFoods([])
+      }
+      setLoading(false)
     }
-    return <Badge bg={statusColors[status]}>{status}</Badge>
+    fetchFoods()
+  }, [])
+
+  const getStatusBadge = (stock_quantity) => {
+    if (stock_quantity > 0) return <Badge bg="success">Available</Badge>
+    return <Badge bg="danger">Out of Stock</Badge>
   }
 
   const handleViewDetail = (foodId) => {
@@ -66,6 +40,14 @@ const StaffFoodList = () => {
       food.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       food.category.toLowerCase().includes(searchTerm.toLowerCase()),
   )
+
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
+        <Spinner animation="border" variant="success" />
+      </div>
+    )
+  }
 
   return (
     <div className="dashboard-container">
@@ -114,11 +96,11 @@ const StaffFoodList = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredFoods.map((food, index) => (
-                        <tr key={index}>
+                      {filteredFoods.map((food) => (
+                        <tr key={food.product_id}>
                           <td>
                             <img
-                              src={food.image || "/placeholder.svg"}
+                              src={food.image_url || "/placeholder.svg"}
                               alt={food.name}
                               style={{ width: "60px", height: "60px", objectFit: "cover", borderRadius: "8px" }}
                             />
@@ -128,12 +110,12 @@ const StaffFoodList = () => {
                           </td>
                           <td>{food.category}</td>
                           <td>
-                            <strong>{food.price}</strong>
+                            <strong>{food.price.toLocaleString()}đ</strong>
                           </td>
-                          <td>{getStatusBadge(food.status)}</td>
+                          <td>{getStatusBadge(food.stock_quantity)}</td>
                           <td>{food.description}</td>
                           <td>
-                            <Button variant="outline-primary" size="sm" onClick={() => handleViewDetail(food.id)}>
+                            <Button variant="outline-primary" size="sm" onClick={() => handleViewDetail(food.product_id)}>
                               View Detail
                             </Button>
                           </td>
