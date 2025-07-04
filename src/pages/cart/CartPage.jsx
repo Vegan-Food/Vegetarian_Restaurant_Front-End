@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './CartPage.css';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import meal_data from '../../data/meal_data.json';
 import Carousel from '../../components/Carousel';
 import Chatbot from '../../components/Chatbot';
+import { getCartItems, updateCartItem, removeCartItem } from '../../api/card';
 
 // CartItem Component
 const CartItem = ({ item, onUpdateQuantity, onRemove }) => (
@@ -21,7 +21,15 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }) => (
       <button onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}>+</button>
     </div>
     <p className="item-total">{(item.price * item.quantity).toLocaleString()}₫</p>
-    <button className="remove-btn" onClick={() => onRemove(item.id)}>×</button>
+<button
+  className="remove-btn"
+  onClick={() => {
+    onRemove(item.id);        // vẫn gọi API xóa
+    window.location.reload(); // f5 trang sau khi gọi
+  }}
+>
+  ×
+</button>
   </div>
 );
 
@@ -34,8 +42,8 @@ const CartSummary = ({ subtotal, shippingFee = 30000, cartItems }) => {
       state: {
         cartItems,
         subtotal,
-        shippingFee
-      }
+        shippingFee,
+      },
     });
   };
 
@@ -61,46 +69,64 @@ const CartSummary = ({ subtotal, shippingFee = 30000, cartItems }) => {
       <button className="checkout-btn" onClick={handleCheckout}>
         Proceed to Checkout
       </button>
-      <button className="continue-shopping" onClick={handleContinueBuy}>Continue Shopping</button>
+      <button className="continue-shopping" onClick={handleContinueBuy}>
+        Continue Shopping
+      </button>
     </div>
   );
 };
 
 // Main CartPage Component
 const CartPage = () => {
-  const [cartItems, setCartItems] = useState(
-    meal_data.products.map(item => ({
-      id: item.product_id,
-      name: item.name,
-      price: item.price,
-      quantity: 1,
-      image: item.image_url || "/placeholder.svg?height=80&width=80",
-      description: item.description,
-      category: item.category,
-      stock_quantity: item.stock_quantity
-    }))
-  );
+  const [cartItems, setCartItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch cart items using DTO API
+  const fetchCartItems = () => {
+    getCartItems()
+      .then((items) => {
+        const mapped = (items || []).map((item) => ({
+          id: item.productId,
+          name: item.productName,
+          price: item.productPrice,
+          quantity: item.quantity,
+          image: item.imageUrl || "/placeholder.svg?height=80&width=80",
+        }));
+        setCartItems(mapped);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch cart items:", err);
+        setCartItems([]);
+      })
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchCartItems();
+  }, []);
 
   const updateQuantity = (id, newQuantity) => {
     if (newQuantity >= 1) {
-      setCartItems(
-        cartItems.map(item =>
-          item.id === id
-            ? {
-              ...item,
-              quantity: Math.min(newQuantity, item.stock_quantity)
-            }
-            : item
-        )
-      );
+      updateCartItem({ productId: id, quantity: newQuantity })
+        .then(fetchCartItems)
+        .catch(console.error);
     }
   };
 
   const removeItem = (id) => {
-    setCartItems(cartItems.filter(item => item.id !== id));
-  };
+  removeCartItem({ productId: id })
+    .then(() => {
+      setCartItems((prevItems) => prevItems.filter(item => item.id !== id));
+    })
+    .catch(console.error);
+};
+
+
+
 
   const total = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <div className="cart-page">
@@ -110,7 +136,7 @@ const CartPage = () => {
         <h1>My Cart</h1>
         <div className="cart-content">
           <div className="cart-items">
-            {cartItems.map(item => (
+            {cartItems.map((item) => (
               <CartItem
                 key={item.id}
                 item={item}
@@ -119,10 +145,7 @@ const CartPage = () => {
               />
             ))}
           </div>
-          <CartSummary
-            subtotal={total}
-            cartItems={cartItems}
-          />
+          <CartSummary subtotal={total} cartItems={cartItems} />
         </div>
       </main>
       <Footer />
