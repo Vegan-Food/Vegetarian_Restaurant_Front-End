@@ -8,7 +8,6 @@ const mockTickets = [
     id: "SUP001",
     customer: "Nguyen Van A",
     subject: "Order Delay Issue",
-    priority: "High",
     status: "Open",
     createdTime: "2 hours ago",
     description: "My order #ORD001 is delayed. When will it be delivered? I placed the order yesterday and expected it to arrive today. This is causing inconvenience as I have guests coming over for dinner.",
@@ -17,7 +16,6 @@ const mockTickets = [
     id: "SUP002",
     customer: "Tran Thi B",
     subject: "Food Quality Complaint",
-    priority: "Medium",
     status: "In Progress",
     createdTime: "4 hours ago",
     description: "The food quality was not as expected. The rice was undercooked and the vegetables were not fresh. I would like a refund or replacement for this order.",
@@ -26,7 +24,6 @@ const mockTickets = [
     id: "SUP003",
     customer: "Le Van C",
     subject: "Order Tracking",
-    priority: "Low",
     status: "Resolved",
     createdTime: "1 day ago",
     description: "Cannot track my order status. The tracking number provided is not working on the website. Please help me check the current status of my order.",
@@ -35,17 +32,12 @@ const mockTickets = [
     id: "SUP004",
     customer: "Pham Thi D",
     subject: "Payment Issue",
-    priority: "High",
     status: "Open",
     createdTime: "30 minutes ago",
     description: "Payment was deducted from my account but the order was not confirmed. I received the payment confirmation from my bank but no order confirmation from your system.",
   },
 ]
 
-const getPriorityBadge = (priority) => {
-  const colors = { High: "danger", Medium: "warning", Low: "info" }
-  return <Badge bg={colors[priority]} className="px-3 py-2">{priority}</Badge>
-}
 
 const getStatusBadge = (status) => {
   const colors = { 
@@ -108,10 +100,6 @@ const StaffSupportDetail = () => {
                             <div className="mb-3">
                               <strong>Created Time:</strong>
                               <div className="mt-1">{ticket.createdTime}</div>
-                            </div>
-                            <div className="mb-0">
-                              <strong>Priority:</strong>
-                              <div className="mt-2">{getPriorityBadge(ticket.priority)}</div>
                             </div>
                           </Card.Body>
                         </Card>

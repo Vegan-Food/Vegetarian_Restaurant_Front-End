@@ -52,12 +52,6 @@ const StaffFoodDetail = () => {
     return <Badge bg={statusColors[status]}>{status}</Badge>
   }
 
-  const getStockBadge = (quantity) => {
-    if (quantity === 0) return <Badge bg="danger">Out of Stock</Badge>
-    if (quantity <= 10) return <Badge bg="warning">Low Stock</Badge>
-    return <Badge bg="success">In Stock</Badge>
-  }
-
   const handleBack = () => {
     navigate("/staff-food")
   }
@@ -166,9 +160,6 @@ const StaffFoodDetail = () => {
                           <span style={{ color: appTheme.primary, fontSize: "1.2em", fontWeight: "bold", marginLeft: "8px" }}>
                             {food.price}
                           </span>
-                        </Col>
-                        <Col md={6}>
-                          <strong>Stock Status:</strong> {getStockBadge(food.stock_quantity)}
                         </Col>
                       </Row>
                       <Row className="mb-3">
