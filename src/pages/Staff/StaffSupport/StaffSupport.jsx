@@ -15,7 +15,6 @@ const StaffSupport = () => {
       id: "SUP001",
       customer: "Nguyen Van A",
       subject: "Order Delay Issue",
-      priority: "High",
       status: "Open",
       createdTime: "2 hours ago",
       description: "My order ORD001 is delayed. When will it be delivered?",
@@ -24,7 +23,6 @@ const StaffSupport = () => {
       id: "SUP002",
       customer: "Tran Thi B",
       subject: "Food Quality Complaint",
-      priority: "Medium",
       status: "In Progress",
       createdTime: "4 hours ago",
       description: "The food quality was not as expected. Need refund.",
@@ -33,7 +31,6 @@ const StaffSupport = () => {
       id: "SUP003",
       customer: "Le Van C",
       subject: "Order Tracking",
-      priority: "Low",
       status: "Resolved",
       createdTime: "1 day ago",
       description: "Cannot track my order status. Please help.",
@@ -42,21 +39,12 @@ const StaffSupport = () => {
       id: "SUP004",
       customer: "Pham Thi D",
       subject: "Payment Issue",
-      priority: "High",
       status: "Open",
       createdTime: "30 minutes ago",
       description: "Payment was deducted but order not confirmed.",
     },
   ])
 
-  const getPriorityBadge = (priority) => {
-    const priorityColors = {
-      High: "danger",
-      Medium: "warning",
-      Low: "info",
-    }
-    return <Badge bg={priorityColors[priority]}>{priority}</Badge>
-  }
 
   const getStatusBadge = (status) => {
     const statusColors = {
@@ -149,7 +137,6 @@ const StaffSupport = () => {
                         <th>Ticket ID</th>
                         <th>Customer</th>
                         <th>Subject</th>
-                        <th>Priority</th>
                         <th>Status</th>
                         <th>Created</th>
                         <th>Actions</th>
@@ -163,7 +150,6 @@ const StaffSupport = () => {
                           </td>
                           <td>{ticket.customer}</td>
                           <td>{ticket.subject}</td>
-                          <td>{getPriorityBadge(ticket.priority)}</td>
                           <td>{getStatusBadge(ticket.status)}</td>
                           <td>{ticket.createdTime}</td>
                           <td>

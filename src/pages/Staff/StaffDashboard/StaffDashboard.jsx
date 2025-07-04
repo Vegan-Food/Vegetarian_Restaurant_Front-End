@@ -1,11 +1,27 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Container, Row, Col, Card, Badge, Table } from "react-bootstrap"
 import { appTheme } from "../../../constant/color_constants"
 import StaffSidebar from "../StaffSidebar/StaffSidebar"
+import { useNavigate } from "react-router-dom"
 
 const StaffDashboard = () => {
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const token = localStorage.getItem("token")
+    const user = localStorage.getItem("user")
+    if (!token || !user) {
+      navigate("/login")
+      return
+    }
+    const { role } = JSON.parse(user)
+    if (role !== "staff") {
+      navigate("/")
+    }
+  }, [navigate])
+
   const [dashboardData, setDashboardData] = useState({
     assignedOrders: 12,
     completedToday: 8,

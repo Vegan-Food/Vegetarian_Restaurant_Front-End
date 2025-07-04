@@ -1,22 +1,38 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Container, Row, Col, Card, Form, Button, Alert } from "react-bootstrap"
 import { appTheme } from "../../../constant/color_constants"
 import StaffSidebar from "../StaffSidebar/StaffSidebar"
+import { getProfile } from "../../../api/customer_profile"
 
 const StaffProfile = () => {
   const [showAlert, setShowAlert] = useState(false)
   const [profileData, setProfileData] = useState({
-    fullName: "Nguyen Van Staff",
-    email: "staff@veganfood.com",
-    phone: "0123456789",
-    address: "123 Main Street, Ho Chi Minh City",
-    position: "Kitchen Staff",
-    department: "Food Preparation",
-    joinDate: "2023-01-15",
-    employeeId: "EMP001",
+    fullName: "",
+    email: "",
+    phone: "",
+    address: "",
+    position: "Staff",
   })
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await getProfile()
+        setProfileData((prev) => ({
+          ...prev,
+          fullName: res.name || "",
+          email: res.email || "",
+          phone: res.phoneNumber || "",
+          address: res.address || "",
+        }))
+      } catch (err) {
+        // Xử lý lỗi nếu cần
+      }
+    }
+    fetchProfile()
+  }, [])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -52,7 +68,7 @@ const StaffProfile = () => {
           )}
 
           <Row>
-            <Col lg={8}>
+            <Col md={12}>
               <Card>
                 <Card.Header style={{ backgroundColor: appTheme.primary, color: "white" }}>
                   <h5 className="mb-0">Personal Information</h5>
@@ -70,12 +86,6 @@ const StaffProfile = () => {
                             onChange={handleInputChange}
                             required
                           />
-                        </Form.Group>
-                      </Col>
-                      <Col md={6}>
-                        <Form.Group className="mb-3">
-                          <Form.Label>Employee ID</Form.Label>
-                          <Form.Control type="text" name="employeeId" value={profileData.employeeId} disabled />
                         </Form.Group>
                       </Col>
                     </Row>
@@ -118,19 +128,11 @@ const StaffProfile = () => {
                       />
                     </Form.Group>
 
-                    <Row>
-                      <Col md={6}>
+                    <Row>       
                         <Form.Group className="mb-3">
                           <Form.Label>Position</Form.Label>
                           <Form.Control type="text" name="position" value={profileData.position} disabled />
                         </Form.Group>
-                      </Col>
-                      <Col md={6}>
-                        <Form.Group className="mb-3">
-                          <Form.Label>Department</Form.Label>
-                          <Form.Control type="text" name="department" value={profileData.department} disabled />
-                        </Form.Group>
-                      </Col>
                     </Row>
 
                     <Form.Group className="mb-3">
@@ -145,41 +147,6 @@ const StaffProfile = () => {
                       <Button variant="outline-secondary">Cancel</Button>
                     </div>
                   </Form>
-                </Card.Body>
-              </Card>
-            </Col>
-
-            <Col lg={4}>
-              <Card>
-                <Card.Header style={{ backgroundColor: appTheme.secondary }}>
-                  <h5 className="mb-0">Account Settings</h5>
-                </Card.Header>
-                <Card.Body>
-                  <div className="d-grid gap-2">
-                    <Button variant="outline-primary">Change Password</Button>
-                    <Button variant="outline-info">Notification Settings</Button>
-                    <Button variant="outline-warning">Privacy Settings</Button>
-                  </div>
-                </Card.Body>
-              </Card>
-
-              <Card className="mt-3">
-                <Card.Header style={{ backgroundColor: appTheme.accent }}>
-                  <h5 className="mb-0">Work Statistics</h5>
-                </Card.Header>
-                <Card.Body>
-                  <div className="mb-3">
-                    <strong>Orders Completed Today:</strong>
-                    <div className="text-success fs-4">8</div>
-                  </div>
-                  <div className="mb-3">
-                    <strong>This Month:</strong>
-                    <div className="text-primary fs-4">156</div>
-                  </div>
-                  <div className="mb-3">
-                    <strong>Performance Rating:</strong>
-                    <div className="text-warning fs-4">4.8/5.0</div>
-                  </div>
                 </Card.Body>
               </Card>
             </Col>

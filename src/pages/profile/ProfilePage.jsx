@@ -3,7 +3,7 @@ import { Container, Row, Col, Nav, Card, Form, Button } from 'react-bootstrap';
 import Header from '../../components/Header';
 import './ProfilePage.css';
 import SideBarProfile from '../../components/SideBarProfile';
-import { getCustomerProfile } from '../../api/customer_profile';
+import { getProfile } from '../../api/customer_profile';
 
 const ProfilePage = () => {
     // State for dynamic address
@@ -24,7 +24,7 @@ const ProfilePage = () => {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const data = await getCustomerProfile();
+                const data = await getProfile();
                 setProfile(data);
             } catch (err) {
                 console.error('Error fetching profile:', err);

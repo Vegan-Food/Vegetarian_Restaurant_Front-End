@@ -1,15 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import './ManagerProfile.css';
 import Sidebar from "../ManagerSidebar/ManagerSidebar.jsx"
+import { getProfile } from "../../../api/customer_profile";
 
 const ManagerProfile = () => {
+  const navigate = useNavigate();
   const [profile, setProfile] = useState({
-    name: 'Vo Chi Quan',
-    email: 'admin@restaurant.com',
-    phone: '0123456789',
-    role: 'Administrator',
-    joinDate: '01/01/2023',
-    address: 'FPT UNI',
+    name: '',
+    email: '',
+    phone: '',
+    role: 'Manager',
+    joinDate: '',
+    address: '',
     avatar: ''
   });
   const [editing, setEditing] = useState(false);
@@ -24,6 +27,38 @@ const ManagerProfile = () => {
   });
   const [passwordError, setPasswordError] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState('');
+
+  useEffect(() => {
+    // Chặn truy cập nếu không phải manager
+    const token = localStorage.getItem("token");
+    const user = localStorage.getItem("user");
+    if (!token || !user) {
+      navigate("/login");
+      return;
+    }
+    const { role } = JSON.parse(user);
+    if (role !== "manager") {
+      navigate("/");
+      return;
+    }
+
+    // Lấy profile
+    const fetchProfile = async () => {
+      try {
+        const res = await getProfile();
+        setProfile(prev => ({
+          ...prev,
+          name: res.name || "",
+          email: res.email || "",
+          phone: res.phoneNumber || "",
+          address: res.address || "",
+        }));
+      } catch (err) {
+        // Xử lý lỗi nếu cần
+      }
+    };
+    fetchProfile();
+  }, [navigate]);
 
   const handleEdit = () => {
     setEditValues({ ...profile });

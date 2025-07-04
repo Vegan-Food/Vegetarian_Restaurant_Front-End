@@ -7,7 +7,7 @@ import { Container, Row, Col, Form, Button, Card, ToggleButton, ButtonGroup } fr
 import 'react-toastify/dist/ReactToastify.css';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import { loginByGoogle } from '../../api/auth';
+import { loginByGoogle, loginWithAdmin } from '../../api/auth';
 
 const appTheme = {
   primary: '#347928',
@@ -47,10 +47,33 @@ const Login = () => {
     toast.error('Đăng nhập thất bại. Vui lòng thử lại!');
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    // Xử lý đăng nhập admin ở đây
-    toast.info('Chức năng đăng nhập admin đang phát triển!');
+    try {
+      const res = await loginWithAdmin(phone, password);
+      if (res && res.token) {
+        localStorage.setItem('token', res.token);
+        localStorage.setItem('user', JSON.stringify({ email: res.email, role: res.role }));
+        toast.success('Đăng nhập thành công!');
+        setTimeout(() => {
+          switch (res.role) {
+            case "manager":
+              window.location.href = '/manager-dashboard';
+              break;
+            case "staff":
+              window.location.href = '/staff-dashboard';
+              break;
+            default:
+              window.location.href = '/owner-dashboard';
+              break;
+          }
+        }, 1500);
+      } else {
+        toast.error('Đăng nhập thất bại!');
+      }
+    } catch (err) {
+      toast.error('Sai tài khoản hoặc mật khẩu!');
+    }
   };
 
   return (

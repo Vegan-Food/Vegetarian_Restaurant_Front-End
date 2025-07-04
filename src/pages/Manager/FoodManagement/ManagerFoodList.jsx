@@ -13,11 +13,22 @@ const ManagerFoodList = () => {
 
   useEffect(() => {
     setLoading(true)
+    const token = localStorage.getItem("token");
+    const user = localStorage.getItem("user");
+    if (!token || !user) {
+      navigate("/login");
+      return;
+    }
+    const { role } = JSON.parse(user);
+    if (role !== "manager") {
+      navigate("/");
+      return;
+    }
     getProducts()
       .then((data) => setFoodList(data))
       .catch(() => setFoodList([]))
       .finally(() => setLoading(false))
-  }, [])
+  }, [navigate])
 
   const handleEditClick = (product_id) => {
     navigate(`/manager-edit-food/${product_id}`)
