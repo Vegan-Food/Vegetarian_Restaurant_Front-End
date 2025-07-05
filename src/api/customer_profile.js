@@ -1,7 +1,4 @@
 import { get, post, put, del } from "./config";
 
-export const getProfile = () => get("/api/users/customerprofile");
-export const getProductById = (id) => get(`/products/${id}`);
-export const createProduct = (data) => post("/products", data);
-export const updateProduct = (id, data) => put(`/products/${id}`, data);
-export const deleteProduct = (id) => del(`/products/${id}`);
+export const getProfile = () => get("/api/users/viewprofile");
+export const updateProfile = (data) => post("/api/users/viewprofile/update", data);
