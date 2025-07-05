@@ -2,14 +2,14 @@ import { Navbar, Nav, Container } from "react-bootstrap"
 import "./Navigation.css"
 
 const CATEGORY_ANCHORS = [
-  { name: "Gạo & Ngũ cốc", href: "#gao-ngu-coc", id: "gao-ngu-coc" },
-  { name: "Rau củ", href: "#rau-cu", id: "rau-cu" },
-  { name: "Nấm", href: "#nam", id: "nam" },
-  { name: "Đậu & Đậu hũ", href: "#dau-dauhu", id: "dau-dauhu" },
-  { name: "Hạt & Củ", href: "#hat-cu", id: "hat-cu" },
-  { name: "Mì & Bún", href: "#mi-bun", id: "mi-bun" },
-  { name: "Món giả mặn", href: "#mon-gia-man", id: "mon-gia-man" },
-  { name: "Tráng miệng", href: "#trang-mieng", id: "trang-mieng" },
+  { name: "Rice & Grains", href: "#rice-grains", id: "rice-grains" },
+  { name: "Vegetables", href: "#vegetables", id: "vegetables" },
+  { name: "Mushrooms", href: "#mushrooms", id: "mushrooms" },
+  { name: "Beans & Tofu", href: "#beans-tofu", id: "beans-tofu" },
+  { name: "Nuts & Roots", href: "#nuts-roots", id: "nuts-roots" },
+  { name: "Noodles", href: "#noodles", id: "noodles" },
+  { name: "Vegan Meat Alternatives", href: "#vegan-meat-alternatives", id: "vegan-meat-alternatives" },
+  { name: "Desserts", href: "#desserts", id: "desserts" },
 ]
 
 const Navigation = () => {
