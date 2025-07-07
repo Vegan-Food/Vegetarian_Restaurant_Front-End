@@ -18,12 +18,6 @@ const ProductCard = ({ product }) => {
   window.location.href = `/foodDetail/${product.product_id}`;
   };
 
-  // Lưu scroll position khi ấn View More/Collapse
-  const handleViewMoreClick = (category) => {
-    localStorage.setItem("lastCategory", category);
-    localStorage.setItem("lastScrollY", window.scrollY);
-  };
-
   const handleAddToCart = (e) => {
     e.stopPropagation() // Ngăn chặn sự kiện click lan ra card
     addToCart(product, 1)

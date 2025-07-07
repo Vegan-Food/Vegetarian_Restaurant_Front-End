@@ -1,59 +1,70 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { ChevronLeft, ChevronRight } from "react-bootstrap-icons"
-import { useParams } from "react-router-dom"
-import mealData from "../../../data/meal_data.json"
-import { Container, Button, Row, Col } from "react-bootstrap"
-import ProductCard from "../../../components/ProductCard"
+import { useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight } from "react-bootstrap-icons";
+import { useParams } from "react-router-dom";
+import { Container, Button, Row, Col } from "react-bootstrap";
+import ProductCard from "../../../components/ProductCard";
+import axios from "axios";
 
 const SimilarProducts = () => {
-  const [products, setProducts] = useState([])
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const { productId } = useParams()
-  const itemsPerPage = 4
+  const [products, setProducts] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const { productId } = useParams();
+  const itemsPerPage = 4;
 
   useEffect(() => {
-    const allProducts = mealData.products
-    const currentProductId = Number.parseInt(productId || "1")
-    const currentProduct = allProducts.find((p) => p.product_id === currentProductId)
+    const fetchSimilarProducts = async () => {
+      try {
+        if (!productId) return;
 
-    if (currentProduct) {
-      const similarItems = allProducts.filter(
-        (p) => p.category === currentProduct.category && p.product_id !== currentProductId,
-      )
-      setProducts(similarItems.slice(0, 12)) // Limit for demo
-    } else {
-      setProducts(allProducts.slice(0, 12))
-    }
-  }, [productId])
+        // Get current product info
+        const currentRes = await axios.get(`http://localhost:8080/api/products/${productId}`);
+        const currentProduct = currentRes.data;
+
+        if (!currentProduct || !currentProduct.category) {
+          console.warn("Không tìm thấy sản phẩm hiện tại hoặc thiếu category");
+          return;
+        }
+
+        // Get all products in the same category
+        const listRes = await axios.get(`http://localhost:8080/api/products/category/${encodeURIComponent(currentProduct.category)}`);
+        const allProducts = listRes.data || [];
+
+        // Filter out similar products but exclude the current one
+        const similar = allProducts.filter((p) => p.product_id !== Number(productId));
+
+        setProducts(similar.slice(0, 12)); // limit to 12 products
+      } catch (error) {
+        console.error("Error loading similar products:", error);
+        setProducts([]);
+      }
+    };
+
+    fetchSimilarProducts();
+  }, [productId]);
 
   const nextSlide = () => {
-    setCurrentIndex((prev) => {
-      const maxIndex = Math.max(0, products.length - itemsPerPage)
-      return prev >= maxIndex ? 0 : prev + 1
-    })
-  }
+    const maxIndex = Math.max(0, products.length - itemsPerPage);
+    setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
+  };
 
   const prevSlide = () => {
-    setCurrentIndex((prev) => {
-      const maxIndex = Math.max(0, products.length - itemsPerPage)
-      return prev === 0 ? maxIndex : prev - 1
-    })
-  }
+    const maxIndex = Math.max(0, products.length - itemsPerPage);
+    setCurrentIndex((prev) => (prev === 0 ? maxIndex : prev - 1));
+  };
 
-  const visibleProducts = products.slice(currentIndex, currentIndex + itemsPerPage)
+  const visibleProducts = products.slice(currentIndex, currentIndex + itemsPerPage);
 
   return (
     <section className="similar-products-section py-5 bg-light">
       <Container>
         {/* Section Header */}
         <div className="text-center mb-5">
-          <h2 className="display-5 fw-bold text-dark mb-3">Sản phẩm tương tự</h2>
-          <p className="fs-5 text-muted mb-0">Khám phá thêm những món ngon khác trong cùng danh mục</p>
+          <h2 className="display-5 fw-bold text-dark mb-3">Similar Products</h2>
+          <p className="fs-5 text-muted mb-0">Discover more delicious items in the same category</p>
         </div>
 
-        {/* Products Carousel */}
         <div className="position-relative">
           {/* Navigation Buttons */}
           {products.length > itemsPerPage && (
@@ -80,7 +91,7 @@ const SimilarProducts = () => {
             </>
           )}
 
-          {/* Products Grid */}
+          {/* Product Grid */}
           <Row className="g-4">
             {visibleProducts.map((product) => (
               <Col key={product.product_id} lg={3} md={6}>
@@ -89,22 +100,21 @@ const SimilarProducts = () => {
             ))}
           </Row>
 
-          {/* Pagination Dots - Display only, no click functionality */}
+          {/* Pagination Dots */}
           {products.length > itemsPerPage && (
             <div className="d-flex justify-content-center mt-5">
               {Array.from({ length: Math.ceil(products.length / itemsPerPage) }, (_, index) => (
                 <div
                   key={index}
                   className={`rounded-circle mx-1 ${
-                    Math.floor(currentIndex / itemsPerPage) === index 
-                      ? "bg-success" 
+                    Math.floor(currentIndex / itemsPerPage) === index
+                      ? "bg-success"
                       : "bg-outline-success border border-success"
                   }`}
-                  style={{ 
-                    width: "12px", 
-                    height: "12px", 
-                    padding: "0",
-                    cursor: "default"
+                  style={{
+                    width: "12px",
+                    height: "12px",
+                    cursor: "default",
                   }}
                 />
               ))}
@@ -113,7 +123,7 @@ const SimilarProducts = () => {
         </div>
       </Container>
     </section>
-  )
-}
+  );
+};
 
 export default SimilarProducts;
