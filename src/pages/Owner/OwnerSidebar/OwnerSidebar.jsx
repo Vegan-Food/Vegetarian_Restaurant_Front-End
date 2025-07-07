@@ -91,12 +91,15 @@ const OwnerSidebar = ({ onLogout, className = "" }) => {
             onClick={() => handleItemClick("/owner-staffmanagement")}
           >
             <User size={20} />
-            <span>Staff Management</span>
+            <span>Employee Management</span>
           </li>
         </ul>
         <button
           className={`logout-btn ${activeItem === "/manager-logout" ? "active" : ""}`}
-          onClick={onLogout}
+          onClick={() => {
+            localStorage.removeItem("user")
+            navigate("/login")
+          }}
         >
           <LogOut size={20} />
           <span>Log Out</span>
