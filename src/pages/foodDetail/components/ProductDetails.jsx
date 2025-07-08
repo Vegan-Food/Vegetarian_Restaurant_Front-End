@@ -13,16 +13,16 @@ import {
   ListGroup,
 } from "react-bootstrap";
 import { useParams } from "react-router-dom";
-import { useCart } from "../../../context/CartContext";
 import placeholderImage from "../../../assets/image/placeholder.svg";
 import axios from "axios";
 import "./ProductDetails.css";
+import { useCart } from "../../../context/CartContext";
 
 const ProductDetails = () => {
   const [quantity, setQuantity] = useState(1);
-  const { productId } = useParams();
   const [product, setProduct] = useState(null);
-  const { addToCart } = useCart();
+  const { showNotification } = useCart();
+  const { productId } = useParams();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -35,7 +35,7 @@ const ProductDetails = () => {
         const res = await axios.get(`http://localhost:8080/api/products/${productId}`);
         setProduct(res.data);
       } catch (error) {
-        console.error("Lỗi khi gọi API sản phẩm:", error);
+        console.error("Error fetching product:", error);
         setProduct(null);
       }
     };
@@ -45,8 +45,36 @@ const ProductDetails = () => {
 
   const incrementQuantity = () => setQuantity((prev) => prev + 1);
   const decrementQuantity = () => setQuantity((prev) => Math.max(1, prev - 1));
-  const handleAddToCart = () => {
-    if (product) addToCart(product, quantity);
+
+  const handleAddToCart = async () => {
+    if (!product) return;
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("❌ You must be logged in to add products to the cart.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `http://localhost:8080/api/cart/items/add?productId=${product.product_id}&quantity=${quantity}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        showNotification(product);
+      } else {
+        throw new Error(`Unexpected response status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      alert("❌ Failed to add product to cart.");
+    }
   };
 
   if (!productId) {
@@ -107,13 +135,18 @@ const ProductDetails = () => {
                   </h1>
                 </div>
 
-                <div className="price-section mb-4">
-                  <h2 style={{ color: "#e53e3e", fontWeight: 700, fontSize: "2rem" }}>
-                    {new Intl.NumberFormat("en-US", {
-                      style: "currency",
-                      currency: "USD",
-                    }).format(product.price || 0)}
-                  </h2>
+                <div className="mb-4">
+                  <div className="d-flex flex-column">
+                    <label className="form-label fw-bold mb-2">Price:</label>
+                    <span className="fw-bold" style={{ fontSize: "2rem", color: '#212529' }}>
+                      {new Intl.NumberFormat('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                      }).format(product.price || 0)}
+                    </span>
+                  </div>
                 </div>
 
                 <Row className="g-3 mb-4">
@@ -192,7 +225,7 @@ const ProductDetails = () => {
             </Col>
             <Col lg={4}>
               <Card className="border-0 shadow-sm" style={{ borderLeft: "6px solid #347928", borderRadius: 16 }}>
-                <Card.Header className="border-0 py-3 bg-success text-white">
+                <Card.Header className="border-0 py-3" style={{ background: 'linear-gradient(135deg, #347928, #4CAF50)' }}>
                   <h5 className="mb-0 fw-bold">Shipping Policy</h5>
                 </Card.Header>
                 <Card.Body className="p-4">
