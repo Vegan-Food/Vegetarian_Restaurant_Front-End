@@ -28,7 +28,7 @@ const CartAlert = () => {
       <div className="d-flex align-items-center">
         <ShoppingCart className="me-3" size={20} style={{ color: '#347928' }} />
         <div>
-          <strong style={{ color: '#347928' }}>Thành công!</strong>
+          <strong style={{ color: '#347928' }}>Success!</strong>
           <div className="mt-1">{alertMessage}</div>
         </div>
       </div>

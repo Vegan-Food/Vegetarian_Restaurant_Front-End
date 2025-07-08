@@ -11,81 +11,22 @@ export const useCart = () => {
 };
 
 export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState([]);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
 
-  const addToCart = (product, quantity = 1) => {
-    setCartItems(prevItems => {
-      const existingItem = prevItems.find(item => item.id === product.product_id);
-      
-      if (existingItem) {
-        // Nếu sản phẩm đã có trong giỏ hàng, tăng số lượng
-        return prevItems.map(item =>
-          item.id === product.product_id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
-      } else {
-        // Nếu sản phẩm chưa có, thêm mới
-        return [...prevItems, {
-          id: product.product_id,
-          name: product.name,
-          price: product.price,
-          image: product.image_url,
-          quantity: quantity
-        }];
-      }
-    });
-
-    // Hiển thị thông báo
-    setAlertMessage(`Đã thêm ${quantity} ${product.name} vào giỏ hàng!`);
+  const showNotification = (product) => {
+    setAlertMessage(`Added ${product.name} to cart!`);
     setShowAlert(true);
     
-    // Tự động ẩn thông báo sau 3 giây
+    // Auto-hide notification after 3 seconds
     setTimeout(() => {
       setShowAlert(false);
     }, 3000);
   };
 
-  const removeFromCart = (productId) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== productId));
-  };
-
-  const updateQuantity = (productId, newQuantity) => {
-    if (newQuantity <= 0) {
-      removeFromCart(productId);
-    } else {
-      setCartItems(prevItems =>
-        prevItems.map(item =>
-          item.id === productId ? { ...item, quantity: newQuantity } : item
-        )
-      );
-    }
-  };
-
-  const getCartTotal = () => {
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-  };
-
-  const getCartCount = () => {
-    return cartItems.reduce((count, item) => count + item.quantity, 0);
-  };
-
-  const clearCart = () => {
-    setCartItems([]);
-  };
-
   const value = {
-    cartItems,
-    addToCart,
-    removeFromCart,
-    updateQuantity,
-    getCartTotal,
-    getCartCount,
-    clearCart,
+    showNotification,
     showAlert,
-    setShowAlert,
     alertMessage
   };
 
@@ -94,4 +35,4 @@ export const CartProvider = ({ children }) => {
       {children}
     </CartContext.Provider>
   );
-}; 
+};

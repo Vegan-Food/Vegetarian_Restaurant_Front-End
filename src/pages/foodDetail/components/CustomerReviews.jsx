@@ -1,320 +1,283 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { StarFill, Clock, PencilSquare } from "react-bootstrap-icons"
-import { useParams } from "react-router-dom"
-import feedbackData from "../../../data/feedback_data.json"
-import userData from "../../../data/user_data.json"
-import { Container, Row, Col, Button, ProgressBar, ButtonGroup, Modal, Form, Card, Badge } from "react-bootstrap"
+import { useState, useEffect } from "react";
+import { PencilSquare, StarFill, Star } from "react-bootstrap-icons";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import {
+  Container,
+  Row,
+  Col,
+  Button,
+  Modal,
+  Form,
+  Card,
+  Toast,
+  ToastContainer,
+} from "react-bootstrap";
+import "./CustomerReviews.css";
 
 const CustomerReviews = () => {
-  const [reviews, setReviews] = useState([])
-  const [filteredReviews, setFilteredReviews] = useState([])
-  const [selectedFilter, setSelectedFilter] = useState("all")
-  const [showWriteReview, setShowWriteReview] = useState(false)
-  const [newRating, setNewRating] = useState(0)
-  const [newComment, setNewComment] = useState("")
-  const [statistics, setStatistics] = useState({
-    total: 0,
-    average: 0,
-    distribution: [0, 0, 0, 0, 0],
-  })
-  const { productId } = useParams()
+  const [reviews, setReviews] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [newComment, setNewComment] = useState("");
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastVariant, setToastVariant] = useState("success");
 
+  const { productId } = useParams();
+
+  // Fetch all reviews of the current product
   useEffect(() => {
-    const currentProductId = Number.parseInt(productId || "1")
-    const productSpecificReviews = feedbackData.filter((review) => review.product_id === currentProductId)
-
-    setReviews(productSpecificReviews)
-    setFilteredReviews(productSpecificReviews)
-    calculateStatistics(productSpecificReviews)
-  }, [productId])
-
-  const calculateStatistics = (reviewData) => {
-    if (!Array.isArray(reviewData)) return
-
-    const total = reviewData.length
-    const sum = reviewData.reduce((acc, review) => acc + (review.rating || 0), 0)
-    const average = total > 0 ? sum / total : 0
-
-    const distribution = [0, 0, 0, 0, 0]
-    reviewData.forEach((review) => {
-      if (review.rating && review.rating >= 1 && review.rating <= 5) {
-        distribution[review.rating - 1]++
+    const fetchReviews = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:8080/api/feedback/product/${productId}`
+        );
+        setReviews(response.data || []);
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+        setReviews([]);
       }
-    })
+    };
 
-    setStatistics({ total, average, distribution })
-  }
-
-  const filterReviews = (filter) => {
-    setSelectedFilter(filter)
-    let filtered = reviews
-
-    if (!Array.isArray(reviews)) return
-
-    switch (filter) {
-      case "all":
-        filtered = reviews
-        break
-      case "5":
-      case "4":
-      case "3":
-      case "2":
-      case "1":
-        filtered = reviews.filter((review) => review.rating === Number.parseInt(filter))
-        break
-      default:
-        filtered = reviews
+    if (productId) {
+      fetchReviews();
     }
-
-    setFilteredReviews(filtered)
-  }
+  }, [productId]);
 
   const formatDate = (dateString) => {
-    const now = new Date()
-    const reviewDate = new Date(dateString)
-    const diffTime = Math.abs(now.getTime() - reviewDate.getTime())
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    const date = new Date(dateString);
+    const options = {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    };
+    return new Intl.DateTimeFormat('en-US', options).format(date);
+  };
 
-    if (diffDays <= 30) {
-      return `${diffDays} ngày trước`
-    } else {
-      const diffMonths = Math.floor(diffDays / 30)
-      return `${diffMonths} tháng trước`
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setToastMessage("❌ You must be logged in to submit a review.");
+      setToastVariant("danger");
+      setShowToast(true);
+      return;
     }
-  }
 
-  const renderStars = (rating, size = 16, interactive = false) => {
-    return Array.from({ length: 5 }, (_, index) => (
-      <StarFill
-        key={index}
-        size={size}
-        className={`${index < rating ? "text-warning" : "text-muted"} ${interactive ? "rating-star-interactive" : ""}`}
-        style={{ cursor: interactive ? "pointer" : "default" }}
-        onClick={interactive ? () => setNewRating(index + 1) : undefined}
-      />
-    ))
-  }
+    if (!newComment.trim()) return;
 
-  const getUserInitial = (userId) => {
-    const user = userData.find((u) => u.user_id === userId)
-    return user ? user.name.charAt(0).toUpperCase() : ""
-  }
+    const payload = {
+      productId: parseInt(productId),
+      comment: newComment.trim(),
+    };
 
-  const getUserName = (userId) => {
-    const user = userData.find((u) => u.user_id === userId)
-    return user ? user.name : "Anonymous"
-  }
+    try {
+      const res = await axios.post(
+        "http://localhost:8080/api/feedback",
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-  const handleSubmitReview = () => {
-    if (newRating > 0 && newComment.trim().length >= 20) {
-      // Here you would typically submit to your backend
-      setShowWriteReview(false)
-      setNewRating(0)
-      setNewComment("")
+      if (res.status === 201 || res.status === 200) {
+        setToastMessage("✅ Review submitted successfully!");
+        setToastVariant("success");
+        setShowToast(true);
+        setNewComment("");
+        setShowModal(false);
+
+        // Refresh list
+        const refreshed = await axios.get(
+          `http://localhost:8080/api/feedback/product/${productId}`
+        );
+        setReviews(refreshed.data || []);
+      } else {
+        throw new Error("Unexpected status: " + res.status);
+      }
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      setToastMessage("❌ Failed to submit review.");
+      setToastVariant("danger");
+      setShowToast(true);
     }
-  }
+  };
 
   return (
-    <section className="customer-reviews-section py-5 bg-white">
+    <section className="customer-reviews-section py-5 bg-light">
       <Container>
-        {/* Section Header */}
+        {/* Section Header - Matching SimilarProducts style */}
         <div className="text-center mb-5">
-          <h2 className="display-5 fw-bold text-dark mb-3">Đánh giá từ khách hàng</h2>
-          <p className="fs-5 text-muted mb-0">Chia sẻ trải nghiệm của bạn với sản phẩm này</p>
+          <h2 className="display-5 fw-bold text-dark mb-3">Customer Reviews</h2>
+          <p className="fs-5 text-muted mb-4">What our customers say about this product</p>
+          
+          <div className="d-flex justify-content-center gap-3 align-items-center">
+            <Button
+              variant="success"
+              onClick={() => setShowModal(true)}
+              className="d-flex align-items-center gap-2 px-4 py-2"
+              style={{ borderRadius: '8px' }}
+            >
+              <PencilSquare size={16} />
+              Write a Review
+            </Button>
+            <span className="text-muted">
+              {reviews.length} {reviews.length === 1 ? 'review' : 'reviews'}
+            </span>
+          </div>
         </div>
 
-        <Row className="g-5 align-items-start">
-          {/* Rating Summary - Left Side */}
-          <Col lg={4}>
-            <Card className="border-0 shadow-enhanced h-100 rating-summary-card">
-              <Card.Body className="p-4 text-center">
-                <div className="mb-4">
-                  <div className="display-1 fw-bold text-warning mb-2">{statistics.average.toFixed(1)}</div>
-                  <div className="mb-3">{renderStars(Math.round(statistics.average), 24)}</div>
-                  <p className="fs-5 text-muted mb-4">Dựa trên {statistics.total} đánh giá</p>
-                  <Button
-                    variant="success"
-                    size="lg"
-                    className="px-4 py-3 fw-bold w-100 write-review-btn"
-                    onClick={() => setShowWriteReview(true)}
-                  >
-                    <PencilSquare className="me-2" size={18} />
-                    Viết đánh giá
-                  </Button>
-                </div>
-
-                {/* Rating Distribution */}
-                <div className="rating-distribution">
-                  <h6 className="fw-bold mb-3">Phân bố đánh giá</h6>
-                  {[5, 4, 3, 2, 1].map((star) => (
-                    <div key={star} className="d-flex align-items-center mb-2">
-                      <span className="me-2 fw-semibold" style={{ width: "20px" }}>
-                        {star}
-                      </span>
-                      <StarFill className="text-warning me-2" size={14} />
-                      <div className="flex-grow-1 me-2">
-                        <ProgressBar
-                          now={statistics.total > 0 ? (statistics.distribution[star - 1] / statistics.total) * 100 : 0}
-                          style={{ height: "8px" }}
-                          variant="warning"
-                          className="enhanced-progress"
-                        />
+        <div className="reviews-container">
+          {reviews.length > 0 ? (
+            <Card className="mb-4">
+              <Card.Body className="p-0">
+                <div 
+                  className="d-flex flex-column" 
+                  style={{ 
+                    maxHeight: '350px',
+                    overflowY: 'auto'
+                  }}
+                >
+                  {reviews.map((review, index) => (
+                    <div 
+                      key={index} 
+                      className="d-flex justify-content-between align-items-center p-3 border-bottom"
+                      style={{
+                        minHeight: '70px',
+                        backgroundColor: index % 2 === 0 ? '#f8f9fa' : 'white'
+                      }}
+                    >
+                      <div className="d-flex align-items-center gap-3">
+                        <div className="avatar-circle bg-primary text-white d-flex align-items-center justify-content-center" 
+                             style={{ width: '36px', height: '36px', fontSize: '0.9rem' }}>
+                          {review.userName?.charAt(0).toUpperCase() || "?"}
+                        </div>
+                        <div>
+                          <div className="d-flex align-items-center gap-2">
+                            <span className="fw-medium">{review.userName || "Anonymous"}</span>
+                            <span className="text-muted small">•</span>
+                            <span className="text-muted small">{formatDate(review.createdAt)}</span>
+                          </div>
+                          <p className="mb-0 text-muted small" style={{ lineHeight: '1.4' }}>"{review.comment}"</p>
+                        </div>
                       </div>
-                      <small className="text-muted" style={{ width: "30px" }}>
-                        {statistics.distribution[star - 1]}
-                      </small>
                     </div>
                   ))}
                 </div>
               </Card.Body>
             </Card>
-          </Col>
-
-          {/* Reviews List - Right Side */}
-          <Col lg={8}>
-            {/* Filter Buttons - Left Aligned */}
-            <div className="d-flex justify-content-start mb-4">
-              <ButtonGroup className="filter-buttons-group">
-                <Button
-                  variant={selectedFilter === "all" ? "success" : "outline-success"}
-                  onClick={() => filterReviews("all")}
-                  className="px-4 filter-btn"
+          ) : (
+            <Card className="mb-4">
+              <Card.Body className="p-0">
+                <div 
+                  className="d-flex flex-column align-items-center justify-content-center" 
+                  style={{ 
+                    minHeight: '200px',
+                    backgroundColor: '#f8f9fa'
+                  }}
                 >
-                  Tất cả ({statistics.total})
-                </Button>
-                {[5, 4, 3, 2, 1].map((rating) => (
-                  <Button
-                    key={rating}
-                    variant={selectedFilter === rating.toString() ? "success" : "outline-success"}
-                    onClick={() => filterReviews(rating.toString())}
-                    className="px-3 filter-btn"
-                  >
-                    {rating} <StarFill size={12} className="ms-1 text-warning" />
-                    <span className="ms-1">({statistics.distribution[rating - 1]})</span>
-                  </Button>
-                ))}
-              </ButtonGroup>
-            </div>
-
-            {/* Reviews List with Enhanced Scrollbar */}
-            <div className="reviews-container-wrapper">
-              <div className="reviews-container enhanced-scrollbar" style={{ maxHeight: "600px", overflowY: "auto" }}>
-                {Array.isArray(filteredReviews) && filteredReviews.length > 0 ? (
-                  <div className="d-flex flex-column gap-4">
-                    {filteredReviews.map((review, index) => (
-                      <Card key={index} className="border-0 shadow-enhanced review-card">
-                        <Card.Body className="p-4">
-                          <Row>
-                            <Col xs="auto">
-                              <div
-                                className="bg-success text-white rounded-circle d-flex align-items-center justify-content-center fw-bold user-avatar"
-                                style={{ width: "50px", height: "50px" }}
-                              >
-                                {getUserInitial(review.user_id)}
-                              </div>
-                            </Col>
-                            <Col>
-                              <div className="review-header mb-3">
-                                <div className="d-flex justify-content-between align-items-start mb-2">
-                                  <div>
-                                    <h6 className="fw-bold mb-1">{getUserName(review.user_id)}</h6>
-                                    <div className="d-flex align-items-center">
-                                      <div className="me-3">{renderStars(review.rating, 16)}</div>
-                                      <Badge bg="light" text="muted" className="small">
-                                        <Clock size={12} className="me-1" />
-                                        {formatDate(review.created_at)}
-                                      </Badge>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-
-                              <p className="text-dark mb-3 lh-base">{review.comment}</p>
-                            </Col>
-                          </Row>
-                        </Card.Body>
-                      </Card>
-                    ))}
+                  <div className="text-center p-4">
+                    <div className="mb-3">
+                      <svg
+                        width="48"
+                        height="48"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        className="text-muted"
+                      >
+                        <path
+                          d="M8 10H8.01M12 10H12.01M16 10H16.01M9 16H5C3.9 16 3 15.1 3 14V6C3 4.9 3.9 4 5 4H19C20.1 4 21 4.9 21 6V14C21 15.1 20.1 16 19 16H14L9 21V16Z"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                    <h5 className="mb-2">No reviews yet</h5>
+                    <p className="text-muted mb-4">
+                      Be the first to review this product
+                    </p>
+                    <Button 
+                      variant="success" 
+                      onClick={() => setShowModal(true)}
+                      className="d-inline-flex align-items-center"
+                    >
+                      <PencilSquare className="me-2" size={16} />
+                      Write the first review
+                    </Button>
                   </div>
-                ) : (
-                  <Card className="border-0 bg-light shadow-enhanced">
-                    <Card.Body className="text-center py-5">
-                      <h5 className="fw-bold mb-3">Chưa có đánh giá nào</h5>
-                      <p className="text-muted mb-4">Hãy là người đầu tiên đánh giá sản phẩm này!</p>
-                      <Button variant="success" onClick={() => setShowWriteReview(true)} className="write-review-btn">
-                        Viết đánh giá đầu tiên
-                      </Button>
-                    </Card.Body>
-                  </Card>
-                )}
-              </div>
-            </div>
-          </Col>
-        </Row>
+                </div>
+              </Card.Body>
+            </Card>
+          )}
+        </div>
 
-        {/* Write Review Modal */}
+        {/* Review Modal */}
         <Modal
-          show={showWriteReview}
-          onHide={() => setShowWriteReview(false)}
-          size="lg"
+          show={showModal}
+          onHide={() => setShowModal(false)}
           centered
           className="review-modal"
         >
-          <Modal.Header closeButton className="bg-success text-white border-0">
-            <Modal.Title className="fw-bold">Viết đánh giá sản phẩm</Modal.Title>
-          </Modal.Header>
-          <Modal.Body className="p-4">
-            <Form>
-              <Form.Group className="mb-4">
-                <Form.Label className="fw-bold fs-5 mb-3">Đánh giá của bạn</Form.Label>
-                <div className="d-flex gap-2 mb-3 justify-content-center">{renderStars(newRating, 40, true)}</div>
-                <div className="text-center">
-                  <small className="text-muted">
-                    {newRating === 0 && "Nhấp vào sao để đánh giá"}
-                    {newRating === 1 && "Rất không hài lòng"}
-                    {newRating === 2 && "Không hài lòng"}
-                    {newRating === 3 && "Bình thường"}
-                    {newRating === 4 && "Hài lòng"}
-                    {newRating === 5 && "Rất hài lòng"}
-                  </small>
-                </div>
-              </Form.Group>
-              <Form.Group className="mb-4">
-                <Form.Label className="fw-bold fs-5">Nhận xét chi tiết</Form.Label>
+          <Form onSubmit={handleSubmitReview}>
+            <Modal.Header closeButton>
+              <Modal.Title className="fw-bold">Write a Review</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <Form.Group className="mb-3">
+                <Form.Label>Share your thoughts</Form.Label>
                 <Form.Control
                   as="textarea"
-                  rows={5}
+                  rows={4}
+                  maxLength={500}
+                  placeholder="Type your feedback here..."
                   value={newComment}
                   onChange={(e) => setNewComment(e.target.value)}
-                  placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này"
-                  className="fs-6"
                 />
-                <Form.Text className="text-muted">
-                  Hãy chia sẻ những điều bạn thích về sản phẩm này để giúp người khác đưa ra quyết định mua hàng.
-                </Form.Text>
+                <div className="text-end mt-1">
+                  <small className="text-muted">{newComment.length}/500</small>
+                </div>
               </Form.Group>
-            </Form>
-          </Modal.Body>
-          <Modal.Footer className="border-0 p-4">
-            <Button variant="outline-secondary" size="lg" onClick={() => setShowWriteReview(false)}>
-              Hủy bỏ
-            </Button>
-            <Button
-              variant="success"
-              size="lg"
-              disabled={newRating === 0}
-              onClick={handleSubmitReview}
-              className="write-review-btn"
-            >
-              Gửi đánh giá
-            </Button>
-          </Modal.Footer>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button
+                variant="outline-secondary"
+                onClick={() => setShowModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" variant="success" disabled={!newComment.trim()}>
+                Submit Review
+              </Button>
+            </Modal.Footer>
+          </Form>
         </Modal>
+
+        {/* Toast Message */}
+        <ToastContainer position="bottom-end" className="p-3">
+          <Toast
+            bg={toastVariant}
+            show={showToast}
+            onClose={() => setShowToast(false)}
+            delay={3000}
+            autohide
+          >
+            <Toast.Body className="text-white">{toastMessage}</Toast.Body>
+          </Toast>
+        </ToastContainer>
       </Container>
     </section>
-  )
-}
+  );
+};
 
 export default CustomerReviews;
