@@ -100,7 +100,8 @@ const ManagerSidebar = () => {
           className={`${styles.logoutBtn} ${activeItem === "/manager-logout" ? styles.active : ""}`}
           onClick={() => {
             localStorage.removeItem("user")
-            navigate("/login")
+            localStorage.removeItem("token")
+            navigate("/")
           }}
         >
           <LogOut size={20} />

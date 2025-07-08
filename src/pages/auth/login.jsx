@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
@@ -21,6 +21,21 @@ const Login = () => {
   const [role, setRole] = useState('customer');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/');
+    } else {
+      setCheckingAuth(false);
+    }
+  }, [navigate]);
+
+  if (checkingAuth) {
+    // Có thể return null hoặc spinner cho đẹp
+    return null;
+  }
 
   const handleSuccess = async (credentialResponse) => {
     const decoded = jwtDecode(credentialResponse.credential);

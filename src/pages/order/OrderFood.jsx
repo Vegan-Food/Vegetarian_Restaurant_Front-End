@@ -1,16 +1,96 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Container, Form, Button, Row, Col, ListGroup, Image, Stack } from 'react-bootstrap';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import Chatbot from '../../components/Chatbot';
+import { getProfile } from '../../api/customer_profile';
+import { checkoutOrder, getPayOS } from '../../api/order';
 
 const OrderPage = () => {
     const [setLoading] = useState(false);
-
     const navigate = useNavigate();
     const location = useLocation();
     const cartItems = location.state?.cartItems || [];
+
+    const [profileLoading, setProfileLoading] = useState(true);
+
+    const [paymentInfo, setPaymentInfo] = useState({
+        fullName: '',
+        email: '',
+        phone: '',
+        address: '',
+        province: '',
+        ward: '',
+        note: ''
+    });
+
+    const [selectedPayment, setSelectedPayment] = useState('COD');
+
+    const [provinces, setProvinces] = useState([]);
+    const [wards, setWards] = useState([]);
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const data = await getProfile();
+                let address = data.address || '';
+                let province = '';
+                let ward = '';
+                let street = '';
+
+                if (address) {
+                    const parts = address.split(',').map(part => part.trim());
+                    if (parts.length >= 3) {
+                        street = parts[0];
+                        ward = parts[1];
+                        province = parts[2];
+                    } else if (parts.length === 2) {
+                        street = parts[0];
+                        province = parts[1];
+                    } else if (parts.length === 1) {
+                        street = parts[0];
+                    }
+                }
+
+                setPaymentInfo(prev => ({
+                    ...prev,
+                    fullName: data.name || '',
+                    email: data.email || '',
+                    phone: data.phoneNumber || '',
+                    address: street,
+                    province: province,
+                    ward: ward,
+                }));
+            } catch (err) {
+                // Có thể xử lý lỗi ở đây nếu cần
+            } finally {
+                setProfileLoading(false);
+            }
+        };
+        fetchProfile();
+    }, []);
+
+    useEffect(() => {
+        fetch('https://vietnamlabs.com/api/vietnamprovince')
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data.data)) setProvinces(data.data);
+                else setProvinces([]);
+            });
+    }, []);
+
+    useEffect(() => {
+        // Khi chọn province thì cập nhật danh sách wards
+        const selectedProvince = provinces.find(p => p.province === paymentInfo.province);
+        if (selectedProvince) {
+            setWards(selectedProvince.wards);
+        } else {
+            setWards([]);
+        }
+    }, [paymentInfo.province, provinces]);
+
+    if (profileLoading) return null;
 
     const calculateSubtotal = () => {
         return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -19,19 +99,6 @@ const OrderPage = () => {
     const shippingFee = 30000;
     const subtotal = calculateSubtotal();
     const total = subtotal + shippingFee;
-
-    const [paymentInfo, setPaymentInfo] = useState({
-        fullName: '',
-        email: '',
-        phone: '',
-        address: '',
-        province: '',
-        district: '',
-        ward: '',
-        note: ''
-    });
-
-    const [selectedPayment, setSelectedPayment] = useState('COD');
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -45,35 +112,32 @@ const OrderPage = () => {
         setSelectedPayment(e.target.value);
     };
 
-    const handleSubmit = async () => {
-        setLoading(true);
+    const handleCheckout = async () => {
+        const paymentMethod = selectedPayment === 'vnpay' ? 'VNPAY' : 'CASH';
+        const orderData = {
+            paymentMethod,
+            phoneNumber: paymentInfo.phone,
+            address: `${paymentInfo.address}${paymentInfo.ward ? ', ' + paymentInfo.ward : ''}${paymentInfo.province ? ', ' + paymentInfo.province : ''}`,
+            discountId: 0 // Đại ca có thể truyền discountId động nếu cần
+        };
+        console.log(orderData);
         try {
-            // Call PayOS API demo (for demo only, not secure)
-            const response = await fetch('https://api-merchant.payos.vn/v2/payment-requests', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-client-id': process.env.REACT_APP_PAYOS_CLIENT_ID,
-                    'x-api-key': process.env.REACT_APP_PAYOS_API_KEY,
-                },
-                body: JSON.stringify({
-                    orderCode: Math.floor(Math.random() * 1000000000),
-                    amount: 250000,
-                    description: 'Payment for Vegetarian Restaurant order',
-                    returnUrl: window.location.origin + '/account/orders',
-                    cancelUrl: window.location.href,
-                }),
-            });
-            const data = await response.json();
-            if (data.data && data.data.checkoutUrl) {
-                window.open(data.data.checkoutUrl, '_blank');
+            const res = await checkoutOrder(orderData);
+            console.log('Order API response:', res);
+
+            if (selectedPayment === 'vnpay') {
+                const paymentRes = await getPayOS(res);
+                console.log('Payment API response:', paymentRes);
+                if (paymentRes && paymentRes.checkoutUrl) {
+                    window.open(paymentRes.checkoutUrl, '_blank');
+                }
             } else {
-                alert('Could not get PayOS payment link!');
+                navigate('/billing');
             }
         } catch (err) {
-            alert('Error connecting to PayOS!');
+            console.error('Order API error:', err);
+            alert('Order failed!');
         }
-        setLoading(false);
     };
 
     return (
@@ -84,7 +148,7 @@ const OrderPage = () => {
                     {/* Left Side - Form */}
                     <div className="w-75 pe-4">
                         <h2 className="mb-4">Shipping Information</h2>
-                        <Form onSubmit={handleSubmit}>
+                        <Form onSubmit={handleCheckout}>
                             <Form.Group className="mb-3">
                                 <Form.Label>Full Name</Form.Label>
                                 <Form.Control
@@ -92,7 +156,7 @@ const OrderPage = () => {
                                     name="fullName"
                                     value={paymentInfo.fullName}
                                     onChange={handleInputChange}
-                                    required
+                                    readOnly
                                 />
                             </Form.Group>
 
@@ -105,7 +169,7 @@ const OrderPage = () => {
                                             name="email"
                                             value={paymentInfo.email}
                                             onChange={handleInputChange}
-                                            required
+                                            readOnly
                                         />
                                     </Form.Group>
                                 </Col>
@@ -145,23 +209,9 @@ const OrderPage = () => {
                                             required
                                         >
                                             <option value="">Select province/city</option>
-                                            <option value="Bà Rịa - Vũng Tàu">Ba Ria - Vung Tau</option>
-                                            {/* Add more provinces */}
-                                        </Form.Select>
-                                    </Form.Group>
-                                </Col>
-                                <Col>
-                                    <Form.Group className="mb-3">
-                                        <Form.Label>District</Form.Label>
-                                        <Form.Select
-                                            name="district"
-                                            value={paymentInfo.district}
-                                            onChange={handleInputChange}
-                                            required
-                                        >
-                                            <option value="">Select district</option>
-                                            <option value="Huyện Côn Đảo">Con Dao District</option>
-                                            {/* Add more districts */}
+                                            {provinces.map(province => (
+                                                <option key={province.id} value={province.province}>{province.province}</option>
+                                            ))}
                                         </Form.Select>
                                     </Form.Group>
                                 </Col>
@@ -173,10 +223,12 @@ const OrderPage = () => {
                                             value={paymentInfo.ward}
                                             onChange={handleInputChange}
                                             required
+                                            disabled={!wards.length}
                                         >
                                             <option value="">Select ward</option>
-                                            <option value="Thị trấn Côn Đảo">Con Dao Town</option>
-                                            {/* Add more wards */}
+                                            {wards.map(ward => (
+                                                <option key={ward.name} value={ward.name}>{ward.name}</option>
+                                            ))}
                                         </Form.Select>
                                     </Form.Group>
                                 </Col>
@@ -351,16 +403,7 @@ const OrderPage = () => {
                             <Button
                                 variant="primary"
                                 size="lg"
-                                onClick={() => {
-                                    if (selectedPayment === 'vnpay') {
-                                        handleSubmit();
-                                    } else {
-                                        alert("Order placed successfully! You will pay on delivery.");
-                                        navigate('/billing', {
-                                            state: { success: true, message: 'Order placed successfully!' }
-                                        });
-                                    }
-                                }}
+                                onClick={handleCheckout}
                             >
                                 Place Order
                             </Button>

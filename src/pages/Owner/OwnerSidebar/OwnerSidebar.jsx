@@ -98,7 +98,8 @@ const OwnerSidebar = ({ onLogout, className = "" }) => {
           className={`logout-btn ${activeItem === "/manager-logout" ? "active" : ""}`}
           onClick={() => {
             localStorage.removeItem("user")
-            navigate("/login")
+            localStorage.removeItem("token")
+            navigate("/")
           }}
         >
           <LogOut size={20} />

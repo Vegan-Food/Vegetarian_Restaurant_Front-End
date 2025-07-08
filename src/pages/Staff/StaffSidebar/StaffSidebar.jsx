@@ -113,7 +113,11 @@ const StaffSidebar = () => {
         </ul>
         <button
           className={`logout-btn`}
-          onClick={() => handleItemClick("/")}
+          onClick={() => {
+            localStorage.removeItem("user")
+            localStorage.removeItem("token")
+            navigate("/")
+          }}
         >
           <LogOut size={20} />
           <span>Log Out</span>

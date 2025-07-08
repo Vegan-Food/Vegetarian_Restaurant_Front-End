@@ -24,8 +24,9 @@ const Header = () => {
   // Logout (if needed)
   const handleLogout = () => {
     localStorage.removeItem("user")
+    localStorage.removeItem('token');
     setUser(null)
-    navigate("/login")
+    navigate("/")
   }
 
   const handleCartClick = () => {
