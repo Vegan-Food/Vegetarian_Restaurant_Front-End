@@ -1,32 +1,47 @@
 import React from "react"
 import { Card, Badge, Button } from "react-bootstrap"
 import { ShoppingCart } from "lucide-react"
-import { useNavigate } from "react-router-dom"
-import { useCart } from "../context/CartContext"
+import axios from "axios"
+import { useCart } from '../context/CartContext'
 import "./ProductCard.css"
 
 const ProductCard = ({ product }) => {
-  const navigate = useNavigate()
-  const { addToCart } = useCart()
+  const { showNotification } = useCart()
 
-  {/*const handleCardClick = () => {
-    navigate(`/foodDetail/${product.product_id}`)
-  }*/}
-
-  // Sử dụng window.location.href để chuyển hướng đến trang chi tiết sản phẩm
   const handleCardClick = () => {
-  window.location.href = `/foodDetail/${product.product_id}`;
-  };
+    window.location.href = `/foodDetail/${product.product_id}`
+  }
 
-  // Lưu scroll position khi ấn View More/Collapse
-  const handleViewMoreClick = (category) => {
-    localStorage.setItem("lastCategory", category);
-    localStorage.setItem("lastScrollY", window.scrollY);
-  };
+  const handleAddToCart = async (e) => {
+    e.stopPropagation()
+    const token = localStorage.getItem("token")
+    
+    if (!token) {
+      alert("❌ You must be logged in to add products to the cart.")
+      return
+    }
 
-  const handleAddToCart = (e) => {
-    e.stopPropagation() // Ngăn chặn sự kiện click lan ra card
-    addToCart(product, 1)
+    try {
+      const response = await axios.post(
+        `http://localhost:8080/api/cart/items/add?productId=${product.product_id}&quantity=1`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      )
+
+      if (response.status === 200) {
+        // Show notification
+        showNotification(product)
+      } else {
+        throw new Error(`Unexpected response status: ${response.status}`)
+      }
+    } catch (error) {
+      console.error("Error adding to cart:", error)
+      alert("❌ Failed to add product to cart.")
+    }
   }
 
   return (
@@ -46,6 +61,7 @@ const ProductCard = ({ product }) => {
           />
         </div>
       </div>
+
       {/* Product Info */}
       <Card.Body className="p-4">
         <div className="mb-2">
@@ -55,10 +71,12 @@ const ProductCard = ({ product }) => {
             </Badge>
           )}
         </div>
+
         <Card.Title className="h6 fw-bold text-dark mb-2 lh-sm" style={{ height: "2.5rem" }}>
           {product.name && product.name.length > 50 ? `${product.name.substring(0, 50)}...` : product.name}
         </Card.Title>
-        {/* Stock & Sold Row */}
+
+        {/* Stock & Sold */}
         <div className="d-flex align-items-center mb-3" style={{ fontWeight: 600 }}>
           <div className="d-flex align-items-center" style={{ flex: 1 }}>
             <span style={{ color: '#347928', fontWeight: 700, fontSize: '1rem' }}>
@@ -69,16 +87,21 @@ const ProductCard = ({ product }) => {
             {product.total_order} sold
           </div>
         </div>
+
         {/* Price */}
         <div className="mb-3">
-          <h6 className="text-danger fw-bold mb-0">{new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(product.price)}</h6>
+          <h6 className="text-danger fw-bold mb-0">
+            {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(product.price)}
+          </h6>
         </div>
+
         {/* Description */}
         <p className="text-muted small mb-3" style={{ height: "2.5rem" }}>
           {product.description && product.description.length > 60
             ? `${product.description.substring(0, 60)}...`
             : product.description}
         </p>
+
         {/* Add to Cart */}
         <Button
           variant="outline-success"
