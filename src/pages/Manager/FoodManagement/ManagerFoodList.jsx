@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import Sidebar from "../ManagerSidebar/ManagerSidebar.jsx"
-import { getProducts } from "../../../api/product"
+import { getProducts, deleteProduct } from "../../../api/product"
 import "./ManagerFoodList.css"
 
 const ManagerFoodList = () => {
@@ -42,11 +42,17 @@ const ManagerFoodList = () => {
     navigate("/manager-add-food")
   }
 
-  const handleDeleteClick = (product_id) => {
+  const handleDeleteClick = async (product_id) => {
     if (window.confirm("Are you sure you want to delete this food item?")) {
-      setFoodList(foodList.filter((food) => food.product_id !== product_id))
+      try {
+        await deleteProduct(product_id);
+        setFoodList(foodList.filter((food) => food.product_id !== product_id));
+        alert('Delete food successfully!');
+      } catch (err) {
+        alert('Delete food failed!');
+      }
     }
-  }
+  };
 
   return (
     <div className="dashboard-container">

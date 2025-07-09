@@ -1,55 +1,31 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Sidebar from "../OwnerSidebar/OwnerSidebar.jsx"
 import CustomerViewModal from "./CustomerViewModal.jsx"
 import "./ManageCustomers.css"
+import { getCustomers } from "../../../api/user";
 
 const ManageCustomers = () => {
   const [searchTerm, setSearchTerm] = useState("")
   const [viewCustomer, setViewCustomer] = useState(null)
-  const [customers, setCustomers] = useState([
-    {
-      id: 1,
-      name: "Alice Johnson",
-      email: "alice@email.com",
-      phone: "+1 234-567-8901",
-      address: "123 Main St, City",
-      orders: 15,
-      totalSpent: 245.5,
-      lastOrder: "2024-01-15",
-    },
-    {
-      id: 2,
-      name: "Bob Smith",
-      email: "bob@email.com",
-      phone: "+1 234-567-8902",
-      address: "456 Oak Ave, City",
-      orders: 8,
-      totalSpent: 156.75,
-      lastOrder: "2024-01-14",
-    },
-    {
-      id: 3,
-      name: "Carol Davis",
-      email: "carol@email.com",
-      phone: "+1 234-567-8903",
-      address: "789 Pine Rd, City",
-      orders: 22,
-      totalSpent: 389.25,
-      lastOrder: "2024-01-16",
-    },
-    {
-      id: 4,
-      name: "David Wilson",
-      email: "david@email.com",
-      phone: "+1 234-567-8904",
-      address: "321 Elm St, City",
-      orders: 5,
-      totalSpent: 89.99,
-      lastOrder: "2024-01-10",
-    },
-  ])
+  const [customers, setCustomers] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  // Gọi API getCustomers khi component mount
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const data = await getCustomers();
+        setCustomers(data);
+      } catch (err) {
+        console.error('Error fetching customers:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCustomers();
+  }, []);
 
   const filteredCustomers = customers.filter(
     (customer) =>
@@ -65,7 +41,7 @@ const ManageCustomers = () => {
   const handleDelete = (id) => {
     const confirmed = window.confirm("Are you sure you want to delete this customer?")
     if (confirmed) {
-      const updated = customers.filter((c) => c.id !== id)
+      const updated = customers.filter((c) => c.userId !== id)
       setCustomers(updated)
     }
   }
@@ -111,7 +87,7 @@ const ManageCustomers = () => {
               { label: "Total Customers", value: customers.length, color: "blue" },
               {
                 label: "Active This Month",
-                value: customers.filter((c) => new Date(c.lastOrder) > new Date("2024-01-01")).length,
+                value: customers.filter((c) => new Date(c.createdAt) > new Date("2024-01-01")).length,
                 color: "green",
               },
               {
@@ -138,74 +114,47 @@ const ManageCustomers = () => {
               <table className="data-table">
                 <thead className="table-header">
                   <tr>
-                    <th>Customer</th>
-                    <th>Contact</th>
-                    <th>Address</th>
-                    <th>Orders</th>
-                    <th>Total Spent</th>
-                    <th>Last Order</th>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone Number</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody className="table-body">
                   {filteredCustomers.map((customer) => (
-                    <tr key={customer.id} className="table-row">
+                    <tr key={customer.userId} className="table-row">
                       <td>
                         <div className="user-info">
-                          <div className="user-avatar">
-                            {customer.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </div>
-                          <div className="user-details">
-                            <h4 className="user-name">{customer.name}</h4>
-                            <p className="user-id">ID: {customer.id}</p>
-                          </div>
+                          <div className="user-id">{customer.userId}</div>
+
                         </div>
                       </td>
                       <td>
-                        <div className="contact-info">
-                          <span className="contact-icon">📧</span>
-                          <span className="contact-text">{customer.email}</span>
-                        </div>
-                        <div className="contact-info">
-                          <span className="contact-icon">📞</span>
-                          <span className="contact-text">{customer.phone}</span>
+                        <div className="user-info">
+                          <div className="user-name">{customer.name}</div>
                         </div>
                       </td>
                       <td>
-                        <div className="contact-info">
-                          <span className="contact-icon">📍</span>
-                          <span className="contact-text address-text">{customer.address}</span>
+                        <div className="user-info">
+                          <div className="user-email">{customer.email}</div>
                         </div>
                       </td>
                       <td>
-                        <div className="stat-value">{customer.orders}</div>
-                      </td>
-                      <td>
-                        <div className="money-value">${customer.totalSpent.toFixed(2)}</div>
-                      </td>
-                      <td>
-                        <div className="date-value">{customer.lastOrder}</div>
-                      </td>
-                      <td>
-                        <div className="action-buttons">
-                          <button
-                            className="action-btn edit"
-                            title="View Customer"
-                            onClick={() => setViewCustomer(customer)}
-                          >
-                            <span>✏️</span>
-                          </button>
-                          <button
-                            className="action-btn delete"
-                            title="Delete Customer"
-                            onClick={() => handleDelete(customer.id)}
-                          >
-                            <span>🗑️</span>
-                          </button>
+                        <div className="user-info">
+                          <div className="user-phone">{customer.phoneNumber}</div>
                         </div>
+                      </td>
+                      <td>
+                        <button
+                          className="action-btn edit"
+                          title="View Customer"
+                          onClick={() => setViewCustomer(customer)}
+                          style={{ color: '#fff', background: '#347928', minWidth: 80, minHeight: 32, fontWeight: 600 }}
+                        >
+                          <span>View</span>
+                        </button>
+
                       </td>
                     </tr>
                   ))}

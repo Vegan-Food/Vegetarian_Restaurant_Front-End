@@ -59,8 +59,7 @@ const StaffSidebar = () => {
   const [activeItem, setActiveItem] = useState(location.pathname)
 
   const handleItemClick = (path) => {
-    localStorage.removeItem("user")
-    navigate("/login")
+    navigate(path)
   }
 
   return (
