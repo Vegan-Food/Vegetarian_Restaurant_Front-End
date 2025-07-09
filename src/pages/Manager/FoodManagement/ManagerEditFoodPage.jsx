@@ -1,11 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import Sidebar from "../ManagerSidebar/ManagerSidebar.jsx"
 import "./EditFoodPage.css"
+import { updateProduct, getProductById } from '../../../api/product';
 
 const EditFoodPage = ({ foodIndex, foodData, onSave }) => {
+  const { id } = useParams();
+
   const navigate = useNavigate()
   const [formData, setFormData] = useState({
     name: "",
@@ -14,17 +17,20 @@ const EditFoodPage = ({ foodIndex, foodData, onSave }) => {
     description: "",
     stock_quantity: "",
     image_url: "",
-    status: "Active",
+    total_order: 0,
+    product_id: ""
   })
   const [imagePreview, setImagePreview] = useState("")
   const [imageFile, setImageFile] = useState(null)
 
   useEffect(() => {
-    if (foodData) {
-      setFormData(foodData)
-      setImagePreview(foodData.image_url || "")
+    if (id) {
+      getProductById(id).then(data => {
+        setFormData(data);
+        setImagePreview(data.image_url || "");
+      });
     }
-  }, [foodData])
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -57,12 +63,30 @@ const EditFoodPage = ({ foodIndex, foodData, onSave }) => {
     setFormData({ ...formData, image_url: "" })
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     if (onSave) {
-      onSave(formData)
+      onSave(formData);
     }
-    navigate("/manager-food")
+    if (formData.product_id) {
+      // Chuẩn bị data đúng format
+      const data = {
+        name: formData.name,
+        description: formData.description,
+        price: Number(formData.price),
+        stock_quantity: Number(formData.stock_quantity),
+        image_url: formData.image_url,
+        category: formData.category,
+        total_order: formData.total_order || 0
+      };
+      try {
+        await updateProduct(formData.product_id, data);
+        alert('Update food successfully!');
+      } catch (err) {
+        alert('Update food failed!');
+      }
+    }
+    navigate("/manager-food");
   }
 
   const handleCancel = () => {
@@ -151,20 +175,6 @@ const EditFoodPage = ({ foodIndex, foodData, onSave }) => {
                       required
                       className="form-input"
                     />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="status">Status</label>
-                    <select
-                      id="status"
-                      name="status"
-                      value={formData.status}
-                      onChange={handleChange}
-                      className="form-select"
-                    >
-                      <option value="Active">Active</option>
-                      <option value="Inactive">Inactive</option>
-                    </select>
                   </div>
                 </div>
               </div>

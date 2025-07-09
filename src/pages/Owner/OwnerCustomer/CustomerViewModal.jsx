@@ -8,13 +8,14 @@ const CustomerViewModal = ({ customer, onClose }) => {
     <div className="modal-backdrop">
       <div className="modal-box">
         <h2>Customer Details</h2>
+        <p><strong>User ID:</strong> {customer.userId}</p>
         <p><strong>Name:</strong> {customer.name}</p>
         <p><strong>Email:</strong> {customer.email}</p>
-        <p><strong>Phone:</strong> {customer.phone}</p>
-        <p><strong>Address:</strong> {customer.address}</p>
-        <p><strong>Total Orders:</strong> {customer.orders}</p>
-        <p><strong>Total Spent:</strong> ${customer.totalSpent.toFixed(2)}</p>
-        <p><strong>Last Order:</strong> {customer.lastOrder}</p>
+        <p><strong>Phone Number:</strong> {customer.phoneNumber || 'N/A'}</p>
+        <p><strong>Address:</strong> {customer.address || 'N/A'}</p>
+        <p><strong>Date of Birth:</strong> {customer.dateOfBirth || 'N/A'}</p>
+        <p><strong>Gender:</strong> {customer.gender || 'N/A'}</p>
+        <p><strong>Created At:</strong> {new Date(customer.createdAt).toLocaleString()}</p>
         <button className="close-btn" onClick={onClose}>Close</button>
       </div>
     </div>

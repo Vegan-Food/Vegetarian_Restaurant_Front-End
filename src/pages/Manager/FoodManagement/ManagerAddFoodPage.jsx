@@ -14,8 +14,7 @@ const ManagerAddFoodPage = ({ onSave }) => {
     price: "",
     description: "",
     stock_quantity: "",
-    image_url: "",
-    status: "Active",
+    image_url: ""
   })
   const [imagePreview, setImagePreview] = useState("")
   const [imageFile, setImageFile] = useState(null)
@@ -144,7 +143,6 @@ const ManagerAddFoodPage = ({ onSave }) => {
       description: "",
       stock_quantity: "",
       image_url: "",
-      status: "Active",
     })
     setImagePreview("")
     setImageFile(null)
@@ -240,17 +238,7 @@ const ManagerAddFoodPage = ({ onSave }) => {
                   </div>
 
                   <div className="form-group">
-                    <label htmlFor="status">Status</label>
-                    <select
-                      id="status"
-                      name="status"
-                      value={formData.status}
-                      onChange={handleChange}
-                      className="form-select"
-                    >
-                      <option value="Active">Active</option>
-                      <option value="Inactive">Inactive</option>
-                    </select>
+                    
                   </div>
                 </div>
               </div>

@@ -1,91 +1,100 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Sidebar from "../OwnerSidebar/OwnerSidebar.jsx"
 import StaffViewModal from "./StaffViewModal"
 import StaffEditModal from "./StaffEditModal"
 import "./ManageStaff.css"
 import "./StaffModal.css"
+import { getEmployees, createEmployee } from "../../../api/user";
 
 const ManageStaff = () => {
   const [searchTerm, setSearchTerm] = useState("")
-  const [staffMembers, setStaffMembers] = useState([
-    {
-      id: 1,
-      name: "John Doe",
-      position: "Head Chef",
-      email: "john@vegetarian.com",
-      phone: "+1 234-567-8901",
-      status: "Active",
-      joinDate: "2023-01-15",
-      department: "Kitchen",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      position: "Sous Chef",
-      email: "jane@vegetarian.com",
-      phone: "+1 234-567-8902",
-      status: "Active",
-      joinDate: "2023-03-20",
-      department: "Kitchen",
-    },
-    {
-      id: 3,
-      name: "Mike Johnson",
-      position: "Server",
-      email: "mike@vegetarian.com",
-      phone: "+1 234-567-8903",
-      status: "Active",
-      joinDate: "2023-06-10",
-      department: "Service",
-    },
-    {
-      id: 4,
-      name: "Sarah Wilson",
-      position: "Manager",
-      email: "sarah@vegetarian.com",
-      phone: "+1 234-567-8904",
-      status: "Inactive",
-      joinDate: "2022-11-05",
-      department: "Management",
-    },
-  ])
+  const [staffMembers, setStaffMembers] = useState([])
 
   const [selectedStaff, setSelectedStaff] = useState(null)
   const [isViewModalOpen, setIsViewModalOpen] = useState(false)
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
+
+  // Thêm state để điều khiển modal
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newEmployee, setNewEmployee] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "staff",
+    phoneNumber: "",
+    address: ""
+  });
+
+  useEffect(() => {
+    const fetchStaff = async () => {
+      try {
+        const data = await getEmployees();
+        setStaffMembers(data);
+      } catch (err) {
+        console.error("Error fetching staff:", err);
+      }
+    };
+    fetchStaff();
+  }, []);
 
   const handleView = (staff) => {
     setSelectedStaff(staff)
     setIsViewModalOpen(true)
   }
 
-  const handleEdit = (staff) => {
-    setSelectedStaff(staff)
-    setIsEditModalOpen(true)
-  }
+  // const handleEdit = (staff) => {
+  //   setSelectedStaff(staff)
+  //   setIsEditModalOpen(true)
+  // }
 
   const handleDelete = (id) => {
     if (window.confirm("Are you sure you want to delete this staff member?")) {
-      setStaffMembers((prev) => prev.filter((staff) => staff.id !== id))
+      setStaffMembers((prev) => prev.filter((staff) => staff.userId !== id))
     }
   }
 
   const handleUpdate = (updatedStaff) => {
     const updatedList = staffMembers.map((staff) =>
-      staff.id === updatedStaff.id ? updatedStaff : staff
+      staff.userId === updatedStaff.userId ? updatedStaff : staff
     )
     setStaffMembers(updatedList)
     setIsEditModalOpen(false)
   }
 
-  const filteredStaff = staffMembers.filter((staff) =>
-    [staff.name, staff.position, staff.department]
+  const filteredStaff = staffMembers.filter((staff) => {
+    console.log(staff);
+
+    return [staff.userId, staff.name, staff.email, staff.role, staff.phoneNumber, staff.createdAt, staff.address, staff.dateOfBirth, staff.gender]
       .join(" ")
       .toLowerCase()
       .includes(searchTerm.toLowerCase())
-  )
+  })
+
+  const handleOpenAddModal = () => {
+    setNewEmployee({
+      name: "",
+      email: "",
+      password: "",
+      role: "staff",
+      phoneNumber: "",
+      address: ""
+    });
+    setIsAddModalOpen(true);
+  };
+
+  const handleAddEmployee = async (e) => {
+    e.preventDefault();
+    try {
+      await createEmployee(newEmployee);
+      alert('Add employee successfully!');
+      window.location.reload();
+    } catch (err) {
+      alert('Add employee failed!');
+      console.error('Add employee error:', err);
+    }
+  };
 
   return (
     <div className="dashboard-layout">
@@ -98,8 +107,8 @@ const ManageStaff = () => {
         <div className="manage-staff">
           {/* Action Button */}
           <div className="page-actions">
-            <button className="add-btn">
-              <span className="add-icon">➕</span> Add Staff Member
+            <button className="add-btn" onClick={handleOpenAddModal}>
+              <span className="add-icon">➕</span> Add Employee
             </button>
           </div>
 
@@ -150,57 +159,38 @@ const ManageStaff = () => {
               <table className="data-table">
                 <thead className="table-header">
                   <tr>
-                    <th>STAFF MEMBER</th>
-                    <th>POSITION</th>
-                    <th>CONTACT</th>
-                    <th>JOIN DATE</th>
-                    <th>STATUS</th>
-                    <th>ACTIONS</th>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Role</th>
+                    <th>Email</th>
+                    <th>Phone Number</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody className="table-body">
                   {filteredStaff.map((staff) => (
-                    <tr key={staff.id} className="table-row">
+                    <tr key={staff.userId} className="table-row">
+                      <td>
+                        <div className="user-id">{staff.userId}</div>
+                      </td>
+                      <td>
+                        <div className="user-name">{staff.name}</div>
+                      </td>
+                      <td>{staff.role || 'N/A'}</td>
                       <td>
                         <div className="user-info">
-                          <div className="user-avatar">
-                            {staff.name
-                              .split(" ")
-                              .map((n) => n[0])
-                              .join("")}
-                          </div>
-                          <div className="user-details">
-                            <h4 className="user-name">{staff.name}</h4>
-                            <p className="user-id">ID: {staff.id}</p>
-                          </div>
+                          <div className="user-email">{staff.email}</div>
                         </div>
                       </td>
-                      <td>{staff.position}</td>
                       <td>
-                        <div className="contact-info">
-                          <span className="contact-icon">📧</span>
-                          <span className="contact-text">{staff.email}</span>
+                        <div className="user-info">
+                          <div className="user-phone">{staff.phoneNumber}</div>
                         </div>
-                        <div className="contact-info">
-                          <span className="contact-icon">📞</span>
-                          <span className="contact-text">{staff.phone}</span>
-                        </div>
-                      </td>
-                      <td>{staff.joinDate}</td>
-                      <td>
-                        <span
-                          className={`status-badge ${
-                            staff.status === "Active" ? "status-active" : "status-inactive"
-                          }`}
-                        >
-                          {staff.status}
-                        </span>
                       </td>
                       <td>
                         <div className="action-buttons">
                           <button className="action-btn view" onClick={() => handleView(staff)}>👁️</button>
-                          <button className="action-btn edit" onClick={() => handleEdit(staff)}>✏️</button>
-                          <button className="action-btn delete" onClick={() => handleDelete(staff.id)}>🗑️</button>
+                          <button className="action-btn delete" onClick={() => handleDelete(staff.userId)}>🗑️</button>
                         </div>
                       </td>
                     </tr>
@@ -232,6 +222,89 @@ const ManageStaff = () => {
           onUpdate={handleUpdate}
           onClose={() => setIsEditModalOpen(false)}
         />
+      )}
+
+      {isAddModalOpen && (
+        <div className="modal-backdrop">
+          <div className="modal-box">
+            <h2>Add New Employee</h2>
+            <form onSubmit={handleAddEmployee}>
+              <div className="form-group">
+                <label>Name</label>
+                <input value={newEmployee.name} onChange={e => setNewEmployee({ ...newEmployee, name: e.target.value })} required />
+              </div>
+              <div className="form-group">
+                <label>Email</label>
+                <input type="email" value={newEmployee.email} onChange={e => setNewEmployee({ ...newEmployee, email: e.target.value })} required />
+              </div>
+              <div className="form-group">
+                <label>Password</label>
+                <input type="password" value={newEmployee.password} onChange={e => setNewEmployee({ ...newEmployee, password: e.target.value })} required />
+              </div>
+              <div className="form-group" style={{ marginBottom: 20 }}>
+                <label style={{ marginBottom: 6, fontWeight: 500 }}>Role</label>
+                <select
+                  value={newEmployee.role}
+                  onChange={e => setNewEmployee({ ...newEmployee, role: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: 8,
+                    border: '1px solid #d1d5db',
+                    fontSize: 16,
+                    background: '#f8fafc'
+                  }}
+                >
+                  <option value="manager">Manager</option>
+                  <option value="staff">Staff</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Phone Number</label>
+                <input value={newEmployee.phoneNumber} onChange={e => setNewEmployee({ ...newEmployee, phoneNumber: e.target.value })} />
+              </div>
+              <div className="form-group">
+                <label>Address</label>
+                <input value={newEmployee.address} onChange={e => setNewEmployee({ ...newEmployee, address: e.target.value })} />
+              </div>
+              <div className="modal-actions center" style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 24 }}>
+                <button
+                  type="button"
+                  className="btn-modal-close"
+                  style={{
+                    background: '#2563eb',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: 8,
+                    padding: '10px 32px',
+                    fontWeight: 600,
+                    fontSize: 16,
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => setIsAddModalOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn-modal-save"
+                  style={{
+                    background: '#347928',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: 8,
+                    padding: '10px 32px',
+                    fontWeight: 600,
+                    fontSize: 16,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Add
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   )

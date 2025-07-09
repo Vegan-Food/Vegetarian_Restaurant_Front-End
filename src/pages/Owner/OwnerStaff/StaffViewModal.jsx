@@ -8,15 +8,15 @@ const StaffViewModal = ({ staff, onClose }) => {
     <div className="modal-backdrop">
       <div className="modal-box">
         <h2>Staff Details</h2>
+        <p><strong>User ID:</strong> {staff.userId}</p>
         <p><strong>Name:</strong> {staff.name}</p>
-        <p><strong>Position:</strong> {staff.position}</p>
         <p><strong>Email:</strong> {staff.email}</p>
-        <p><strong>Phone:</strong> {staff.phone}</p>
-        <p><strong>Status:</strong> {staff.status}</p>
-        <p><strong>Join Date:</strong> {staff.joinDate}</p>
-        <p><strong>Department:</strong> {staff.department}</p>
-
-        {/* Nút Close căn giữa */}
+        <p><strong>Role:</strong> {staff.role}</p>
+        <p><strong>Phone Number:</strong> {staff.phoneNumber || 'N/A'}</p>
+        <p><strong>Address:</strong> {staff.address || 'N/A'}</p>
+        <p><strong>Date of Birth:</strong> {staff.dateOfBirth || 'N/A'}</p>
+        <p><strong>Gender:</strong> {staff.gender || 'N/A'}</p>
+        <p><strong>Created At:</strong> {staff.createdAt ? new Date(staff.createdAt).toLocaleString() : 'N/A'}</p>
         <div className="modal-actions center">
           <button onClick={onClose} className="btn-modal-close">
             Close
