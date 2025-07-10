@@ -2,15 +2,16 @@
 
 import { useState, useEffect } from "react"
 import { Container, Row, Col, Card, Table, Badge, Button } from "react-bootstrap"
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams, useNavigate, useLocation } from "react-router-dom"
 import { appTheme } from "../../../constant/color_constants"
 import StaffSidebar from "../StaffSidebar/StaffSidebar"
 
 const StaffOrderDetail = () => {
   const navigate = useNavigate()
   const { orderId } = useParams()
-  const [order, setOrder] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const location = useLocation();
+  const [order, setOrder] = useState(location.state?.order || null)
+  const [loading, setLoading] = useState(!location.state?.order)
 
   // Mock data - in real app, this would come from API
   const mockOrders = [
@@ -26,18 +27,18 @@ const StaffOrderDetail = () => {
       status: "Completed",
       total: "165,000đ",
       items: [
-        { 
+        {
           id: 1,
-          name: "Beef Pho", 
-          quantity: 1, 
+          name: "Beef Pho",
+          quantity: 1,
           unitPrice: "75,000đ",
           totalPrice: "75,000đ",
           image: "/placeholder.svg?height=60&width=60"
         },
-        { 
+        {
           id: 2,
-          name: "Fish Cake", 
-          quantity: 2, 
+          name: "Fish Cake",
+          quantity: 2,
           unitPrice: "45,000đ",
           totalPrice: "90,000đ",
           image: "/placeholder.svg?height=60&width=60"
@@ -56,18 +57,18 @@ const StaffOrderDetail = () => {
       status: "Processing",
       total: "100,000đ",
       items: [
-        { 
+        {
           id: 3,
-          name: "Grilled Pork", 
-          quantity: 1, 
+          name: "Grilled Pork",
+          quantity: 1,
           unitPrice: "65,000đ",
           totalPrice: "65,000đ",
           image: "/placeholder.svg?height=60&width=60"
         },
-        { 
+        {
           id: 4,
-          name: "Spring Rolls", 
-          quantity: 1, 
+          name: "Spring Rolls",
+          quantity: 1,
           unitPrice: "35,000đ",
           totalPrice: "35,000đ",
           image: "/placeholder.svg?height=60&width=60"
@@ -86,18 +87,18 @@ const StaffOrderDetail = () => {
       status: "Pending",
       total: "110,000đ",
       items: [
-        { 
+        {
           id: 1,
-          name: "Beef Pho", 
-          quantity: 1, 
+          name: "Beef Pho",
+          quantity: 1,
           unitPrice: "75,000đ",
           totalPrice: "75,000đ",
           image: "/placeholder.svg?height=60&width=60"
         },
-        { 
+        {
           id: 4,
-          name: "Spring Rolls", 
-          quantity: 1, 
+          name: "Spring Rolls",
+          quantity: 1,
           unitPrice: "35,000đ",
           totalPrice: "35,000đ",
           image: "/placeholder.svg?height=60&width=60"
@@ -107,13 +108,10 @@ const StaffOrderDetail = () => {
   ]
 
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      const foundOrder = mockOrders.find(o => o.id === orderId)
-      setOrder(foundOrder)
-      setLoading(false)
-    }, 500)
-  }, [orderId])
+    if (!order && !loading) setLoading(false);
+    // Nếu không có order truyền qua state, có thể fetch lại từ API ở đây nếu muốn
+    // Hoặc giữ nguyên báo Order not found
+  }, [order, loading]);
 
   const getStatusBadge = (status) => {
     const statusColors = {
@@ -199,7 +197,7 @@ const StaffOrderDetail = () => {
                 <Card.Body>
                   <Row className="mb-3">
                     <Col md={6}>
-                      <strong>Order ID:</strong> {order.id}
+                      <strong>Order ID:</strong> {order.orderId}
                     </Col>
                     <Col md={6}>
                       <strong>Status:</strong> {getStatusBadge(order.status)}
@@ -207,18 +205,18 @@ const StaffOrderDetail = () => {
                   </Row>
                   <Row className="mb-3">
                     <Col md={6}>
-                      <strong>Customer:</strong> {order.customer}
+                      <strong>Customer:</strong> {order.userName}
                     </Col>
                     <Col md={6}>
-                      <strong>Phone:</strong> {order.phone}
+                      <strong>Phone:</strong> {order.phoneNumber}
                     </Col>
                   </Row>
                   <Row className="mb-3">
                     <Col md={6}>
-                      <strong>Order Date:</strong> {order.orderDate}
+                      <strong>Order Date:</strong> {order.createdAt}
                     </Col>
                     <Col md={6}>
-                      <strong>Order Time:</strong> {order.orderTime}
+                      <strong>Order Time:</strong> {order.createdAt}
                     </Col>
                   </Row>
                   <Row className="mb-3">
@@ -226,7 +224,7 @@ const StaffOrderDetail = () => {
                       <strong>Payment Method:</strong> {order.paymentMethod}
                     </Col>
                     <Col md={6}>
-                      <strong>Discount Code:</strong> {order.discountCode || "N/A"}
+                      <strong>Discount Code:</strong> {order.discountCode}
                     </Col>
                   </Row>
                   <Row className="mb-3">
@@ -250,7 +248,6 @@ const StaffOrderDetail = () => {
                   <Table responsive hover>
                     <thead>
                       <tr>
-                        <th>Image</th>
                         <th>Item Name</th>
                         <th>Unit Price</th>
                         <th>Quantity</th>
@@ -261,26 +258,14 @@ const StaffOrderDetail = () => {
                       {order.items.map((item, index) => (
                         <tr key={index}>
                           <td>
-                            <img
-                              src={item.image || "/placeholder.svg"}
-                              alt={item.name}
-                              style={{ 
-                                width: "50px", 
-                                height: "50px", 
-                                objectFit: "cover", 
-                                borderRadius: "8px" 
-                              }}
-                            />
+                            <strong>{item.productName}</strong>
                           </td>
-                          <td>
-                            <strong>{item.name}</strong>
-                          </td>
-                          <td>{item.unitPrice}</td>
+                          <td>{item.priceAtTime}</td>
                           <td>
                             <Badge bg="light" text="dark">{item.quantity}</Badge>
                           </td>
                           <td>
-                            <strong>{item.totalPrice}</strong>
+                            <strong>{item.priceAtTime * item.quantity}</strong>
                           </td>
                         </tr>
                       ))}
@@ -292,7 +277,7 @@ const StaffOrderDetail = () => {
                         </td>
                         <td>
                           <strong style={{ color: appTheme.primary, fontSize: "1.1em" }}>
-                            {order.total}
+                            {order.totalAmount}
                           </strong>
                         </td>
                       </tr>
@@ -308,9 +293,6 @@ const StaffOrderDetail = () => {
             <Col>
               <Button variant="secondary" onClick={handleBack} className="me-2">
                 Back to Orders
-              </Button>
-              <Button variant="primary" style={{ backgroundColor: appTheme.primary }}>
-                Update Status
               </Button>
             </Col>
           </Row>

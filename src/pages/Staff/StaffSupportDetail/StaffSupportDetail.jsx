@@ -1,58 +1,23 @@
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams, useNavigate, useLocation } from "react-router-dom"
 import StaffSidebar from "../StaffSidebar/StaffSidebar"
 import { Container, Row, Col, Card, Button, Badge, Alert } from "react-bootstrap"
 import { appTheme } from "../../../constant/color_constants"
 
-const mockTickets = [
-  {
-    id: "SUP001",
-    customer: "Nguyen Van A",
-    subject: "Order Delay Issue",
-    status: "Open",
-    createdTime: "2 hours ago",
-    description: "My order #ORD001 is delayed. When will it be delivered? I placed the order yesterday and expected it to arrive today. This is causing inconvenience as I have guests coming over for dinner.",
-  },
-  {
-    id: "SUP002",
-    customer: "Tran Thi B",
-    subject: "Food Quality Complaint",
-    status: "In Progress",
-    createdTime: "4 hours ago",
-    description: "The food quality was not as expected. The rice was undercooked and the vegetables were not fresh. I would like a refund or replacement for this order.",
-  },
-  {
-    id: "SUP003",
-    customer: "Le Van C",
-    subject: "Order Tracking",
-    status: "Resolved",
-    createdTime: "1 day ago",
-    description: "Cannot track my order status. The tracking number provided is not working on the website. Please help me check the current status of my order.",
-  },
-  {
-    id: "SUP004",
-    customer: "Pham Thi D",
-    subject: "Payment Issue",
-    status: "Open",
-    createdTime: "30 minutes ago",
-    description: "Payment was deducted from my account but the order was not confirmed. I received the payment confirmation from my bank but no order confirmation from your system.",
-  },
-]
-
-
 const getStatusBadge = (status) => {
   const colors = { 
-    Open: "primary", 
-    "In Progress": "warning", 
-    Resolved: "success", 
-    Closed: "secondary" 
+    pending: "warning",
+    "in progress": "info", 
+    resolved: "success", 
+    closed: "secondary"
   }
-  return <Badge bg={colors[status]} className="px-3 py-2">{status}</Badge>
+  return <Badge bg={colors[status] || 'secondary'} className="px-3 py-2">{status}</Badge>
 }
 
 const StaffSupportDetail = () => {
   const { ticketId } = useParams()
   const navigate = useNavigate()
-  const ticket = mockTickets.find(t => t.id === ticketId)
+  const location = useLocation()
+  const ticket = location.state?.ticket
 
   return (
     <div className="dashboard-container">
@@ -80,7 +45,7 @@ const StaffSupportDetail = () => {
                   <Card.Header style={{ backgroundColor: appTheme.primary, color: "white" }}>
                     <Row className="align-items-center">
                       <Col>
-                        <h5 className="mb-0">Ticket {ticket.id}</h5>
+                        <h5 className="mb-0">Ticket #{ticket.ticketId}</h5>
                       </Col>
                       <Col xs="auto">
                         {getStatusBadge(ticket.status)}
@@ -95,12 +60,30 @@ const StaffSupportDetail = () => {
                             <h6 className="text-muted mb-2">TICKET INFORMATION</h6>
                             <div className="mb-3">
                               <strong>Ticket ID:</strong>
-                              <div className="mt-1">{ticket.id}</div>
+                              <div className="mt-1">#{ticket.ticketId}</div>
                             </div>
                             <div className="mb-3">
                               <strong>Created Time:</strong>
-                              <div className="mt-1">{ticket.createdTime}</div>
+                              <div className="mt-1">
+                                {ticket.createdAt 
+                                  ? new Date(ticket.createdAt).toLocaleString()
+                                  : 'N/A'}
+                              </div>
                             </div>
+                            <div className="mb-3">
+                              <strong>Assigned To:</strong>
+                              <div className="mt-1">
+                                {ticket.assignedTo ? ticket.assignedTo.name : 'Unassigned'}
+                              </div>
+                            </div>
+                            {ticket.repliedAt && (
+                              <div className="mb-0">
+                                <strong>Replied At:</strong>
+                                <div className="mt-1">
+                                  {new Date(ticket.repliedAt).toLocaleString()}
+                                </div>
+                              </div>
+                            )}
                           </Card.Body>
                         </Card>
                       </Col>
@@ -110,7 +93,15 @@ const StaffSupportDetail = () => {
                             <h6 className="text-muted mb-2">CUSTOMER INFORMATION</h6>
                             <div className="mb-3">
                               <strong>Customer Name:</strong>
-                              <div className="mt-1">{ticket.customer}</div>
+                              <div className="mt-1">{ticket.user.name}</div>
+                            </div>
+                            <div className="mb-3">
+                              <strong>Customer Email:</strong>
+                              <div className="mt-1">{ticket.user.email}</div>
+                            </div>
+                            <div className="mb-3">
+                              <strong>Phone Number:</strong>
+                              <div className="mt-1">{ticket.user.phoneNumber || 'N/A'}</div>
                             </div>
                             <div className="mb-3">
                               <strong>Subject:</strong>
@@ -125,7 +116,7 @@ const StaffSupportDetail = () => {
                       </Col>
                     </Row>
 
-                    <Row>
+                    <Row className="mb-4">
                       <Col>
                         <Card className="border-0" style={{ backgroundColor: "#F8F9FA" }}>
                           <Card.Body>
@@ -144,10 +135,36 @@ const StaffSupportDetail = () => {
                       </Col>
                     </Row>
 
+                    {ticket.replyMessage && (
+                      <Row className="mb-4">
+                        <Col>
+                          <Card className="border-0" style={{ backgroundColor: "#E8F5E8" }}>
+                            <Card.Body>
+                              <h6 className="text-muted mb-3">STAFF RESPONSE</h6>
+                              <div className="p-3" style={{ 
+                                backgroundColor: "white", 
+                                borderRadius: "8px",
+                                border: "1px solid #C8E6C9"
+                              }}>
+                                <p className="mb-2" style={{ lineHeight: "1.6" }}>
+                                  {ticket.replyMessage}
+                                </p>
+                                {ticket.responder && (
+                                  <small className="text-muted">
+                                    Responded by: {ticket.responder.name} 
+                                    {ticket.repliedAt && ` on ${new Date(ticket.repliedAt).toLocaleString()}`}
+                                  </small>
+                                )}
+                              </div>
+                            </Card.Body>
+                          </Card>
+                        </Col>
+                      </Row>
+                    )}
+
                     <Row className="mt-4">
                       <Col>
                         <div className="d-flex gap-2">
-                          {/* Đã xóa nút Respond to Ticket */}
                           <Button 
                             variant="outline-secondary"
                             onClick={() => navigate(`/staff-support`)}
@@ -162,7 +179,7 @@ const StaffSupportDetail = () => {
               ) : (
                 <Alert variant="warning" className="text-center">
                   <h5>Ticket Not Found</h5>
-                  <p className="mb-3">The support ticket with ID "{ticketId}" could not be found.</p>
+                  <p className="mb-3">The support ticket with ID "{ticketId}" could not be found or no data was passed.</p>
                   <Button variant="primary" onClick={() => navigate("/staff-support")}>
                     Return to Support List
                   </Button>

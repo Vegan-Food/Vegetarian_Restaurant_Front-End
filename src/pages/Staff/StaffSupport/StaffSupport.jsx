@@ -1,63 +1,117 @@
 "use client"
 
-import { useState } from "react"
-import { Container, Row, Col, Card, Table, Badge, Button, Modal, Form } from "react-bootstrap"
+import { useState, useEffect } from "react"
+import { Container, Row, Col, Card, Table, Badge, Button, Modal, Form, InputGroup } from "react-bootstrap"
 import { useNavigate } from "react-router-dom"
 import { appTheme } from "../../../constant/color_constants"
 import StaffSidebar from "../StaffSidebar/StaffSidebar"
+import { getTickets, replyTicket, updateTicketStatus } from '../../../api/support'
 
 const StaffSupport = () => {
   const navigate = useNavigate()
   const [showModal, setShowModal] = useState(false)
+  const [showStatusModal, setShowStatusModal] = useState(false)
   const [selectedTicket, setSelectedTicket] = useState(null)
-  const [supportTickets, setSupportTickets] = useState([
-    {
-      id: "SUP001",
-      customer: "Nguyen Van A",
-      subject: "Order Delay Issue",
-      status: "Open",
-      createdTime: "2 hours ago",
-      description: "My order ORD001 is delayed. When will it be delivered?",
-    },
-    {
-      id: "SUP002",
-      customer: "Tran Thi B",
-      subject: "Food Quality Complaint",
-      status: "In Progress",
-      createdTime: "4 hours ago",
-      description: "The food quality was not as expected. Need refund.",
-    },
-    {
-      id: "SUP003",
-      customer: "Le Van C",
-      subject: "Order Tracking",
-      status: "Resolved",
-      createdTime: "1 day ago",
-      description: "Cannot track my order status. Please help.",
-    },
-    {
-      id: "SUP004",
-      customer: "Pham Thi D",
-      subject: "Payment Issue",
-      status: "Open",
-      createdTime: "30 minutes ago",
-      description: "Payment was deducted but order not confirmed.",
-    },
-  ])
+  const [selectedTicketForStatus, setSelectedTicketForStatus] = useState(null)
+  const [supportTickets, setSupportTickets] = useState([])
+  const [filteredTickets, setFilteredTickets] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [assignedToFilter, setAssignedToFilter] = useState("all")
+  const [replyMessage, setReplyMessage] = useState("")
+  const [sending, setSending] = useState(false)
+  const [updatingStatus, setUpdatingStatus] = useState(false)
 
+  // Gọi API lấy danh sách tickets khi vào trang
+  useEffect(() => {
+    getTickets().then(data => {
+      setSupportTickets(data);
+      setFilteredTickets(data);
+      setLoading(false);
+    }).catch(() => {
+      setSupportTickets([]);
+      setFilteredTickets([]);
+      setLoading(false);
+    });
+  }, []);
+
+  // Lọc tickets theo từ khóa tìm kiếm, status và assigned to
+  useEffect(() => {
+    let filtered = supportTickets;
+
+    // Lọc theo search term
+    if (searchTerm.trim()) {
+      filtered = filtered.filter(ticket => 
+        ticket.ticketId?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
+        ticket.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        ticket.subject?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Lọc theo status
+    if (statusFilter !== "all") {
+      filtered = filtered.filter(ticket => ticket.status === statusFilter);
+    }
+
+    // Lọc theo assigned to
+    if (assignedToFilter !== "all") {
+      if (assignedToFilter === "unassigned") {
+        filtered = filtered.filter(ticket => !ticket.assignedTo);
+      } else {
+        filtered = filtered.filter(ticket => 
+          ticket.assignedTo && ticket.assignedTo.userId.toString() === assignedToFilter
+        );
+      }
+    }
+
+    setFilteredTickets(filtered);
+  }, [searchTerm, statusFilter, assignedToFilter, supportTickets]);
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleStatusFilterChange = (e) => {
+    setStatusFilter(e.target.value);
+  };
+
+  const handleAssignedToFilterChange = (e) => {
+    setAssignedToFilter(e.target.value);
+  };
+
+  const handleResetFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("all");
+    setAssignedToFilter("all");
+  };
+
+  // Lấy danh sách unique assignees để hiển thị trong dropdown
+  const getUniqueAssignees = () => {
+    const assignees = supportTickets
+      .filter(ticket => ticket.assignedTo)
+      .map(ticket => ticket.assignedTo)
+      .reduce((unique, assignee) => {
+        if (!unique.find(u => u.userId === assignee.userId)) {
+          unique.push(assignee);
+        }
+        return unique;
+      }, []);
+    return assignees;
+  };
 
   const getStatusBadge = (status) => {
     const statusColors = {
-      Open: "primary",
-      "In Progress": "warning",
-      Resolved: "success",
-      Closed: "secondary",
+      pending: "warning",
+      "in progress": "info",
+      resolved: "success",
+      closed: "secondary",
     }
-    return <Badge bg={statusColors[status]}>{status}</Badge>
+    return <Badge bg={statusColors[status] || 'secondary'}>{status}</Badge>
   }
 
-  const handleViewDetail = (ticketId) => {
-  navigate(`/staff-support-detail/${ticketId}`)
+  const handleViewDetail = (ticket) => {
+    navigate(`/staff-support-detail/${ticket.ticketId}`, { state: { ticket } })
   }
 
   const openResponseModal = (ticket) => {
@@ -67,10 +121,97 @@ const StaffSupport = () => {
 
   const handleStatusUpdate = (ticketId, newStatus) => {
     setSupportTickets(
-      supportTickets.map((ticket) => (ticket.id === ticketId ? { ...ticket, status: newStatus } : ticket)),
+      supportTickets.map((ticket) => (ticket.ticketId === ticketId ? { ...ticket, status: newStatus } : ticket)),
     )
     setShowModal(false)
   }
+
+  const handleSendResponse = async () => {
+    if (!replyMessage.trim()) {
+      alert('Please enter a response message!');
+      return;
+    }
+
+    setSending(true);
+    try {
+      const res = await replyTicket(selectedTicket.ticketId, replyMessage);
+
+      if (res && res.ticketId) {
+        alert('Response sent successfully!');
+
+        setSupportTickets(prevTickets =>
+          prevTickets.map(ticket =>
+            ticket.ticketId === res.ticketId ? res : ticket
+          )
+        );
+
+        setFilteredTickets(prevTickets =>
+          prevTickets.map(ticket =>
+            ticket.ticketId === res.ticketId ? res : ticket
+          )
+        );
+
+        setShowModal(false);
+        setReplyMessage("");
+        setSelectedTicket(null);
+      } else {
+        alert('Failed to send response!');
+      }
+    } catch (err) {
+      console.error('Error sending response:', err);
+      alert('Failed to send response!');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const openStatusModal = (ticket) => {
+    setSelectedTicketForStatus(ticket)
+    setShowStatusModal(true)
+  }
+
+  const handleUpdateStatus = async (newStatus) => {
+    if (!selectedTicketForStatus) return;
+
+    setUpdatingStatus(true);
+    try {
+      const res = await updateTicketStatus(selectedTicketForStatus.ticketId, newStatus);
+
+      if (res && res.ticketId) {
+        alert('Status updated successfully!');
+
+        // Cập nhật ticket trong danh sách
+        setSupportTickets(prevTickets =>
+          prevTickets.map(ticket =>
+            ticket.ticketId === res.ticketId ? res : ticket
+          )
+        );
+
+        // Cập nhật filtered tickets nếu có search
+        setFilteredTickets(prevTickets =>
+          prevTickets.map(ticket =>
+            ticket.ticketId === res.ticketId ? res : ticket
+          )
+        );
+
+        setShowStatusModal(false);
+        setSelectedTicketForStatus(null);
+      } else {
+        alert('Failed to update status!');
+      }
+    } catch (err) {
+      console.error('Error updating status:', err);
+      alert('Failed to update status!');
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
+  // Thống kê tickets
+  const openTickets = filteredTickets.filter(t => t.status === 'pending').length;
+  const inProgressTickets = filteredTickets.filter(t => t.status === 'in progress').length;
+  const resolvedTickets = filteredTickets.filter(t => t.status === 'resolved').length;
+  const closedTickets = filteredTickets.filter(t => t.status === 'closed').length;
 
   return (
     <div className="dashboard-container">
@@ -84,21 +225,22 @@ const StaffSupport = () => {
             </Col>
           </Row>
 
+
           {/* Support Statistics */}
           <Row className="mb-4">
             <Col md={3}>
               <Card className="h-100" style={{ backgroundColor: "#FFEBEE", border: "none" }}>
                 <Card.Body>
-                  <h3 className="mb-1">2</h3>
+                  <h3 className="mb-1">{openTickets}</h3>
                   <p className="text-muted mb-0">Open Tickets</p>
-                  <small className="text-danger">High Priority</small>
+                  <small className="text-danger">Pending</small>
                 </Card.Body>
               </Card>
             </Col>
             <Col md={3}>
               <Card className="h-100" style={{ backgroundColor: "#FFF3E0", border: "none" }}>
                 <Card.Body>
-                  <h3 className="mb-1">1</h3>
+                  <h3 className="mb-1">{inProgressTickets}</h3>
                   <p className="text-muted mb-0">In Progress</p>
                   <small className="text-warning">Being handled</small>
                 </Card.Body>
@@ -107,8 +249,8 @@ const StaffSupport = () => {
             <Col md={3}>
               <Card className="h-100" style={{ backgroundColor: appTheme.secondary, border: "none" }}>
                 <Card.Body>
-                  <h3 className="mb-1">1</h3>
-                  <p className="text-muted mb-0">Resolved Today</p>
+                  <h3 className="mb-1">{resolvedTickets}</h3>
+                  <p className="text-muted mb-0">Resolved</p>
                   <small className="text-success">Completed</small>
                 </Card.Body>
               </Card>
@@ -116,13 +258,65 @@ const StaffSupport = () => {
             <Col md={3}>
               <Card className="h-100" style={{ backgroundColor: "#E8F5E8", border: "none" }}>
                 <Card.Body>
-                  <h3 className="mb-1">95%</h3>
-                  <p className="text-muted mb-0">Satisfaction Rate</p>
-                  <small className="text-success">This month</small>
+                  <h3 className="mb-1">{closedTickets}</h3>
+                  <p className="text-muted mb-0">Closed</p>
+                  <small className="text-secondary">Finished</small>
                 </Card.Body>
               </Card>
             </Col>
           </Row>
+
+          <Row className="mb-3">
+            <Col md={3}>
+              <InputGroup>
+                <InputGroup.Text>
+                  <i className="fas fa-search"></i>
+                </InputGroup.Text>
+                <Form.Control
+                  type="text"
+                  placeholder="Search by Ticket ID, Customer Name, or Subject..."
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                />
+              </InputGroup>
+            </Col>
+            <Col md={2}>
+              <Form.Select value={statusFilter} onChange={handleStatusFilterChange}>
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="open">Open</option>
+                <option value="closed">Closed</option>
+              </Form.Select>
+            </Col>
+            <Col md={3}>
+              <Form.Select value={assignedToFilter} onChange={handleAssignedToFilterChange}>
+                <option value="all">All Assigned</option>
+                <option value="unassigned">Unassigned</option>
+                {getUniqueAssignees().map(assignee => (
+                  <option key={assignee.userId} value={assignee.userId.toString()}>
+                    {assignee.name}
+                  </option>
+                ))}
+              </Form.Select>
+            </Col>
+            <Col md={2}>
+              <Button
+                variant="outline-secondary"
+                onClick={handleResetFilters}
+                className="w-100"
+                disabled={searchTerm === "" && statusFilter === "all" && assignedToFilter === "all"}
+              >
+                <i className="fas fa-undo me-1"></i>
+                Reset
+              </Button>
+            </Col>
+            <Col md={2} className="text-end">
+              <small className="text-muted">
+                Showing {filteredTickets.length} of {supportTickets.length} tickets
+              </small>
+            </Col>
+          </Row>
+
 
           <Row>
             <Col>
@@ -135,38 +329,66 @@ const StaffSupport = () => {
                     <thead>
                       <tr>
                         <th>Ticket ID</th>
-                        <th>Customer</th>
+                        <th>Customer Name</th>
                         <th>Subject</th>
                         <th>Status</th>
-                        <th>Created</th>
+                        <th>Assigned To</th>
+                        <th>Created At</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {supportTickets.map((ticket, index) => (
-                        <tr key={index}>
-                          <td>
-                            <strong>{ticket.id}</strong>
-                          </td>
-                          <td>{ticket.customer}</td>
-                          <td>{ticket.subject}</td>
-                          <td>{getStatusBadge(ticket.status)}</td>
-                          <td>{ticket.createdTime}</td>
-                          <td>
-                            <Button
-                              variant="outline-primary"
-                              size="sm"
-                              className="me-2"
-                              onClick={() => handleViewDetail(ticket.id)}
-                            >
-                              View Detail
-                            </Button>
-                            <Button variant="outline-success" size="sm" onClick={() => openResponseModal(ticket)}>
-                              Respond
-                            </Button>
+                      {loading ? (
+                        <tr>
+                          <td colSpan="7" className="text-center">Loading tickets...</td>
+                        </tr>
+                      ) : filteredTickets.length === 0 ? (
+                        <tr>
+                          <td colSpan="7" className="text-center">
+                            {searchTerm ? 'No tickets found matching your search.' : 'No support tickets found.'}
                           </td>
                         </tr>
-                      ))}
+                      ) : (
+                        filteredTickets.map((ticket, index) => (
+                          <tr key={index}>
+                            <td>
+                              <strong>#{ticket.ticketId}</strong>
+                            </td>
+                            <td>{ticket.user.name}</td>
+                            <td>{ticket.subject}</td>
+                            <td>{getStatusBadge(ticket.status)}</td>
+                            <td>
+                              {ticket.assignedTo ? ticket.assignedTo.name : 'Unassigned'}
+                            </td>
+                            <td>
+                              {ticket.createdAt
+                                ? new Date(ticket.createdAt).toLocaleDateString()
+                                : '-'}
+                            </td>
+                            <td>
+                              <Button
+                                variant="outline-primary"
+                                size="sm"
+                                className="me-2"
+                                onClick={() => handleViewDetail(ticket)}
+                              >
+                                View Detail
+                              </Button>
+                              <Button
+                                variant="outline-warning"
+                                size="sm"
+                                className="me-2"
+                                onClick={() => openStatusModal(ticket)}
+                              >
+                                Update Status
+                              </Button>
+                              <Button variant="outline-success" size="sm" onClick={() => openResponseModal(ticket)}>
+                                Respond
+                              </Button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
                     </tbody>
                   </Table>
                 </Card.Body>
@@ -184,10 +406,10 @@ const StaffSupport = () => {
             {selectedTicket && (
               <div>
                 <p>
-                  <strong>Ticket:</strong> {selectedTicket.id}
+                  <strong>Ticket ID:</strong> {selectedTicket.ticketId}
                 </p>
                 <p>
-                  <strong>Customer:</strong> {selectedTicket.customer}
+                  <strong>Customer:</strong> {selectedTicket.user.name}
                 </p>
                 <p>
                   <strong>Subject:</strong> {selectedTicket.subject}
@@ -198,17 +420,13 @@ const StaffSupport = () => {
 
                 <Form.Group className="mt-3">
                   <Form.Label>Response</Form.Label>
-                  <Form.Control as="textarea" rows={4} placeholder="Type your response here..." />
-                </Form.Group>
-
-                <Form.Group className="mt-3">
-                  <Form.Label>Update Status</Form.Label>
-                  <Form.Select id="ticketStatusSelect">
-                    <option value="Open">Open</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Resolved">Resolved</option>
-                    <option value="Closed">Closed</option>
-                  </Form.Select>
+                  <Form.Control
+                    as="textarea"
+                    rows={4}
+                    placeholder="Type your response here..."
+                    value={replyMessage}
+                    onChange={(e) => setReplyMessage(e.target.value)}
+                  />
                 </Form.Group>
               </div>
             )}
@@ -219,12 +437,59 @@ const StaffSupport = () => {
             </Button>
             <Button
               variant="primary"
-              onClick={() => {
-                const newStatus = document.getElementById("ticketStatusSelect").value
-                handleStatusUpdate(selectedTicket.id, newStatus)
-              }}
+              onClick={handleSendResponse}
+              disabled={sending}
             >
-              Send Response
+              {sending ? 'Sending...' : 'Send Response'}
+            </Button>
+          </Modal.Footer>
+        </Modal>
+
+        {/* Status Update Modal */}
+        <Modal show={showStatusModal} onHide={() => setShowStatusModal(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Update Ticket Status</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {selectedTicketForStatus && (
+              <div>
+                <p>
+                  <strong>Ticket ID:</strong> #{selectedTicketForStatus.ticketId}
+                </p>
+                <p>
+                  <strong>Customer:</strong> {selectedTicketForStatus.user.name}
+                </p>
+                <p>
+                  <strong>Subject:</strong> {selectedTicketForStatus.subject}
+                </p>
+                <p>
+                  <strong>Current Status:</strong> {getStatusBadge(selectedTicketForStatus.status)}
+                </p>
+
+                <Form.Group className="mt-3">
+                  <Form.Label>New Status</Form.Label>
+                  <Form.Select id="newStatusSelect">
+                    <option value="open">Open</option>
+                    <option value="pending">Pending</option>
+                    <option value="closed">Closed</option>
+                  </Form.Select>
+                </Form.Group>
+              </div>
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setShowStatusModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => {
+                const newStatus = document.getElementById("newStatusSelect").value;
+                handleUpdateStatus(newStatus);
+              }}
+              disabled={updatingStatus}
+            >
+              {updatingStatus ? 'Updating...' : 'Update Status'}
             </Button>
           </Modal.Footer>
         </Modal>
