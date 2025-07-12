@@ -32,6 +32,7 @@ import StaffOrderDetail from './pages/Staff/StaffOrderDetail/StaffOrderDetail';
 import StaffFoodDetail from './pages/Staff/StaffFoodDetail/StaffFoodDetail';
 import StaffSupportDetail from './pages/Staff/StaffSupportDetail/StaffSupportDetail';
 import ManagerFoodDetail from './pages/Manager/FoodManagement/ManagerFoodDetail';
+import SupportPage from './pages/support/SupportPage';
 
 function App() {
   return (
@@ -77,7 +78,7 @@ function App() {
             } />
             
             <Route path="/foodDetail/:productId" element={<FoodDetail />} />
-
+            
             {/* Route Manager */}
             <Route path="/manager-dashboard" element={<ManagerDashboard />} />
             <Route path="/manager-profile" element={<ManagerProfile />} />
@@ -103,6 +104,7 @@ function App() {
             <Route path="/staff-order-detail/:orderId" element={<StaffOrderDetail />} />
             <Route path="/staff-food-detail/:id" element={<StaffFoodDetail />} />
             <Route path="/staff-support-detail/:ticketId" element={<StaffSupportDetail />} />
+            <Route path="/support" element={<SupportPage />} />
 
             {/* Catch-all route */}
 
