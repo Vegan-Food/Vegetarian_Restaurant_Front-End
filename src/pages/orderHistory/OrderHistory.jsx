@@ -1,102 +1,210 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, Card, Table, Button, Badge, Form, InputGroup, Pagination } from 'react-bootstrap';
-import { Eye, ClockHistory } from 'react-bootstrap-icons';
-import { ArrowRight } from 'react-bootstrap-icons';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import {
+  Container, Row, Col, Card, Table, Button, Badge, Form, Pagination
+} from 'react-bootstrap';
+import {
+  Eye, ClockHistory, Funnel, ArrowCounterclockwise
+} from 'react-bootstrap-icons';
+import { useNavigate } from 'react-router-dom';
 import './OrderHistory.css';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
-import { useNavigate } from 'react-router-dom';
-import orderHistoryData from '../../data/order_history.json';
 
-const statusMap = {
-  delivered: 'Delivered',
-  shipped: 'Processing',
-  pending: 'Processing',
-  cancelled: 'Cancelled',
-};
+const PAGE_SIZE = 5;
 
 const statusVariant = (status) => {
-  switch (status) {
-    case 'Completed':
+  switch (status.toLowerCase()) {
+    case 'completed':
       return 'success';
-    case 'Processing':
+    case 'processing':
+    case 'pending':
+    case 'shipped':
       return 'warning';
-    case 'Cancelled':
+    case 'cancelled':
       return 'danger';
     default:
       return 'secondary';
   }
 };
 
-function formatCurrency(amount) {
-  return amount.toLocaleString('en-US') + '₫';
-}
+const formatCurrency = (amount) => {
+  if (typeof amount !== 'number' || isNaN(amount)) return '0₫';
+  return amount.toLocaleString('vi-VN') + '₫';
+};
 
-function formatDateTime(dateTimeStr) {
-  if (!dateTimeStr) return '';
-  const [date, time] = dateTimeStr.split(' ');
-  const [year, month, day] = date.split('-');
-  return `${month}/${day}/${year}${time ? ' ' + time.slice(0,5) : ''}`;
-}
-
-const PAGE_SIZE = 5;
+const formatDateTime = (dateStr) => {
+  if (!dateStr) return '';
+  const date = new Date(dateStr);
+  return date.toLocaleString('en-US', { 
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false 
+  });
+};
 
 const OrderHistory = () => {
-  // Filter states
+  const navigate = useNavigate();
+  const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // State for validation
+  const [dateError, setDateError] = useState('');
+  const [amountError, setAmountError] = useState('');
+  
+  // Filters
   const [orderDateFrom, setOrderDateFrom] = useState('');
   const [orderDateTo, setOrderDateTo] = useState('');
   const [minTotal, setMinTotal] = useState('');
   const [maxTotal, setMaxTotal] = useState('');
   const [status, setStatus] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
-  const [deliveryMethod, setDeliveryMethod] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+  
+  // Get current date in YYYY-MM-DD format
+  const today = new Date().toISOString().split('T')[0];
+  
+  // Validate date range
+  const validateDateRange = (from, to) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Check if start date is in the future
+    if (from && new Date(from) > today) {
+      setDateError('Cannot select future date');
+      return false;
+    }
+    
+    // Check if end date is before start date
+    if (from && to && new Date(from) > new Date(to)) {
+      setDateError('End date cannot be before start date');
+      return false;
+    }
+    
+    setDateError('');
+    return true;
+  };
+  
+  // Handle date change
+  const handleDateChange = (type, value) => {
+    // Only update state if validation passes
+    if (type === 'from') {
+      if (value) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const selectedDate = new Date(value);
+        
+        if (selectedDate > today) {
+          setDateError('Cannot select future date');
+          return;
+        }
+      }
+      
+      setOrderDateFrom(value);
+      if (orderDateTo) {
+        validateDateRange(value, orderDateTo);
+      } else {
+        // Clear error if no end date is selected
+        setDateError('');
+      }
+    } else {
+      setOrderDateTo(value);
+      if (orderDateFrom) {
+        validateDateRange(orderDateFrom, value);
+      } else {
+        // Clear error if no start date is selected
+        setDateError('');
+      }
+    }
+  };
+  
+  // Handle amount change
+  const handleAmountChange = (type, value) => {
+    const numValue = value === '' ? '' : parseFloat(value);
+    
+    if (type === 'min') {
+      setMinTotal(value);
+      if (value !== '' && maxTotal !== '' && numValue > parseFloat(maxTotal)) {
+        setAmountError('Maximum value must be greater than or equal to minimum value');
+      } else {
+        setAmountError('');
+      }
+    } else {
+      setMaxTotal(value);
+      if (value !== '' && minTotal !== '' && parseFloat(minTotal) > numValue) {
+        setAmountError('Maximum value must be greater than or equal to minimum value');
+      } else {
+        setAmountError('');
+      }
+    }
+  };
 
-  const navigate = useNavigate();
+  // Fetch orders from API
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:8080/api/order/list', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
 
-  // Map orders from JSON (no need to localize, already in Vietnamese)
-  const orders = orderHistoryData.orders.map(order => ({
-    id: order.order_id,
-    orderDate: order.order_date,
-    deliveryDate: order.status === 'Hoàn thành' ? order.order_date : '', // No delivery date in JSON, so use order_date for completed
-    total: order.total_amount,
-    status: order.status === 'Hoàn thành' ? 'Completed' : order.status === 'Đang xử lý' ? 'Processing' : order.status === 'Đã huỷ' ? 'Cancelled' : order.status,
-    paymentMethod: order.payment_method === 'Tiền mặt' ? 'Cash' : order.payment_method === 'Chuyển khoản' ? 'Bank Transfer' : order.payment_method,
-    method: order.method === 'Giao hàng' ? 'Delivery' : order.method === 'Lấy ngay' ? 'Pickup' : order.method,
-  }));
+        const mapped = response.data.map(order => ({
+          id: order.orderId,
+          userName: order.userName,
+          orderDate: order.createdAt,
+          status: order.status.charAt(0).toUpperCase() + order.status.slice(1),
+          paymentMethod: order.paymentMethod,
+          totalAmount: order.totalAmount,
+          phoneNumber: order.phoneNumber,
+          address: order.address,
+          items: order.items
+        }));
 
-  // Filter logic
-  const filteredOrders = orders.filter(order => {
-    // Order date (range)
-    let matchOrderDate = true;
+        setOrders(mapped);
+        setFilteredOrders(mapped);
+      } catch (err) {
+        console.error('Error fetching orders:', err);
+      }
+    };
+
+    fetchOrders();
+  }, []);
+
+  // Apply filters
+  useEffect(() => {
+    let filtered = [...orders];
+
     if (orderDateFrom) {
-      const orderDateOnly = order.orderDate.split(' ')[0];
-      matchOrderDate = orderDateOnly >= orderDateFrom;
+      filtered = filtered.filter(o => new Date(o.orderDate) >= new Date(orderDateFrom));
     }
     if (orderDateTo) {
-      const orderDateOnly = order.orderDate.split(' ')[0];
-      matchOrderDate = matchOrderDate && orderDateOnly <= orderDateTo;
+      filtered = filtered.filter(o => new Date(o.orderDate) <= new Date(orderDateTo + 'T23:59:59'));
     }
-    // Total
-    let matchMinTotal = true;
-    let matchMaxTotal = true;
-    if (minTotal) matchMinTotal = order.total >= parseInt(minTotal);
-    if (maxTotal) matchMaxTotal = order.total <= parseInt(maxTotal);
-    // Status
-    let matchStatus = true;
-    if (status) matchStatus = order.status === status;
-    // Payment
-    let matchPayment = true;
-    if (paymentMethod) matchPayment = order.paymentMethod === paymentMethod;
-    // Delivery
-    let matchDelivery = true;
-    if (deliveryMethod) matchDelivery = order.method === deliveryMethod;
-    return matchOrderDate && matchMinTotal && matchMaxTotal && matchStatus && matchPayment && matchDelivery;
-  });
+    if (minTotal) {
+      filtered = filtered.filter(o => o.totalAmount >= parseFloat(minTotal));
+    }
+    if (maxTotal) {
+      filtered = filtered.filter(o => o.totalAmount <= parseFloat(maxTotal));
+    }
+    if (status) {
+      filtered = filtered.filter(o => o.status.toLowerCase() === status.toLowerCase());
+    }
+    if (paymentMethod) {
+      filtered = filtered.filter(o => o.paymentMethod.toLowerCase() === paymentMethod.toLowerCase());
+    }
 
-  // Pagination logic
+    setFilteredOrders(filtered);
+    setCurrentPage(1);
+  }, [orderDateFrom, orderDateTo, minTotal, maxTotal, status, paymentMethod, orders]);
+
   const totalPages = Math.ceil(filteredOrders.length / PAGE_SIZE);
   const paginatedOrders = filteredOrders.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
@@ -105,53 +213,131 @@ const OrderHistory = () => {
     <div className="order-history-bg min-vh-100 d-flex flex-column">
       <Header />
       <Container className="flex-grow-1 d-flex flex-column align-items-center justify-content-center py-5" style={{ marginTop: '80px' }}>
-        {/* Table Card */}
-        <Card className="order-history-card-new p-4 w-100" style={{maxWidth: 1300, borderRadius: 32, boxShadow: '0 8px 40px rgba(52,121,40,0.13)'}}>
+        <Card className="order-history-card-new p-4 w-100" style={{ maxWidth: 1300, borderRadius: 32 }}>
           <Card.Body>
-            <h2 className="mb-4 order-history-title text-center">
-              <ClockHistory className="history-icon" />
+            <h2 className="mb-4 text-center">
+              <ClockHistory className="me-2" />
               Order History
             </h2>
-            {/* Inline Filter Bar under title */}
-            <Form className="order-inline-filter mb-4 w-100 d-flex flex-row align-items-center justify-content-center" style={{gap: 24, flexWrap: 'wrap'}}>
-              <div className="d-flex align-items-center gap-2">
-                <Form.Label className="filter-label mb-0">Order Date</Form.Label>
-                <Form.Control type="date" value={orderDateFrom} onChange={e => setOrderDateFrom(e.target.value)} className="filter-input" style={{minWidth: 120}} />
-                <span className="filter-arrow"><ArrowRight size={18} /></span>
-                <Form.Control type="date" value={orderDateTo} onChange={e => setOrderDateTo(e.target.value)} className="filter-input" style={{minWidth: 120}} />
+
+            {/* Filters */}
+            <div className="filter-card mb-4 p-3 rounded-3" style={{ backgroundColor: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+              <div className="d-flex justify-content-between mb-3 border-bottom pb-2">
+                <div className="d-flex align-items-center">
+                  <Funnel size={22} className="me-2" />
+                  <h5 className="mb-0 fw-bold">FILTER ORDERS</h5>
+                </div>
+                <Button variant="link" onClick={() => {
+                  setOrderDateFrom('');
+                  setOrderDateTo('');
+                  setMinTotal('');
+                  setMaxTotal('');
+                  setStatus('');
+                  setPaymentMethod('');
+                }}>
+                  <ArrowCounterclockwise size={16} className="me-1" />
+                  Reset
+                </Button>
               </div>
-              <div className="d-flex align-items-center gap-2">
-                <Form.Label className="filter-label mb-0">Status</Form.Label>
-                <Form.Select value={status} onChange={e => setStatus(e.target.value)} className="filter-input">
-                  <option value="">All</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Processing">Processing</option>
-                  <option value="Cancelled">Cancelled</option>
-                </Form.Select>
-              </div>
-              <div className="d-flex align-items-center gap-2">
-                <Form.Label className="filter-label mb-0">Payment</Form.Label>
-                <Form.Select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)} className="filter-input">
-                  <option value="">All</option>
-                  <option value="Cash">Cash</option>
-                  <option value="Bank Transfer">Bank Transfer</option>
-                </Form.Select>
-              </div>
-              <div className="d-flex align-items-center gap-2">
-                <Form.Label className="filter-label mb-0">Delivery</Form.Label>
-                <Form.Select value={deliveryMethod} onChange={e => setDeliveryMethod(e.target.value)} className="filter-input">
-                  <option value="">All</option>
-                  <option value="Delivery">Delivery</option>
-                  <option value="Pickup">Pickup</option>
-                </Form.Select>
-              </div>
-              <div className="d-flex align-items-center gap-2">
-                <Form.Label className="filter-label mb-0">Total</Form.Label>
-                <Form.Control type="text" inputMode="numeric" pattern="[0-9]*" value={minTotal} onChange={e => setMinTotal(e.target.value.replace(/\D/g, ''))} className="filter-input" style={{minWidth: 90}} />
-                <span className="filter-arrow"><ArrowRight size={18} /></span>
-                <Form.Control type="text" inputMode="numeric" pattern="[0-9]*" value={maxTotal} onChange={e => setMaxTotal(e.target.value.replace(/\D/g, ''))} className="filter-input" style={{minWidth: 90}} />
-              </div>
-            </Form>
+              <Form>
+                <Row>
+                  <Col md={4}>
+                    <Form.Group>
+                      <Form.Label>Date Range</Form.Label>
+                      <div className="d-flex align-items-center">
+                        <div className="position-relative flex-grow-1">
+                          <Form.Control 
+                            type="date" 
+                            value={orderDateFrom} 
+                            max={today}
+                            onChange={e => handleDateChange('from', e.target.value)} 
+                            isInvalid={!!dateError}
+                            className="w-100"
+                            lang="en-US"
+                          />
+                        </div>
+                        <span className="mx-2">-</span>
+                        <div className="position-relative flex-grow-1">
+                          <Form.Control 
+                            type="date" 
+                            value={orderDateTo} 
+                            min={orderDateFrom}
+                            onChange={e => handleDateChange('to', e.target.value)} 
+                            isInvalid={!!dateError}
+                            className="w-100"
+                            lang="en-US"
+                          />
+                        </div>
+                      </div>
+                      {dateError && (
+                        <Form.Control.Feedback type="invalid" style={{ display: 'block' }}>
+                          {dateError}
+                        </Form.Control.Feedback>
+                      )}
+                    </Form.Group>
+                  </Col>
+                  <Col md={2}>
+                    <Form.Group>
+                      <Form.Label>Status</Form.Label>
+                      <Form.Select value={status} onChange={e => setStatus(e.target.value)}>
+                        <option value="">All Status</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Paid">Paid</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Cancelled">Cancelled</option>
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+                  <Col md={2}>
+                    <Form.Group>
+                      <Form.Label>Payment</Form.Label>
+                      <Form.Select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)}>
+                        <option value="">All Methods</option>
+                        <option value="Cash">Cash</option>
+                        <option value="VNPAY">VNPAY</option>
+                      </Form.Select>
+                    </Form.Group>
+                  </Col>
+                  <Col md={4}>
+                    <Form.Group>
+                      <Form.Label>Total Amount</Form.Label>
+                      <div className="d-flex flex-column gap-2">
+                        <div className="d-flex align-items-center">
+                          <Form.Control 
+                            type="number" 
+                            placeholder="Min" 
+                            value={minTotal} 
+                            onChange={e => handleAmountChange('min', e.target.value)}
+                            min="0"
+                            step="1000"
+                            className="flex-grow-1"
+                          />
+                          <span className="mx-2">-</span>
+                          <Form.Control 
+                            type="number" 
+                            placeholder="Max" 
+                            value={maxTotal} 
+                            onChange={e => handleAmountChange('max', e.target.value)}
+                            isInvalid={!!amountError}
+                            min={minTotal || '0'}
+                            step="1000"
+                            className="flex-grow-1"
+                          />
+                        </div>
+                        {amountError && (
+                          <Form.Text className="text-danger" style={{ fontSize: '0.875em' }}>
+                            {amountError}
+                          </Form.Text>
+                        )}
+                      </div>
+                    </Form.Group>
+                  </Col>
+                </Row>
+              </Form>
+            </div>
+
+            {/* Table */}
             <div className="table-responsive">
               <Table className="order-history-table align-middle text-center" bordered hover style={{width: '100%', background: '#FFFBE6', minWidth: 1100}}>
                 <thead>
@@ -161,66 +347,112 @@ const OrderHistory = () => {
                       Order Time
                       <div className="date-format-hint">(mm/dd/yyyy)</div>
                     </th>
-                    <th style={{minWidth: 140, padding: '18px 18px'}}>
-                      Delivery Time
-                      <div className="date-format-hint">(mm/dd/yyyy)</div>
-                    </th>
                     <th style={{minWidth: 120, padding: '18px 18px'}}>Total</th>
                     <th style={{minWidth: 120, padding: '18px 18px'}}>Status</th>
                     <th style={{minWidth: 120, padding: '18px 18px'}}>Payment</th>
-                    <th style={{minWidth: 120, padding: '18px 18px'}}>Delivery</th>
                     <th className="rounded-top-right" style={{minWidth: 90, padding: '18px 18px'}}>Details</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedOrders.length === 0 && (
+                  {filteredOrders.length === 0 && (
                     <tr>
-                      <td colSpan={8} className="text-center text-muted py-4">No matching orders</td>
+                      <td colSpan={6} className="text-center text-muted py-4">No matching orders</td>
                     </tr>
                   )}
                   {paginatedOrders.map((order) => (
                     <tr key={order.id} className="order-row">
                       <td className="rounded-cell-left" style={{padding: '16px 18px'}}><strong>{order.id}</strong></td>
                       <td style={{padding: '16px 18px'}}>{formatDateTime(order.orderDate)}</td>
-                      <td style={{padding: '16px 18px'}}>{order.deliveryDate ? formatDateTime(order.deliveryDate) : <span className="text-muted">Not delivered</span>}</td>
-                      <td style={{padding: '16px 18px'}}><span className="fw-bold text-success">{formatCurrency(order.total)}</span></td>
+                      <td style={{padding: '16px 18px'}}><span className="fw-bold text-success">{formatCurrency(order.totalAmount)}</span></td>
                       <td style={{padding: '16px 18px'}}>
                         <Badge bg={statusVariant(order.status)} className="order-status-badge px-3 py-2 fs-6 rounded-pill shadow-sm">
                           {order.status}
                         </Badge>
                       </td>
                       <td style={{padding: '16px 18px'}}>{order.paymentMethod}</td>
-                      <td style={{padding: '16px 18px'}}>{order.method}</td>
                       <td className="rounded-cell-right action-cell" style={{padding: '16px 18px'}}>
                         <Button
-                          className="eye-btn-custom"
+                          variant="outline-primary"
+                          className="d-flex align-items-center justify-content-center"
                           onClick={() => navigate(`/account/orders/${order.id}`)}
+                          style={{
+                            width: '40px',
+                            height: '40px',
+                            padding: '0',
+                            borderRadius: '50%',
+                            border: '2px solid #FCCD2A',
+                            backgroundColor: '#FFFBE6',
+                            transition: 'all 0.3s ease',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#FCCD2A';
+                            e.currentTarget.style.borderColor = '#FCCD2A';
+                            e.currentTarget.querySelector('svg').style.color = '#2D6A23';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = '#FFFBE6';
+                            e.currentTarget.style.borderColor = '#FCCD2A';
+                            e.currentTarget.querySelector('svg').style.color = '#2D6A23';
+                          }}
                         >
-                          <Eye size={22} />
+                          <Eye size={20} style={{ color: '#2D6A23', transition: 'color 0.3s ease' }} />
                         </Button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </Table>
-              {/* Pagination */}
-              <div className="d-flex justify-content-between align-items-center mt-3 px-2 flex-wrap">
-                <div className="text-muted" style={{fontSize: '0.98rem'}}>
-                  {totalPages === 1
-                    ? `Showing ${filteredOrders.length} of ${filteredOrders.length} orders`
-                    : `Showing ${filteredOrders.length === 0 ? 0 : ((currentPage-1)*PAGE_SIZE)+1} to ${Math.min(currentPage*PAGE_SIZE, filteredOrders.length)} of ${filteredOrders.length} orders`}
-                </div>
-                <Pagination className="mb-0">
-                  <Pagination.First onClick={() => handlePageChange(1)} disabled={currentPage === 1}>First</Pagination.First>
-                  <Pagination.Prev onClick={() => handlePageChange(currentPage-1)} disabled={currentPage === 1}>Prev</Pagination.Prev>
-                  {[...Array(totalPages)].map((_, idx) => (
-                    <Pagination.Item key={idx+1} active={currentPage === idx+1} onClick={() => handlePageChange(idx+1)}>{idx+1}</Pagination.Item>
-                  ))}
-                  <Pagination.Next onClick={() => handlePageChange(currentPage+1)} disabled={currentPage === totalPages}>Next</Pagination.Next>
-                  <Pagination.Last onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages}>Last</Pagination.Last>
-                </Pagination>
-              </div>
             </div>
+
+            {/* Pagination */}
+            <div className="d-flex justify-content-between align-items-center mt-3 px-2 flex-wrap">
+              <div className="text-muted" style={{fontSize: '0.98rem'}}>
+                {totalPages === 1
+                  ? `Showing ${filteredOrders.length} of ${filteredOrders.length} orders`
+                  : `Showing ${filteredOrders.length === 0 ? 0 : ((currentPage-1)*PAGE_SIZE)+1} to ${Math.min(currentPage*PAGE_SIZE, filteredOrders.length)} of ${filteredOrders.length} orders`}
+              </div>
+              <Pagination className="mb-0">
+                <Pagination.First 
+                  onClick={() => handlePageChange(1)} 
+                  disabled={currentPage === 1}
+                  className="page-link-custom"
+                >
+                  First
+                </Pagination.First>
+                <Pagination.Prev 
+                  onClick={() => handlePageChange(currentPage-1)} 
+                  disabled={currentPage === 1}
+                  className="page-link-custom"
+                >
+                  Prev
+                </Pagination.Prev>
+                {[...Array(totalPages)].map((_, idx) => (
+                  <Pagination.Item 
+                    key={idx+1} 
+                    active={currentPage === idx+1} 
+                    onClick={() => handlePageChange(idx+1)}
+                    className="page-item-custom"
+                  >
+                    {idx+1}
+                  </Pagination.Item>
+                ))}
+                <Pagination.Next 
+                  onClick={() => handlePageChange(currentPage+1)} 
+                  disabled={currentPage === totalPages}
+                  className="page-link-custom"
+                >
+                  Next
+                </Pagination.Next>
+                <Pagination.Last 
+                  onClick={() => handlePageChange(totalPages)} 
+                  disabled={currentPage === totalPages}
+                  className="page-link-custom"
+                >
+                  Last
+                </Pagination.Last>
+              </Pagination>
+            </div>
+
           </Card.Body>
         </Card>
       </Container>
