@@ -76,7 +76,13 @@ function App() {
                 <OrderDetail />
               </ProtectedRoute>
             } />
-            
+
+            <Route path="/account/support" element={
+              <ProtectedRoute>
+                <SupportPage />
+              </ProtectedRoute>
+            } />
+
             <Route path="/foodDetail/:productId" element={<FoodDetail />} />
             
             {/* Route Manager */}
@@ -104,7 +110,6 @@ function App() {
             <Route path="/staff-order-detail/:orderId" element={<StaffOrderDetail />} />
             <Route path="/staff-food-detail/:id" element={<StaffFoodDetail />} />
             <Route path="/staff-support-detail/:ticketId" element={<StaffSupportDetail />} />
-            <Route path="/support" element={<SupportPage />} />
 
             {/* Catch-all route */}
 

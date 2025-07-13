@@ -12,6 +12,12 @@ const SideBar = [
     title: "Order History",
     link: "/account/orders",
   },
+  {
+    id: 3,
+    icon: "https://mcdn.coolmate.me/image/September2023/mceclip4_7.png",
+    title: "Support Ticket",
+    link: "/account/support",
+  },
 ];
 
 export default SideBar;
