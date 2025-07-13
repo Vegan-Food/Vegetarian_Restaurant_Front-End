@@ -13,6 +13,12 @@ const OrderPage = () => {
     const location = useLocation();
     const cartItems = location.state?.cartItems || [];
 
+    useEffect(() => {
+        if (!cartItems || cartItems.length === 0) {
+            navigate('/cart');
+        }
+    }, [cartItems, navigate]);
+
     const [profileLoading, setProfileLoading] = useState(true);
 
     const [paymentInfo, setPaymentInfo] = useState({
@@ -29,6 +35,7 @@ const OrderPage = () => {
 
     const [provinces, setProvinces] = useState([]);
     const [wards, setWards] = useState([]);
+    const [discountCode, setDiscountCode] = useState('');
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -92,6 +99,10 @@ const OrderPage = () => {
 
     if (profileLoading) return null;
 
+    if (!cartItems || cartItems.length === 0) {
+        return null;
+    }
+
     const calculateSubtotal = () => {
         return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     };
@@ -118,7 +129,7 @@ const OrderPage = () => {
             paymentMethod,
             phoneNumber: paymentInfo.phone,
             address: `${paymentInfo.address}${paymentInfo.ward ? ', ' + paymentInfo.ward : ''}${paymentInfo.province ? ', ' + paymentInfo.province : ''}`,
-            discountId: 0 // Đại ca có thể truyền discountId động nếu cần
+            discountCode: discountCode,
         };
         console.log(orderData);
         try {
@@ -131,8 +142,9 @@ const OrderPage = () => {
                 if (paymentRes && paymentRes.checkoutUrl) {
                     window.open(paymentRes.checkoutUrl, '_blank');
                 }
+                navigate(`/`);
             } else {
-                navigate('/billing');
+                navigate(`/billing/${res}`);
             }
         } catch (err) {
             console.error('Order API error:', err);
@@ -360,10 +372,8 @@ const OrderPage = () => {
                                 type="text"
                                 placeholder="Discount code"
                                 className="mb-2"
+                                onChange={(e) => setDiscountCode(e.target.value)}
                             />
-                            <Button variant="secondary" className="w-100">
-                                Apply
-                            </Button>
                         </Form.Group>
                     </Col>
                 </div>

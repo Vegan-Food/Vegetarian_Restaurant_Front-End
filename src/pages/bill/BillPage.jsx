@@ -3,63 +3,65 @@ import { Container, Row, Col, ListGroup, Badge, Image, Table, Button, Modal } fr
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./BillPage.css";
 import Header from "../../components/Header";
-
-const initialBillData = {
-    order_id: 1,
-    customer_id: 101,
-    order_date: "2025-06-13 12:30:00",
-    status: "Hoàn thành",
-    payment_method: "Chuyển khoản",
-    total_amount: 320000,
-    payment_id: 1001,
-    name: "Nguyễn Văn An",
-    phone_number: "0912345678",
-    created_at: "2025-06-13 12:30:00",
-    address: "123 Lê Lợi, Quận 1, TP.HCM",
-    method: "Giao hàng",
-    discount_id: 1,
-    items: [
-        {
-            name: "Cơm gạo lứt rau củ",
-            quantity: 2,
-            price: 60000,
-            image: "https://cdn-icons-png.flaticon.com/512/3075/3075977.png"
-        },
-        {
-            name: "Đậu hũ sốt nấm",
-            quantity: 1,
-            price: 50000,
-            image: "https://cdn-icons-png.flaticon.com/512/1046/1046857.png"
-        },
-        {
-            name: "Nước ép cam",
-            quantity: 2,
-            price: 40000,
-            image: "https://cdn-icons-png.flaticon.com/512/135/135620.png"
-        }
-    ]
-};
+import { useParams } from "react-router-dom";
+import { getBill, updateOrderStatus } from "../../api/order";
 
 const statusColor = {
-    "Hoàn thành": "success",
-    "Đang xử lý": "warning",
-    "Đã hủy": "danger",
+    'pending': 'warning',
+    'paid': 'success',
+    'shipped': 'info',
+    'delivered': 'success',
+    'cancelled': 'danger'
 };
 
 const BillPage = () => {
-    const [bill, setBill] = useState(initialBillData);
     const [showModal, setShowModal] = useState(false);
-    const [countdown, setCountdown] = useState(180); // 3 phút = 180 giây
+    const [countdown, setCountdown] = useState(180);
     const timerRef = useRef();
+    const { id } = useParams();
+    const [bill, setBill] = useState({
+        orderId: 0,
+        userName: '',
+        status: '',
+        paymentMethod: '',
+        totalAmount: 0,
+        phoneNumber: '',
+        address: '',
+        createdAt: '',
+        items: [],
+        discountCode: '',
+        discountPercentage: 0
+    });
 
     useEffect(() => {
-        if (bill.status !== "Đã hủy" && countdown > 0) {
+        const fetchBill = async () => {
+            if (!id) {
+                console.log("Không tìm thấy mã đơn hàng");
+                setBill(null);
+                return;
+            }
+
+            try {
+                const data = await getBill(id);
+                console.log("res", data);
+                setBill(data);
+            } catch (error) {
+                console.error("Error fetching bill:", error);
+                console.log("Lỗi nè", error);
+                setBill(null);
+            }
+        };
+        fetchBill();
+    }, [id]);
+
+    useEffect(() => {
+        if (bill && bill?.status !== "cancelled" && countdown > 0) {
             timerRef.current = setInterval(() => {
                 setCountdown(prev => prev - 1);
             }, 1000);
         }
         return () => clearInterval(timerRef.current);
-    }, [bill.status, countdown]);
+    }, [bill?.status, countdown]);
 
     useEffect(() => {
         if (countdown <= 0) {
@@ -67,12 +69,28 @@ const BillPage = () => {
         }
     }, [countdown]);
 
-    const handleCancelOrder = () => {
-        setBill(prev => ({
-            ...prev,
-            status: "Đã hủy"
-        }));
-        setShowModal(false);
+    const handleCancelOrder = async () => {
+        try {
+            let res;
+            try {
+                res = await updateOrderStatus(bill.orderId, { status: "cancelled" });
+            } catch (e) {
+                if (e instanceof SyntaxError && e.message.includes('Unexpected token')) {
+                    res = e.response ? await e.response.text() : 'success';
+                } else {
+                    throw e;
+                }
+            }
+            if (res === 'success' || (res && res.success) || (res && res.message === 'success')) {
+                setShowModal(false);
+                window.location.reload();
+            } else {
+                console.log("Update status failed!");
+            }
+        } catch (err) {
+            console.log("Error cancelling order:", err);
+            setShowModal(false);
+        }
     };
 
     // Hàm format mm:ss
@@ -86,22 +104,7 @@ const BillPage = () => {
         <div className="bill-bg min-vh-100" style={{ backgroundColor: "#FFFBE6", paddingTop: 100 }}>
             <Header />
             <Container fluid className="py-5">
-                <h2
-                    className="text-center text-success mb-5 fw-bold bill-title"
-                    style={{
-                        letterSpacing: 2,
-                        fontSize: 38,
-                        textShadow: "0 2px 8px #00D3C1FF",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: 12
-                    }}
-                >
-                    <span role="img" aria-label="leaf">🌿</span>
-                    HÓA ĐƠN THANH TOÁN
-                    <span role="img" aria-label="leaf">🌿</span>
-                </h2>
+               
                 <Row className="justify-content-center gx-5">
                     {/* Thông tin khách hàng */}
                     <Col md={4} className="mb-4">
@@ -118,22 +121,22 @@ const BillPage = () => {
                                     style={{ background: "#e8f5e9", padding: 8 }}
                                 />
                                 <div>
-                                    <div className="fw-bold fs-4">{bill.name}</div>
-                                    <div className="text-muted">{bill.phone_number}</div>
+                                    <div className="fw-bold fs-4">{bill?.userName}</div>
+                                    <div className="text-muted">{bill?.phoneNumber}</div>
                                 </div>
                             </div>
                             <ListGroup variant="flush">
                                 <ListGroup.Item className="border-0 px-0 pb-2">
-                                    <strong>Địa chỉ:</strong>
-                                    <div>{bill.address}</div>
+                                    <strong>Address:</strong>
+                                    <div>{bill?.address}</div>
                                 </ListGroup.Item>
                                 <ListGroup.Item className="border-0 px-0 pb-2">
-                                    <strong>Ngày đặt:</strong>
-                                    <div>{bill.order_date}</div>
+                                    <strong>Date:</strong>
+                                    <div>{new Date(bill?.createdAt).toLocaleString('vi-VN')}</div>
                                 </ListGroup.Item>
                                 <ListGroup.Item className="border-0 px-0">
-                                    <strong>Phương thức nhận:</strong>
-                                    <div>{bill.method}</div>
+                                    <strong>Payment method:</strong>
+                                    <div>{bill?.paymentMethod}</div>
                                 </ListGroup.Item>
                             </ListGroup>
                         </div>
@@ -142,8 +145,8 @@ const BillPage = () => {
                     <Col md={8}>
                         <div className="p-4 bg-white rounded-4 shadow-sm mb-4">
                             <div className="d-flex justify-content-between align-items-center">
-                                <h5 className="fw-bold mb-4 border-bottom pb-2 text-success">Thông tin đơn hàng</h5>
-                                {bill.status !== "Đã hủy" && countdown > 0 && (
+                                <h5 className="fw-bold mb-4 border-bottom pb-2 text-success">Order information</h5>
+                                {bill && bill?.status !== "cancelled" && countdown > 0 && (
                                     <div className="d-flex align-items-center gap-2">
                                         <span className="text-danger fw-bold" style={{ minWidth: 60 }}>
                                             {formatTime(countdown)}
@@ -153,7 +156,7 @@ const BillPage = () => {
                                             size="sm"
                                             onClick={() => setShowModal(true)}
                                         >
-                                            Hủy đặt hàng
+                                            Cancel Order
                                         </Button>
 
                                     </div>
@@ -164,70 +167,68 @@ const BillPage = () => {
                                     <ListGroup variant="flush" className="mb-3">
                                         <ListGroup.Item className="border-0 px-0 pb-2">
                                             <Row>
-                                                <Col xs={7}><strong>Mã đơn hàng:</strong></Col>
-                                                <Col xs={5} className="text-end">#{bill.order_id}</Col>
+                                                <Col xs={7}><strong>Order ID:</strong></Col>
+                                                <Col xs={5} className="text-end">#{bill?.orderId}</Col>
                                             </Row>
                                         </ListGroup.Item>
                                         <ListGroup.Item className="border-0 px-0 pb-2">
                                             <Row>
-                                                <Col xs={7}><strong>Trạng thái:</strong></Col>
+                                                <Col xs={7}><strong>Status:</strong></Col>
                                                 <Col xs={5} className="text-end">
-                                                    <Badge bg={statusColor[bill.status] || "secondary"}>
-                                                        {bill.status}
-                                                    </Badge>
+                                                    <Badge bg={statusColor[bill?.status]}>{bill?.status}</Badge>
                                                 </Col>
                                             </Row>
                                         </ListGroup.Item>
                                         <ListGroup.Item className="border-0 px-0 pb-2">
                                             <Row>
-                                                <Col xs={7}><strong>Thanh toán:</strong></Col>
-                                                <Col xs={5} className="text-end">{bill.payment_method}</Col>
+                                                <Col xs={7}><strong>Payment:</strong></Col>
+                                                <Col xs={5} className="text-end">{bill?.paymentMethod}</Col>
                                             </Row>
                                         </ListGroup.Item>
                                         <ListGroup.Item className="border-0 px-0 pb-2">
                                             <Row>
-                                                <Col xs={7}><strong>Mã thanh toán:</strong></Col>
-                                                <Col xs={5} className="text-end">{bill.payment_id}</Col>
+                                                <Col xs={7}><strong>Payment ID:</strong></Col>
+                                                <Col xs={5} className="text-end">-</Col>
                                             </Row>
                                         </ListGroup.Item>
                                         <ListGroup.Item className="border-0 px-0">
                                             <Row>
-                                                <Col xs={7}><strong>Mã giảm giá:</strong></Col>
-                                                <Col xs={5} className="text-end">{bill.discount_id}</Col>
+                                                <Col xs={7}><strong>Discount code:</strong></Col>
+                                                <Col xs={5} className="text-end">{bill?.discountCode || '-'}</Col>
                                             </Row>
                                         </ListGroup.Item>
                                     </ListGroup>
                                 </Col>
                                 <Col md={6} className="d-flex align-items-center justify-content-end">
                                     <div className="bg-light rounded-3 px-4 py-3 text-end">
-                                        <span className="fw-bold fs-5 me-2">Tổng tiền:</span>
+                                        <span className="fw-bold fs-5 me-2">Total:</span>
                                         <span className="text-success fs-3 fw-bold">
-                                            {bill.total_amount.toLocaleString()} <span className="text-muted fs-6">VND</span>
+                                            {bill?.totalAmount.toLocaleString()} <span className="text-muted fs-6">VND</span>
                                         </span>
                                     </div>
                                 </Col>
                             </Row>
                         </div>
                         <div className="p-4 bg-white rounded-4 shadow-sm">
-                            <h5 className="fw-bold mb-3 text-success">Danh sách món ăn</h5>
+                            <h5 className="fw-bold mb-3 text-success">List of food</h5>
                             <Table responsive bordered hover size="sm" className="align-middle bg-white rounded-3 overflow-hidden">
                                 <thead className="table-success">
                                     <tr>
                                         <th></th>
-                                        <th>Món ăn</th>
-                                        <th>Số lượng</th>
-                                        <th>Đơn giá</th>
-                                        <th>Thành tiền</th>
+                                        <th>Food</th>
+                                        <th>Quantity</th>
+                                        <th>Price</th>
+                                        <th>Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {bill.items.map((item, idx) => (
+                                    {bill?.items?.map((item, idx) => (
                                         <tr key={idx}>
-                                            <td>{item.name}</td>
+                                            <td>{item.productName}</td>
                                             <td className="text-center">{item.quantity}</td>
-                                            <td>{item.price.toLocaleString()} VND</td>
+                                            <td>{item.priceAtTime.toLocaleString()} VND</td>
                                             <td className="text-success fw-bold">
-                                                {(item.price * item.quantity).toLocaleString()} VND
+                                                {(item.priceAtTime * item.quantity).toLocaleString()} VND
                                             </td>
                                         </tr>
                                     ))}
@@ -237,24 +238,24 @@ const BillPage = () => {
                     </Col>
                 </Row>
                 <div className="text-center text-muted mt-4" style={{ fontSize: 16 }}>
-                    <span role="img" aria-label="leaf">🌱</span> Cảm ơn bạn đã ủng hộ Vegan Food!
+                    <span role="img" aria-label="leaf">🌱</span> Thank you for your order!
                 </div>
             </Container>
 
             {/* Modal xác nhận hủy */}
             <Modal show={showModal} onHide={() => setShowModal(false)} centered>
                 <Modal.Header closeButton>
-                    <Modal.Title>Xác nhận hủy đơn hàng</Modal.Title>
+                    <Modal.Title>Confirm Cancel Order</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    Bạn có chắc chắn muốn hủy đơn hàng này không?
+                    Are you sure you want to cancel this order?
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" onClick={() => setShowModal(false)}>
-                        Đóng
+                        Close
                     </Button>
                     <Button variant="danger" onClick={handleCancelOrder}>
-                        Xác nhận hủy
+                        Confirm Cancel
                     </Button>
                 </Modal.Footer>
             </Modal>
