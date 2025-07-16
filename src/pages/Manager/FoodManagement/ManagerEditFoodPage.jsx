@@ -139,11 +139,14 @@ const EditFoodPage = ({ foodIndex, foodData, onSave }) => {
                       className="form-select"
                     >
                       <option value="">Select category</option>
-                      <option value="Main Course">Main Course</option>
-                      <option value="Appetizer">Appetizer</option>
-                      <option value="Dessert">Dessert</option>
-                      <option value="Beverage">Beverage</option>
-                      <option value="Special">Special</option>
+                      <option value="Rice & Grains">Rice & Grains</option>
+                      <option value="Vegetables">Vegetables</option>
+                      <option value="Mushrooms">Mushrooms</option>
+                      <option value="Beans & Tofu">Beans & Tofu</option>
+                      <option value="Nuts & Roots">Nuts & Roots</option>
+                      <option value="Noodles">Noodles</option>
+                      <option value="Vegan Meat Alternatives">Vegan Meat Alternatives</option>
+                      <option value="Desserts">Desserts</option>
                     </select>
                   </div>
 

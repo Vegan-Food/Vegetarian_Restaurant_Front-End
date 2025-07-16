@@ -112,7 +112,7 @@ const Login = () => {
                         onChange={() => setRole('customer')}
                         style={{ width: '200px' }}
                       >
-                        Khách hàng
+                        Customer
                       </ToggleButton>
                       <ToggleButton
                         style={{ width: '200px' }}
@@ -128,16 +128,16 @@ const Login = () => {
                       </ToggleButton>
                     </ButtonGroup>
                   </div>
-                  <h2 className="text-center mb-4" style={{ color: appTheme.primary }}>Đăng nhập</h2>
+                  <h2 className="text-center mb-4" style={{ color: appTheme.primary }}>Login</h2>
                   {role === 'admin' ? (
                     <>
                       <Form.Group className="mb-3" controlId="adminPhone">
                         <Form.Label>
-                          Tài khoản <span style={{ color: appTheme.accent }}>*</span>
+                          Account <span style={{ color: appTheme.accent }}>*</span>
                         </Form.Label>
                         <Form.Control
                           type="text"
-                          placeholder="Nhập tài khoản admin"
+                          placeholder="Enter admin account"
                           value={phone}
                           onChange={e => setPhone(e.target.value)}
                           required
@@ -145,11 +145,11 @@ const Login = () => {
                       </Form.Group>
                       <Form.Group className="mb-3" controlId="adminPassword">
                         <Form.Label>
-                          Mật khẩu <span style={{ color: appTheme.accent }}>*</span>
+                          Password <span style={{ color: appTheme.accent }}>*</span>
                         </Form.Label>
                         <Form.Control
                           type="password"
-                          placeholder="Nhập mật khẩu"
+                          placeholder="Enter password"
                           value={password}
                           onChange={e => setPassword(e.target.value)}
                           required
@@ -165,7 +165,7 @@ const Login = () => {
                         theme="filled_blue"
                         shape="pill"
                         text="signin_with"
-                        locale="vi"
+                        locale="en"
                       />
                     </div>
                   )}
@@ -176,8 +176,8 @@ const Login = () => {
                         required
                         label={
                           <span>
-                            Khách hàng đồng ý cung cấp Thông Tin Cá Nhân và cho phép Vegetarian Restaurant sử dụng Thông Tin Cá Nhân phù hợp với{' '}
-                            <a href="#" className="login-link" style={{ color: appTheme.primary }}>Chính sách bảo mật</a>.
+                            I agree to provide Personal Information and allow Vegetarian Restaurant to use Personal Information in accordance with the{' '}
+                            <a href="#" className="login-link" style={{ color: appTheme.primary }}>Privacy Policy</a>.
                           </span>
                         }
                       />
@@ -190,7 +190,7 @@ const Login = () => {
                       className="w-100"
                       style={{ background: appTheme.primary, border: 'none', fontWeight: 600, fontSize: '1.1rem', borderRadius: 8 }}
                     >
-                      Đăng nhập &nbsp;→
+                      Login &nbsp;→
                     </Button>
                   )}
                 </Form>
