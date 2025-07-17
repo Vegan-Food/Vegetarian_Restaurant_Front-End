@@ -6,6 +6,9 @@ import Footer from '../../components/Footer';
 import Chatbot from '../../components/Chatbot';
 import { getProfile } from '../../api/customer_profile';
 import { checkoutOrder, getPayOS } from '../../api/order';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 
 const OrderPage = () => {
     const [setLoading] = useState(false);
@@ -36,6 +39,23 @@ const OrderPage = () => {
     const [provinces, setProvinces] = useState([]);
     const [wards, setWards] = useState([]);
     const [discountCode, setDiscountCode] = useState('');
+
+    const [deliveryPosition, setDeliveryPosition] = useState([15.968843, 108.2593863]); // Mặc định là FPT
+
+    // Hàm tính khoảng cách theo đường chim bay (mét)
+    const calculateDistance = (from, to) => {
+        return L.latLng(from[0], from[1]).distanceTo(L.latLng(to[0], to[1]));
+    };
+
+    // Khi marker giao hàng được kéo
+    const handleMarkerDragEnd = (e) => {
+        const latlng = e.target.getLatLng();
+        const newPos = [latlng.lat, latlng.lng];
+        setDeliveryPosition(newPos);
+        const fptPosition = [15.968843, 108.2593863];
+        const distance = calculateDistance(newPos, fptPosition);
+        console.log('Khoảng cách từ điểm giao hàng đến FPT Đà Nẵng:', (distance/1000).toFixed(2), 'km');
+    };
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -317,6 +337,33 @@ const OrderPage = () => {
                                 </Form.Group>
                             </div>
                         </Form>
+                        {/* Leaflet Map Section */}
+                        <div className="mt-4">
+                            <h4>Store Location (FPT University Da Nang)</h4>
+                            <MapContainer center={[15.968843, 108.2593863]} zoom={16} style={{ height: '300px', width: '100%', borderRadius: '12px', marginTop: '10px' }} scrollWheelZoom={false}>
+                                <TileLayer
+                                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                />
+                                {/* Marker cửa hàng */}
+                                <Marker position={[15.968843, 108.2593863]} icon={L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/684/684908.png', iconSize: [32, 32], iconAnchor: [16, 32] })}>
+                                    <Popup>
+                                        <b>Vegetarian Restaurant</b><br />FPT University Da Nang
+                                    </Popup>
+                                </Marker>
+                                {/* Marker giao hàng draggable */}
+                                <Marker
+                                    position={deliveryPosition}
+                                    draggable={true}
+                                    eventHandlers={{ dragend: handleMarkerDragEnd }}
+                                    icon={L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/149/149059.png', iconSize: [32, 32], iconAnchor: [16, 32] })}
+                                >
+                                    <Popup>
+                                        <b>Delivery Location</b><br />Kéo để chọn nơi giao hàng!
+                                    </Popup>
+                                </Marker>
+                            </MapContainer>
+                        </div>
                     </div>
 
                     {/* Right Side - Order Summary */}
