@@ -110,6 +110,7 @@ function App() {
             <Route path="/staff-order-detail/:orderId" element={<StaffOrderDetail />} />
             <Route path="/staff-food-detail/:id" element={<StaffFoodDetail />} />
             <Route path="/staff-support-detail/:ticketId" element={<StaffSupportDetail />} />
+            
 
             {/* Catch-all route */}
 

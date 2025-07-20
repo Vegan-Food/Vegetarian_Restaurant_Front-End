@@ -1,89 +1,208 @@
-import React from 'react';
-import './ManagerDashboard.css';
-import Sidebar from "../ManagerSidebar/ManagerSidebar.jsx"
+"use client"
 
-// Data
-const overviewData = [
-  { title: "Total Staff", value: 24, change: "+2 from last month", color: "stat-blue" },
-  { title: "Active Dishes", value: 156, change: "+8 from last week", color: "stat-green" },
-  { title: "Today's Orders", value: 89, change: "+12% compared to yesterday", color: "stat-yellow" },
-  { title: "Monthly Revenue", value: "12.5M", change: "+15% compared to last month", color: "stat-purple" },
-];
+import { useEffect, useState } from "react"
+import { getOrder } from "../../../api/order"
+import { getTopOrderedProducts } from "../../../api/product"
+import ManagerSidebar from "../ManagerSidebar/ManagerSidebar"
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, LabelList } from "recharts"
 
-const ordersData = [
-  { id: "#ORD001", customer: "Nguyen Van A", items: "Beef Pho, Fish Cake", amount: 150000, status: "Preparing" },
-  { id: "#ORD002", customer: "Tran Thi B", items: "Grilled Pork, Spring Rolls", amount: 100000, status: "Completed" },
-  { id: "#ORD003", customer: "Le Van C", items: "Chicken Pho, Fish Cake", amount: 130000, status: "Delivering" },
-  { id: "#ORD004", customer: "Pham Thi D", items: "Grilled Pork", amount: 55000, status: "Pending Confirmation" },
-];
-
-const staffData = [
-  { name: "Nguyen Van A", role: "Head Chef", shift: "Morning Shift", status: "Working" },
-  { name: "Tran Thi B", role: "Manager", shift: "Afternoon Shift", status: "Working" },
-  { name: "Pham Thi D", role: "Cashier", shift: "Evening Shift", status: "Working" },
-];
-
-const getStatusClass = (status) => {
-  if (status === "Completed" || status === "Working") return "status-success";
-  if (status === "Preparing" || status === "Delivering") return "status-warning";
-  if (status === "Pending Confirmation") return "status-info";
-  return "status-default";
-};
+import "./ManagerDashboard.css"
 
 const ManagerDashboard = () => {
+  const [revenueData, setRevenueData] = useState([])
+  const [topUsers, setTopUsers] = useState([])
+  const [topProducts, setTopProducts] = useState([])
+  
 
-  return (
-    <div className="dashboard">
-      <Sidebar />
-      <main className="dashboard-main">
-        <h3>Overview</h3>
-        <p>Monitor daily operational performance.</p>
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const res = await getOrder()
+        const data = Array.isArray(res) ? res : res.data
+        console.log("✅ Dữ liệu đơn hàng từ API:", data)
 
-        <div className="dashboard-stats">
-          {overviewData.map((item, index) => (
-            <div key={index} className={`dashboard-stat-card ${item.color}`}>
-              <div className="dashboard-stat-value">{item.value}</div>
-              <div className="dashboard-stat-title">{item.title}</div>
-              <div className="dashboard-stat-subtitle">{item.change}</div>
-            </div>
+        if (!Array.isArray(data)) {
+          console.error("❌ Dữ liệu không hợp lệ:", data)
+          return
+        }
+
+        // Doanh thu theo tháng (YYYY-MM) - GIỮ NGUYÊN LOGIC CỦA BẠN
+        const monthlyStats = {}
+        data.forEach((order) => {
+          const date = new Date(order.created_at || order.createdAt)
+          const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`
+
+          if (!monthlyStats[monthKey]) {
+            monthlyStats[monthKey] = {
+              month: monthKey,
+              totalRevenue: 0,
+              orderCount: 0,
+            }
+          }
+
+          const amount = order.total_amount ?? order.totalAmount ?? order.amount ?? 0
+monthlyStats[monthKey].totalRevenue += typeof amount === "number" ? amount : parseFloat(amount) || 0
+monthlyStats[monthKey].orderCount += 1
+
+        })
+
+        const monthlyChartData = Object.values(monthlyStats).sort((a, b) => a.month.localeCompare(b.month))
+
+        setRevenueData(monthlyChartData)
+
+        // Top người tiêu dùng - GIỮ NGUYÊN LOGIC CỦA BẠN
+        // Top người tiêu dùng (bao gồm tổng chi và số lần mua)
+const userStats = {}
+
+data.forEach((order) => {
+  const userId = order.customer?.id || order.user_id || order.userId || "unknown"
+  const name = order.customer?.name || order.name || "Không rõ"
+  const amount = order.total_amount ?? order.totalAmount ?? order.amount ?? 0
+  const parsedAmount = typeof amount === "number" ? amount : parseFloat(amount) || 0
+
+  if (!userStats[userId]) {
+    userStats[userId] = {
+      userId,
+      user: name,
+      total: 0,
+      orderCount: 0,
+    }
+  }
+
+  userStats[userId].total += parsedAmount
+  userStats[userId].orderCount += 1
+})
+
+const topConsumers = Object.values(userStats)
+  .sort((a, b) => b.total - a.total)
+  .slice(0, 5)
+
+setTopUsers(topConsumers)
+
+      } catch (err) {
+        console.error("❌ Lỗi khi lấy đơn hàng:", err)
+      }
+    }
+
+    const fetchTopProducts = async () => {
+      try {
+        const res = await getTopOrderedProducts()
+        const data = Array.isArray(res) ? res : res.data
+        console.log("✅ Top sản phẩm:", data)
+        setTopProducts(data || [])
+      } catch (err) {
+        console.error("❌ Lỗi khi lấy top sản phẩm:", err)
+      }
+    }
+
+    fetchOrders()
+    fetchTopProducts()
+  }, [])
+
+  // Custom Tooltip với theme xanh lá
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="custom-tooltip">
+          <p className="tooltip-label">{label}</p>
+          {payload.map((entry, index) => (
+            <p key={index} className="tooltip-item" style={{ color: entry.color }}>
+              <span className="tooltip-dot" style={{ backgroundColor: entry.color }}></span>
+              {entry.name}: {entry.value.toLocaleString()}
+            </p>
           ))}
         </div>
+      )
+    }
+    return null
+  }
 
-        <div className="dashboard-grid">
-          {/* Orders */}
-          <div className="dashboard-card">
-            <h4>Recent Orders</h4>
-            {ordersData.map((order, idx) => (
-              <div key={idx} className="dashboard-order-item">
-                <div>
-                  <strong>{order.id}</strong> - {order.customer}
-                  <div className="dashboard-order-items">{order.items}</div>
-                </div>
-                <div>
-                  <div>{order.amount.toLocaleString()}đ</div>
-                  <span className={`badge ${getStatusClass(order.status)}`}>{order.status}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+  return (
+    <div className="dashboard-container">
+      <ManagerSidebar />
+      <div className="dashboard-main">
+        {/* Header */}
+        <div className="dashboard-header">
+          <h2 className="dashboard-title">Vegan Food Analytics</h2>
+          <p className="dashboard-subtitle">Tổng quan về doanh thu và hiệu suất bán hàng thực phẩm chay</p>
+        </div>
 
-          {/* Staff */}
-          <div className="dashboard-card">
-            <h4>Currently Working Staff</h4>
-            {staffData.map((person, index) => (
-              <div key={index} className="dashboard-staff-item">
-                <div>
-                  <strong>{person.name}</strong>
-                  <div>{person.role} - {person.shift}</div>
-                </div>
-                <span className={`badge ${getStatusClass(person.status)}`}>{person.status}</span>
-              </div>
-            ))}
+        {/* Doanh thu theo tháng */}
+        <div className="chart-card revenue-card">
+          <div className="card-accent revenue-accent"></div>
+          <h3 className="chart-title">
+            <span className="title-dot revenue-dot"></span>
+            Doanh thu theo tháng
+          </h3>
+          <div className="chart-container revenue-container">
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart data={revenueData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <XAxis
+                  dataKey="month"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: "#4a5568", fontWeight: "500" }}
+                />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#4a5568", fontWeight: "500" }} />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend wrapperStyle={{ paddingTop: "20px", fontSize: "14px", fontWeight: "500" }} />
+                <Bar dataKey="totalRevenue" fill="url(#revenueGradient)" name="Doanh thu (VNĐ)" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="orderCount" fill="url(#orderGradient)" name="Số đơn" radius={[6, 6, 0, 0]} />
+                <defs>
+                  <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#48bb78" />
+                    <stop offset="100%" stopColor="#38a169" />
+                  </linearGradient>
+                  <linearGradient id="orderGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#68d391" />
+                    <stop offset="100%" stopColor="#48bb78" />
+                  </linearGradient>
+                </defs>
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
-      </main>
-    </div>
-  );
-};
 
-export default ManagerDashboard;
+
+        {/* Top sản phẩm được đặt nhiều nhất */}
+        <div className="chart-card products-card">
+          <div className="card-accent products-accent"></div>
+          <h3 className="chart-title">
+            <span className="title-dot products-dot"></span>
+            Top 5 món chay bán chạy nhất
+          </h3>
+          <div className="chart-container products-container">
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart layout="vertical" data={topProducts} margin={{ top: 20, right: 30, left: 80, bottom: 5 }}>
+                <XAxis
+                  type="number"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: "#4a5568", fontWeight: "500" }}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: "#4a5568", fontWeight: "500" }}
+                  width={80}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey="totalOrdered" fill="url(#productGradient)" name="Số lượng đã bán" radius={[0, 8, 8, 0]} />
+                <defs>
+                  <linearGradient id="productGradient" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#38a169" />
+                    <stop offset="100%" stopColor="#2f855a" />
+                  </linearGradient>
+                </defs>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default ManagerDashboard
