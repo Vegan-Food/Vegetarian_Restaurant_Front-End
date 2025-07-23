@@ -1,139 +1,208 @@
-"use client";
+"use client"
 
-import { useNavigate } from "react-router-dom";
-import "./OwnerDashboard.css";
-import Sidebar from '../OwnerSidebar/OwnerSidebar.jsx';
+import { useEffect, useState } from "react"
+import { getOrder } from "../../../api/order"
+import { getTopOrderedProducts } from "../../../api/product"
+import ManagerSidebar from "../OwnerSidebar/OwnerSidebar"
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, LabelList } from "recharts"
 
-// --- SVG icons ---
-const IconChart = () => (
-  <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <rect x="3" y="3" width="18" height="18" rx="2" />
-    <line x1="9" y1="8" x2="9" y2="21" />
-    <line x1="15" y1="8" x2="15" y2="21" />
-    <line x1="3" y1="14" x2="21" y2="14" />
-  </svg>
-);
+import "./OwnerDashboard.css"
 
-const IconDollar = () => (
-  <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <line x1="12" y1="2" x2="12" y2="22" />
-    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-  </svg>
-);
+const ManagerDashboard = () => {
+  const [revenueData, setRevenueData] = useState([])
+  const [topUsers, setTopUsers] = useState([])
+  const [topProducts, setTopProducts] = useState([])
+  
 
-const IconPercent = () => (
-  <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <line x1="19" y1="5" x2="5" y2="19" />
-    <circle cx="6.5" cy="6.5" r="2.5" />
-    <circle cx="17.5" cy="17.5" r="2.5" />
-  </svg>
-);
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const res = await getOrder()
+        const data = Array.isArray(res) ? res : res.data
+        console.log("✅ Dữ liệu đơn hàng từ API:", data)
 
-const IconTrendingUp = () => (
-  <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
-    <polyline points="17 6 23 6 23 12" />
-  </svg>
-);
+        if (!Array.isArray(data)) {
+          console.error("❌ Dữ liệu không hợp lệ:", data)
+          return
+        }
 
-const IconTrendingDown = () => (
-  <svg className="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
-    <polyline points="17 18 23 18 23 12" />
-  </svg>
-);
+        // Doanh thu theo tháng (YYYY-MM) - GIỮ NGUYÊN LOGIC CỦA BẠN
+        const monthlyStats = {}
+        data.forEach((order) => {
+          const date = new Date(order.created_at || order.createdAt)
+          const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`
 
-const OwnerDashboard = ({ pageTitle = "Dashboard", pageSubtitle = null }) => {
-  const navigate = useNavigate();
+          if (!monthlyStats[monthKey]) {
+            monthlyStats[monthKey] = {
+              month: monthKey,
+              totalRevenue: 0,
+              orderCount: 0,
+            }
+          }
 
-  const metrics = [
-    {
-      title: "Net Profit Margin",
-      value: "$24.5K",
-      change: "+1.2%",
-      trend: "up",
-      icon: <IconDollar />,
-      color: "green",
-    },
-    {
-      title: "Avg Profit Margin",
-      value: "9.5%",
-      change: "+0.8%",
-      trend: "up",
-      icon: <IconPercent />,
-      color: "blue",
-    },
-    {
-      title: "Return On Investment",
-      value: "19.1%",
-      change: "+2.4%",
-      trend: "up",
-      icon: <IconTrendingUp />,
-      color: "purple",
-    },
-    {
-      title: "Monthly Revenue",
-      value: "$2,176",
-      change: "-0.3%",
-      trend: "down",
-      icon: <IconChart />,
-      color: "orange",
-    },
-  ];
+          const amount = order.total_amount ?? order.totalAmount ?? order.amount ?? 0
+monthlyStats[monthKey].totalRevenue += typeof amount === "number" ? amount : parseFloat(amount) || 0
+monthlyStats[monthKey].orderCount += 1
+
+        })
+
+        const monthlyChartData = Object.values(monthlyStats).sort((a, b) => a.month.localeCompare(b.month))
+
+        setRevenueData(monthlyChartData)
+
+        // Top người tiêu dùng - GIỮ NGUYÊN LOGIC CỦA BẠN
+        // Top người tiêu dùng (bao gồm tổng chi và số lần mua)
+const userStats = {}
+
+data.forEach((order) => {
+  const userId = order.customer?.id || order.user_id || order.userId || "unknown"
+  const name = order.customer?.name || order.name || "Không rõ"
+  const amount = order.total_amount ?? order.totalAmount ?? order.amount ?? 0
+  const parsedAmount = typeof amount === "number" ? amount : parseFloat(amount) || 0
+
+  if (!userStats[userId]) {
+    userStats[userId] = {
+      userId,
+      user: name,
+      total: 0,
+      orderCount: 0,
+    }
+  }
+
+  userStats[userId].total += parsedAmount
+  userStats[userId].orderCount += 1
+})
+
+const topConsumers = Object.values(userStats)
+  .sort((a, b) => b.total - a.total)
+  .slice(0, 5)
+
+setTopUsers(topConsumers)
+
+      } catch (err) {
+        console.error("❌ Lỗi khi lấy đơn hàng:", err)
+      }
+    }
+
+    const fetchTopProducts = async () => {
+      try {
+        const res = await getTopOrderedProducts()
+        const data = Array.isArray(res) ? res : res.data
+        console.log("✅ Top sản phẩm:", data)
+        setTopProducts(data || [])
+      } catch (err) {
+        console.error("❌ Lỗi khi lấy top sản phẩm:", err)
+      }
+    }
+
+    fetchOrders()
+    fetchTopProducts()
+  }, [])
+
+  // Custom Tooltip với theme xanh lá
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="custom-tooltip">
+          <p className="tooltip-label">{label}</p>
+          {payload.map((entry, index) => (
+            <p key={index} className="tooltip-item" style={{ color: entry.color }}>
+              <span className="tooltip-dot" style={{ backgroundColor: entry.color }}></span>
+              {entry.name}: {entry.value.toLocaleString()}
+            </p>
+          ))}
+        </div>
+      )
+    }
+    return null
+  }
 
   return (
-    <div className="dashboard-layout">
-      <header className="dashboard-header">
-        <Sidebar />
-        <div className="header-container">
-          <div className="header-left">
-            <h1 className="dashboard-title">{pageTitle}</h1>
-            {pageSubtitle && <p className="page-subtitle">{pageSubtitle}</p>}
+    <div className="dashboard-container">
+      <ManagerSidebar />
+      <div className="dashboard-main">
+        {/* Header */}
+        <div className="dashboard-header">
+          <h2 className="dashboard-title">Vegan Food Analytics</h2>
+          <p className="dashboard-subtitle">Tổng quan về doanh thu và hiệu suất bán hàng thực phẩm chay</p>
+        </div>
+
+        {/* Doanh thu theo tháng */}
+        <div className="chart-card revenue-card">
+          <div className="card-accent revenue-accent"></div>
+          <h3 className="chart-title">
+            <span className="title-dot revenue-dot"></span>
+            Doanh thu theo tháng
+          </h3>
+          <div className="chart-container revenue-container">
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart data={revenueData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <XAxis
+                  dataKey="month"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: "#4a5568", fontWeight: "500" }}
+                />
+                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#4a5568", fontWeight: "500" }} />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend wrapperStyle={{ paddingTop: "20px", fontSize: "14px", fontWeight: "500" }} />
+                <Bar dataKey="totalRevenue" fill="url(#revenueGradient)" name="Doanh thu (VNĐ)" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="orderCount" fill="url(#orderGradient)" name="Số đơn" radius={[6, 6, 0, 0]} />
+                <defs>
+                  <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#48bb78" />
+                    <stop offset="100%" stopColor="#38a169" />
+                  </linearGradient>
+                  <linearGradient id="orderGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#68d391" />
+                    <stop offset="100%" stopColor="#48bb78" />
+                  </linearGradient>
+                </defs>
+              </BarChart>
+            </ResponsiveContainer>
           </div>
         </div>
-      </header>
 
-      <div className="dashboard-content main-content">
-        {/* Overview Metrics */}
-        <section className="overview-section">
-          {metrics.map((metric, index) => (
-            <div className="overview-card" key={index}>
-              <div className="metric-icon-wrapper">
-                <div className={`metric-icon icon-${metric.color}`}>{metric.icon}</div>
-              </div>
-              <div className="metric-content">
-                <h3 className="metric-title">{metric.title}</h3>
-                <div className="metric-value">{metric.value}</div>
-                <div className="metric-trend">
-                  <span className={`trend-indicator trend-${metric.trend}`}>
-                    {metric.trend === "up" ? <IconTrendingUp /> : <IconTrendingDown />}
-                    {metric.change}
-                  </span>
-                  <span className="trend-period">vs last month</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </section>
 
-        {/* Revenue Chart */}
-        <section className="orders-section">
-          <div className="chart-card">
-            <div className="chart-header">
-              <h2 className="chart-title">Revenue Overview</h2>
-              <p className="chart-subtitle">Monthly performance tracking</p>
-            </div>
-            <div className="chart-body">
-              <div className="chart-placeholder">
-                <IconChart className="chart-icon" />
-                <p className="chart-text">Revenue data visualization</p>
-              </div>
-            </div>
+        {/* Top sản phẩm được đặt nhiều nhất */}
+        <div className="chart-card products-card">
+          <div className="card-accent products-accent"></div>
+          <h3 className="chart-title">
+            <span className="title-dot products-dot"></span>
+            Top 5 món chay bán chạy nhất
+          </h3>
+          <div className="chart-container products-container">
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart layout="vertical" data={topProducts} margin={{ top: 20, right: 30, left: 80, bottom: 5 }}>
+                <XAxis
+                  type="number"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: "#4a5568", fontWeight: "500" }}
+                />
+                <YAxis
+                  type="category"
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 12, fill: "#4a5568", fontWeight: "500" }}
+                  width={80}
+                />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey="totalOrdered" fill="url(#productGradient)" name="Số lượng đã bán" radius={[0, 8, 8, 0]} />
+                <defs>
+                  <linearGradient id="productGradient" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stopColor="#38a169" />
+                    <stop offset="100%" stopColor="#2f855a" />
+                  </linearGradient>
+                </defs>
+              </BarChart>
+            </ResponsiveContainer>
           </div>
-        </section>
+        </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default OwnerDashboard;
+export default ManagerDashboard

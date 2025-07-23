@@ -1,4 +1,4 @@
-import "./Footer.css"
+import "./Footer.css";
 
 export default function Footer() {
   return (
@@ -16,32 +16,29 @@ export default function Footer() {
           <div className="footer-brand">
             <div>
               <h3 className="footer-brand-title">VeganFood</h3>
-              <p className="footer-brand-description">Thực phẩm chay ngon & bổ dưỡng cho cuộc sống khỏe mạnh</p>
+              <p className="footer-brand-description">
+                Delicious & nutritious vegetarian food for a healthy lifestyle
+              </p>
             </div>
           </div>
 
           {/* Menu Section */}
           <div className="footer-section">
-            <h4 className="footer-section-title">Thực đơn</h4>
+            <h4 className="footer-section-title">Menu</h4>
             <ul className="footer-section-list">
               <li className="footer-section-item">
-                <a href="#" className="footer-section-link">
-                  Món chính
+                <a href="#vegetables" className="footer-section-link">
+                  Vegetables
                 </a>
               </li>
               <li className="footer-section-item">
-                <a href="#" className="footer-section-link">
-                  Salad & Soup
+                <a href="#mushrooms" className="footer-section-link">
+                  Mushrooms
                 </a>
               </li>
               <li className="footer-section-item">
-                <a href="#" className="footer-section-link">
-                  Đồ uống
-                </a>
-              </li>
-              <li className="footer-section-item">
-                <a href="#" className="footer-section-link">
-                  Tráng miệng
+                <a href="#beans-tofu" className="footer-section-link">
+                  Beans & Tofu
                 </a>
               </li>
             </ul>
@@ -49,26 +46,26 @@ export default function Footer() {
 
           {/* Services Section */}
           <div className="footer-section">
-            <h4 className="footer-section-title">Dịch vụ</h4>
+            <h4 className="footer-section-title">Services</h4>
             <ul className="footer-section-list">
               <li className="footer-section-item">
-                <a href="#" className="footer-section-link">
-                  Đặt hàng online
+                <a href="/about" className="footer-section-link">
+                  Online Ordering
                 </a>
               </li>
               <li className="footer-section-item">
-                <a href="#" className="footer-section-link">
-                  Giao hàng tận nơi
+                <a href="/about" className="footer-section-link">
+                  Home Delivery
                 </a>
               </li>
               <li className="footer-section-item">
-                <a href="#" className="footer-section-link">
+                <a href="/about" className="footer-section-link">
                   Catering
                 </a>
               </li>
               <li className="footer-section-item">
-                <a href="#" className="footer-section-link">
-                  Hỗ trợ khách hàng
+                <a href="/faq" className="footer-section-link">
+                  Customer Support
                 </a>
               </li>
             </ul>
@@ -76,11 +73,13 @@ export default function Footer() {
 
           {/* Contact Section */}
           <div className="footer-section">
-            <h4 className="footer-section-title">Liên hệ</h4>
+            <h4 className="footer-section-title">Contact</h4>
             <div className="footer-contact-list">
               <div className="footer-contact-item">
                 <span className="footer-contact-icon">📍</span>
-                <span className="footer-contact-text">123 Đường ABC, Quận 1, TP.HCM</span>
+                <span className="footer-contact-text">
+                  123 ABC Street, District 1, HCMC
+                </span>
               </div>
               <div className="footer-contact-item">
                 <span className="footer-contact-icon">📞</span>
@@ -97,21 +96,23 @@ export default function Footer() {
         {/* Bottom Section */}
         <div className="footer-bottom">
           <div className="footer-bottom-content">
-            <p className="footer-bottom-copyright">&copy; 2024 VeganFood. Tất cả quyền được bảo lưu.</p>
+            <p className="footer-bottom-copyright">
+              &copy; 2024 VeganFood. All rights reserved.
+            </p>
             <div className="footer-bottom-links">
-              <a href="#" className="footer-bottom-link">
-                Chính sách bảo mật
+              <a href="/about" className="footer-bottom-link">
+                Privacy Policy
               </a>
-              <a href="#" className="footer-bottom-link">
-                Điều khoản sử dụng
+              <a href="/about" className="footer-bottom-link">
+                Terms of Use
               </a>
-              <a href="#" className="footer-bottom-link">
-                Liên hệ
+              <a href="/about" className="footer-bottom-link">
+                Contact Us
               </a>
             </div>
           </div>
         </div>
       </div>
     </footer>
-  )
+  );
 }

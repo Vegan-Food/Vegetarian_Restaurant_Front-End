@@ -132,6 +132,12 @@ const Header = () => {
                 >
                   <Search size={30} />
                 </Button>
+                <Button
+                className="faq-btn ms-2"
+                onClick={() => navigate("/faq")}
+              >
+                FAQ
+              </Button>
               </InputGroup>
             </Form>
             
@@ -195,6 +201,7 @@ const Header = () => {
                 <User size={16} className="me-2" />
                 <span className="auth-text">Login</span>
               </Button>
+              
             ) : (
               <div className="d-inline-flex align-items-center ms-2">
                 <img
@@ -210,9 +217,13 @@ const Header = () => {
                 >
                   {user.name || "User"}
                 </span>
+                
                 <Button variant="outline-danger" size="sm" onClick={handleLogout}>
                   Logout
                 </Button>
+               
+
+
               </div>
             )}
           </div>
