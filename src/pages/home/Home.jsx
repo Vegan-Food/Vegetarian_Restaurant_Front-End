@@ -1,11 +1,15 @@
+"use client"
+
 import { useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import Header from "../../components/Header"
 import Navigation from "./components/Navigation"
 import Carousel from "../../components/Carousel"
+import BestsellerSection from "./components/BestsellerSection"
+import PreviouslyOrderedSection from "./components/PreviouslyOrderedSection"
 import CategorySection from "./components/CategorySection"
 import Footer from "../../components/Footer"
-import Chatbot from "../../components/Chatbot"
+import CartAlert from "../../components/CartAlert"
 
 const Home = () => {
   const navigate = useNavigate()
@@ -37,9 +41,11 @@ const Home = () => {
       <Header />
       <Navigation />
       <Carousel />
+      <BestsellerSection />
+      <PreviouslyOrderedSection />
       <CategorySection />
       <Footer />
-      <Chatbot />
+      <CartAlert />
     </div>
   )
 }

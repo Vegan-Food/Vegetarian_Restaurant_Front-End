@@ -77,7 +77,7 @@ const ProductCard = ({ product }) => {
         </Card.Title>
 
         {/* Stock & Sold */}
-        {/* <div className="d-flex align-items-center mb-3" style={{ fontWeight: 600 }}>
+        <div className="d-flex align-items-center mb-3" style={{ fontWeight: 600 }}>
           <div className="d-flex align-items-center" style={{ flex: 1 }}>
             <span style={{ color: '#347928', fontWeight: 700, fontSize: '1rem' }}>
               In stock: {product.stock_quantity || 0}
@@ -86,7 +86,7 @@ const ProductCard = ({ product }) => {
           <div className="text-end" style={{ flex: 1, color: '#6c757d', fontWeight: 650, fontSize: '1rem' }}>
             {product.total_order} sold
           </div>
-        </div> */}
+        </div>
 
         {/* Price */}
         <div className="mb-3">

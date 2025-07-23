@@ -176,7 +176,7 @@
 
 .user-message .message-content {
   background: #347928;
-  color: white;
+  color: #ffffff;
 }
 
 .bot-message .message-content {
@@ -188,6 +188,11 @@
   margin: 0 0 5px 0;
   font-size: 14px;
   line-height: 1.4;
+  color: inherit;
+}
+
+.user-message .message-text {
+  color: white !important;
 }
 
 .message-time {
