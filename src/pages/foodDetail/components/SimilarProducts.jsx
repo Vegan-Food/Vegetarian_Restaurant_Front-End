@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight } from "react-bootstrap-icons";
 import { useParams } from "react-router-dom";
 import { Container, Button, Row, Col } from "react-bootstrap";
 import ProductCard from "../../../components/ProductCard";
-import axios from "axios";
+import { getProductById, getProductsByCategory } from "../../../api/product";
 
 const SimilarProducts = () => {
   const [products, setProducts] = useState([]);
@@ -18,18 +18,16 @@ const SimilarProducts = () => {
       try {
         if (!productId) return;
 
-        // Get current product info
-        const currentRes = await axios.get(`http://localhost:8080/api/products/${productId}`);
-        const currentProduct = currentRes.data;
+        // Get current product info using the API service
+        const currentProduct = await getProductById(productId);
 
         if (!currentProduct || !currentProduct.category) {
           console.warn("Không tìm thấy sản phẩm hiện tại hoặc thiếu category");
           return;
         }
 
-        // Get all products in the same category
-        const listRes = await axios.get(`http://localhost:8080/api/products/category/${encodeURIComponent(currentProduct.category)}`);
-        const allProducts = listRes.data || [];
+        // Get all products in the same category using the API service
+        const allProducts = await getProductsByCategory(currentProduct.category) || [];
 
         // Filter out similar products but exclude the current one
         const similar = allProducts.filter((p) => p.product_id !== Number(productId));
@@ -46,13 +44,17 @@ const SimilarProducts = () => {
 
   const nextSlide = () => {
     const maxIndex = Math.max(0, products.length - itemsPerPage);
-    setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
+    setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + itemsPerPage));
   };
 
   const prevSlide = () => {
     const maxIndex = Math.max(0, products.length - itemsPerPage);
-    setCurrentIndex((prev) => (prev === 0 ? maxIndex : prev - 1));
+    setCurrentIndex((prev) => (prev === 0 ? maxIndex : prev - itemsPerPage));
   };
+  
+  // Calculate current page for pagination dots
+  const currentPage = Math.floor(currentIndex / itemsPerPage);
+  const totalPages = Math.ceil(products.length / itemsPerPage);
 
   const visibleProducts = products.slice(currentIndex, currentIndex + itemsPerPage);
 
@@ -102,20 +104,20 @@ const SimilarProducts = () => {
 
           {/* Pagination Dots */}
           {products.length > itemsPerPage && (
-            <div className="d-flex justify-content-center mt-5">
-              {Array.from({ length: Math.ceil(products.length / itemsPerPage) }, (_, index) => (
-                <div
+            <div className="d-flex justify-content-center align-items-center mt-5">
+              {Array.from({ length: totalPages }).map((_, index) => (
+                <button
                   key={index}
-                  className={`rounded-circle mx-1 ${
-                    Math.floor(currentIndex / itemsPerPage) === index
-                      ? "bg-success"
-                      : "bg-outline-success border border-success"
-                  }`}
+                  onClick={() => setCurrentIndex(index * itemsPerPage)}
+                  className={`btn p-0 mx-1 rounded-circle ${index === currentPage ? 'bg-success' : 'bg-outline-success border border-success'}`}
                   style={{
-                    width: "12px",
-                    height: "12px",
-                    cursor: "default",
+                    width: '12px',
+                    height: '12px',
+                    padding: 0,
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease'
                   }}
+                  aria-label={`Go to page ${index + 1}`}
                 />
               ))}
             </div>

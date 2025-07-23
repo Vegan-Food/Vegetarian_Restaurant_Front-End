@@ -161,27 +161,6 @@ body, .order-detail-bg {
   font-size: 1.1rem;
 }
 
-.order-status-badge {
-  padding: 6px 20px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  border-radius: 12px;
-  color: #fff;
-}
-
-.badge.bg-success {
-  background-color: #347928 !important;
-}
-
-.badge.bg-warning {
-  background-color: #FCCD2A !important;
-  color: #347928 !important;
-}
-
-.badge.bg-danger {
-  background-color: #dc3545 !important;
-}
-
 /* All styles scoped under .order-detail-page */
 .order-detail-page .order-detail-bg {
   min-height: 100vh;

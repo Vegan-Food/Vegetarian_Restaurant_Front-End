@@ -128,6 +128,9 @@ const CartPage = () => {
 
   if (loading) return <div>Loading...</div>;
 
+  // Calculate if we need to show scroll (more than 8 items)
+  const showScroll = cartItems.length > 5;
+  
   return (
     <div className="cart-page">
       <Header />
@@ -135,8 +138,8 @@ const CartPage = () => {
       <main className="cart-container">
         <h1>My Cart</h1>
         <div className="cart-content">
-          <div className="cart-items">
-            {cartItems.map((item) => (
+          <div className={`cart-items ${showScroll ? 'scrollable' : ''}`}>
+            {[...cartItems].reverse().map((item) => (
               <CartItem
                 key={item.id}
                 item={item}
