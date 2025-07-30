@@ -10,6 +10,8 @@ import PreviouslyOrderedSection from "./components/PreviouslyOrderedSection"
 import CategorySection from "./components/CategorySection"
 import Footer from "../../components/Footer"
 import CartAlert from "../../components/CartAlert"
+import Chatbot from '../../components/Chatbot';
+import SuggestFoodFollowBody from '../suggest_food/SuggestFoodFollowBody';
 
 const Home = () => {
   const navigate = useNavigate()
@@ -38,6 +40,8 @@ const Home = () => {
 
   return (
     <div className="home-page">
+      <SuggestFoodFollowBody />
+      <Chatbot />
       <Header />
       <Navigation />
       <Carousel />

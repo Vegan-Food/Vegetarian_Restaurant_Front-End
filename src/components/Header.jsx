@@ -59,7 +59,7 @@ const Header = () => {
     }
 
     const query = searchQuery.toLowerCase()
-    const filtered = allProducts.filter(product => 
+    const filtered = allProducts.filter(product =>
       product.name.toLowerCase().includes(query)
     )
     setSearchResults(filtered)
@@ -125,25 +125,25 @@ const Header = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => searchQuery.trim() && setShowResults(searchResults.length > 0)}
                 />
-                <Button 
-                  variant="success" 
+                <Button
+                  variant="success"
                   className="search-btn"
                   type="submit"
                 >
                   <Search size={30} />
                 </Button>
-                <Button
-                className="faq-btn ms-2"
-                onClick={() => navigate("/faq")}
-              >
-                FAQ
-              </Button>
+                {/* <Button
+                  className="faq-btn ms-2"
+                  onClick={() => navigate("/faq")}
+                >
+                  FAQ
+                </Button> */}
               </InputGroup>
             </Form>
-            
+
             {/* Search Results Dropdown */}
             {showResults && searchResults.length > 0 && (
-              <div 
+              <div
                 className="search-results-dropdown position-absolute w-100 bg-white shadow-lg rounded mt-1"
                 style={{
                   zIndex: 1000,
@@ -155,15 +155,15 @@ const Header = () => {
               >
                 <ListGroup variant="flush">
                   {searchResults.map((product) => (
-                    <ListGroup.Item 
+                    <ListGroup.Item
                       key={product.product_id}
-                      action 
+                      action
                       onClick={() => handleResultClick(product.product_id)}
                       className="py-2 hover-bg-light"
                     >
                       <div className="d-flex align-items-center">
-                        <img 
-                          src={product.image_url} 
+                        <img
+                          src={product.image_url}
                           alt={product.name}
                           style={{
                             width: '40px',
@@ -201,7 +201,7 @@ const Header = () => {
                 <User size={16} className="me-2" />
                 <span className="auth-text">Login</span>
               </Button>
-              
+
             ) : (
               <div className="d-inline-flex align-items-center ms-2">
                 <img
@@ -217,11 +217,11 @@ const Header = () => {
                 >
                   {user.name || "User"}
                 </span>
-                
+
                 <Button variant="outline-danger" size="sm" onClick={handleLogout}>
                   Logout
                 </Button>
-               
+
 
 
               </div>

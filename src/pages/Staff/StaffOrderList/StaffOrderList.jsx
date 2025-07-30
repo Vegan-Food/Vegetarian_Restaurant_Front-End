@@ -15,6 +15,7 @@ const StaffOrderList = () => {
   const [filteredOrders, setFilteredOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
+  const [activeFilter, setActiveFilter] = useState("all")
 
   // Gọi API lấy danh sách đơn hàng khi vào trang
   useEffect(() => {
@@ -28,19 +29,26 @@ const StaffOrderList = () => {
     });
   }, []);
 
-  // Lọc đơn hàng theo từ khóa tìm kiếm
+  // Lọc đơn hàng theo từ khóa tìm kiếm và status
   useEffect(() => {
-    if (!searchTerm.trim()) {
-      setFilteredOrders(orders);
-    } else {
-      const filtered = orders.filter(order => 
+    let filtered = orders;
+    
+    // Lọc theo search term
+    if (searchTerm.trim()) {
+      filtered = filtered.filter(order => 
         order.orderId?.toString().toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.userName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.phoneNumber?.toLowerCase().includes(searchTerm.toLowerCase())
       );
-      setFilteredOrders(filtered);
     }
-  }, [searchTerm, orders]);
+    
+    // Lọc theo status
+    if (activeFilter !== "all") {
+      filtered = filtered.filter(order => order.status === activeFilter);
+    }
+    
+    setFilteredOrders(filtered);
+  }, [searchTerm, orders, activeFilter]);
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -48,14 +56,17 @@ const StaffOrderList = () => {
 
   const getStatusBadge = (status) => {
     const statusColors = {
-      Preparing: "warning",
-      Ready: "success",
-      Delivering: "info",
-      Pending: "secondary",
-      Completed: "primary",
-      Cancelled: "danger"
+      pending: "secondary",
+      paid: "info", 
+      shipped: "warning",
+      delivered: "success",
+      cancelled: "danger"
     }
     return <Badge bg={statusColors[status] || 'secondary'}>{status}</Badge>
+  }
+
+  const getStatusCount = (status) => {
+    return orders.filter((order) => order.status === status).length
   }
 
   const handleStatusUpdate = async (orderId, newStatus) => {
@@ -103,6 +114,64 @@ const StaffOrderList = () => {
             <Col>
               <h2 style={{ color: appTheme.primary }}>Order Management</h2>
               <p className="text-muted">View and update assigned orders status.</p>
+            </Col>
+          </Row>
+
+          {/* Status Filter Tabs */}
+          <Row className="mb-4">
+            <Col>
+              <Card className="border-0 shadow-sm">
+                <Card.Body className="py-3">
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <h6 className="mb-0 text-muted">Filter by Status</h6>
+                    <small className="text-muted">Total: {orders.length} orders</small>
+                  </div>
+                  <div className="d-flex flex-wrap gap-2">
+                    {[
+                      { key: "all", label: "All Orders", color: "secondary" },
+                      { key: "pending", label: "Pending", color: "warning" },
+                      { key: "paid", label: "Paid", color: "info" },
+                      { key: "shipped", label: "Shipped", color: "primary" },
+                      { key: "delivered", label: "Delivered", color: "success" },
+                      { key: "cancelled", label: "Cancelled", color: "danger" }
+                    ].map(({ key, label, color }) => (
+                      <Button
+                        key={key}
+                        variant={activeFilter === key ? color : `outline-${color}`}
+                        size="sm"
+                        onClick={() => setActiveFilter(key)}
+                        className="status-filter-btn"
+                        style={{ 
+                          borderRadius: "20px",
+                          minWidth: "120px",
+                          maxWidth: "120px",
+                          height: "38px",
+                          padding: "8px 12px",
+                          fontSize: "0.875rem",
+                          fontWeight: "500",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          border: "2px solid",
+                          transition: "all 0.2s ease"
+                        }}
+                      >
+                        {label}
+                        {key !== "all" && (
+                          <Badge 
+                            bg={activeFilter === key ? "light" : color} 
+                            text={activeFilter === key ? "dark" : "white"}
+                            className="ms-2"
+                            style={{ fontSize: "0.7rem" }}
+                          >
+                            {getStatusCount(key)}
+                          </Badge>
+                        )}
+                      </Button>
+                    ))}
+                  </div>
+                </Card.Body>
+              </Card>
             </Col>
           </Row>
 
@@ -229,11 +298,35 @@ const StaffOrderList = () => {
                 <Form.Group className="mt-3">
                   <Form.Label>New Status</Form.Label>
                   <Form.Select id="statusSelect">
-                    <option value="pending">Pending</option>
-                    <option value="paid">Paid</option>
-                    <option value="shipped">Shipped</option>
-                    <option value="delivered">Delivered</option>
-                    <option value="cancelled">Cancelled</option>
+                    {(() => {
+                      const statusOptions = [
+                        { value: "pending", label: "Pending" },
+                        { value: "paid", label: "Paid" },
+                        { value: "shipped", label: "Shipped" },
+                        { value: "delivered", label: "Delivered" },
+                        { value: "cancelled", label: "Cancelled" }
+                      ];
+
+                      return statusOptions.filter(option => {
+                        // Nếu status hiện tại là cancelled thì không hiển thị bất cứ option nào
+                        if (selectedOrder?.status === 'cancelled') {
+                          return false;
+                        }
+                        // Nếu status hiện tại là delivered thì chỉ hiển thị delivered và cancelled
+                        if (selectedOrder?.status === 'delivered') {
+                          return ['delivered', 'cancelled'].includes(option.value);
+                        }
+                        // Nếu status hiện tại là shipped thì không hiển thị pending và preparing/paid
+                        if (selectedOrder?.status === 'shipped') {
+                          return !['pending', 'paid'].includes(option.value);
+                        }
+                        return true;
+                      }).map(option => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ));
+                    })()}
                   </Form.Select>
                 </Form.Group>
               </div>

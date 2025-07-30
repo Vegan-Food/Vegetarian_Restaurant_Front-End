@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import Sidebar from "../ManagerSidebar/ManagerSidebar.jsx"
-import { getProducts, deleteProduct } from "../../../api/product"
+import { getProducts } from "../../../api/product"
 import "./ManagerFoodList.css"
 
 const ManagerFoodList = () => {
@@ -41,18 +41,6 @@ const ManagerFoodList = () => {
   const handleAddClick = () => {
     navigate("/manager-add-food")
   }
-
-  const handleDeleteClick = async (product_id) => {
-    if (window.confirm("Are you sure you want to delete this food item?")) {
-      try {
-        await deleteProduct(product_id);
-        setFoodList(foodList.filter((food) => food.product_id !== product_id));
-        alert('Delete food successfully!');
-      } catch (err) {
-        alert('Delete food failed!');
-      }
-    }
-  };
 
   return (
     <div className="dashboard-container">
@@ -143,9 +131,6 @@ const ManagerFoodList = () => {
                             </button>
                             <button className="edit-btn" onClick={() => handleEditClick(food.product_id)} title="Edit">
                               Edit
-                            </button>
-                            <button className="delete-btn" onClick={() => handleDeleteClick(food.product_id)} title="Delete">
-                              Delete
                             </button>
                           </div>
                         </td>

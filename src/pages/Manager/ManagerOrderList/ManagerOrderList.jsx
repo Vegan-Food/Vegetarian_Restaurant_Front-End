@@ -7,7 +7,7 @@ import { getOrder, updateOrderStatus } from '../../../api/order';
 
 const statusLabels = {
   pending: "Pending",
-  preparing: "Preparing",
+  paid: "Paid",
   shipped: "Shipped",
   delivered: "Delivered",
   cancelled: "Cancelled",
@@ -97,8 +97,8 @@ const ManagerOrderList = () => {
               <span className="stat-label">Pending</span>
             </div>
             <div className="stat-card">
-              <span className="stat-number">{getStatusCount("preparing")}</span>
-              <span className="stat-label">Preparing</span>
+              <span className="stat-number">{getStatusCount("paid")}</span>
+              <span className="stat-label">Paid</span>
             </div>
             <div className="stat-card">
               <span className="stat-number">{getStatusCount("delivered")}</span>
@@ -343,7 +343,20 @@ const ManagerOrderList = () => {
                       Select New Status
                     </label>
                     <div className="status-options">
-                      {Object.entries(statusLabels).map(([value, label]) => (
+                      {Object.entries(statusLabels)
+                        .filter(([value]) => {
+                          if (orderToUpdate?.status === 'cancelled') {
+                            return false;
+                          }
+                          if (orderToUpdate?.status === 'delivered') {
+                            return ['delivered', 'cancelled'].includes(value);
+                          }
+                          if (orderToUpdate?.status === 'shipped') {
+                            return !['pending', 'paid'].includes(value);
+                          }
+                          return true;
+                        })
+                        .map(([value, label]) => (
                         <label key={value} className={`status-option ${newStatus === value ? "selected" : ""}`}>
                           <input
                             type="radio"

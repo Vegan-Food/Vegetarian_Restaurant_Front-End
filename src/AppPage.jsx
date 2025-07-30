@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './context/CartContext';
 import CartAlert from './components/CartAlert';
-import Chatbot from './components/Chatbot';
 import CartPage from './pages/cart/CartPage';
 import OrderPage from './pages/order/OrderFood';
 import ProfilePage from './pages/profile/ProfilePage';
@@ -42,7 +41,6 @@ function App() {
       <CartProvider>
         <BrowserRouter>
           <CartAlert />
-          <Chatbot />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/cart" element={
