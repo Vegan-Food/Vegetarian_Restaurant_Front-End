@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { getOrder } from "../../../api/order"
-import { getTopOrderedProducts } from "../../../api/product"
+import { getBestsellerProducts } from "../../../api/product"
 import ManagerSidebar from "../OwnerSidebar/OwnerSidebar"
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, LabelList } from "recharts"
 
@@ -86,7 +86,7 @@ setTopUsers(topConsumers)
 
     const fetchTopProducts = async () => {
       try {
-        const res = await getTopOrderedProducts()
+        const res = await getBestsellerProducts()
         const data = Array.isArray(res) ? res : res.data
         console.log("✅ Top sản phẩm:", data)
         setTopProducts(data || [])

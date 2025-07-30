@@ -14,7 +14,8 @@ import {
 } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import placeholderImage from "../../../assets/image/placeholder.svg";
-import axios from "axios";
+import { getProductById } from "../../../api/product";
+import { addToCart } from "../../../api/cart";
 import "./ProductDetails.css";
 import { useCart } from "../../../context/CartContext";
 
@@ -23,6 +24,7 @@ const ProductDetails = () => {
   const [product, setProduct] = useState(null);
   const { showNotification } = useCart();
   const { productId } = useParams();
+  const [inputValue, setInputValue] = useState('1');
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -32,8 +34,8 @@ const ProductDetails = () => {
       }
 
       try {
-        const res = await axios.get(`http://localhost:8080/api/products/${productId}`);
-        setProduct(res.data);
+        const productData = await getProductById(productId);
+        setProduct(productData);
       } catch (error) {
         console.error("Error fetching product:", error);
         setProduct(null);
@@ -43,8 +45,47 @@ const ProductDetails = () => {
     fetchProduct();
   }, [productId]);
 
-  const incrementQuantity = () => setQuantity((prev) => prev + 1);
-  const decrementQuantity = () => setQuantity((prev) => Math.max(1, prev - 1));
+  const handleQuantityChange = (e) => {
+    const value = e.target.value;
+    // Only allow numbers and empty string (for backspace)
+    if (value === '' || /^\d+$/.test(value)) {
+      const numValue = value === '' ? 0 : parseInt(value, 10);
+      if (numValue <= 0) {
+        setInputValue('1');
+        setQuantity(1);
+      } else if (product && numValue > product.stock_quantity) {
+        setInputValue(product.stock_quantity.toString());
+        setQuantity(product.stock_quantity);
+      } else {
+        setInputValue(value);
+        setQuantity(numValue);
+      }
+    }
+  };
+
+  const handleQuantityBlur = () => {
+    // If input is empty, set to 1
+    if (inputValue === '') {
+      setInputValue('1');
+      setQuantity(1);
+    }
+  };
+
+  const incrementQuantity = () => {
+    if (product && quantity < product.stock_quantity) {
+      const newQuantity = quantity + 1;
+      setQuantity(newQuantity);
+      setInputValue(newQuantity.toString());
+    }
+  };
+
+  const decrementQuantity = () => {
+    if (quantity > 1) {
+      const newQuantity = quantity - 1;
+      setQuantity(newQuantity);
+      setInputValue(newQuantity.toString());
+    }
+  };
 
   const handleAddToCart = async () => {
     if (!product) return;
@@ -56,21 +97,9 @@ const ProductDetails = () => {
     }
 
     try {
-      const response = await axios.post(
-        `http://localhost:8080/api/cart/items/add?productId=${product.product_id}&quantity=${quantity}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        showNotification(product);
-      } else {
-        throw new Error(`Unexpected response status: ${response.status}`);
-      }
+      // Using the cart API service instead of direct axios call
+      await addToCart(product.product_id, quantity);
+      showNotification(product);
     } catch (error) {
       console.error("Error adding to cart:", error);
       alert("❌ Failed to add product to cart.");
@@ -153,16 +182,76 @@ const ProductDetails = () => {
                   <Col md={12}>
                     <div className="d-flex align-items-end gap-2">
                       <div className="flex-grow-1" style={{ maxWidth: 300 }}>
-                        <label className="form-label fw-bold mb-2">Quantity:</label>
-                        <ButtonGroup size="lg" className="w-100">
-                          <Button variant="outline-success" onClick={decrementQuantity}>
-                            <Dash size={18} />
+                        <div className="d-flex justify-content-between align-items-center mb-2">
+                          <label className="form-label fw-bold mb-0">Quantity:</label>
+                          {product && (
+                            <small className="text-muted">
+                              In stock: {product.stock_quantity}
+                            </small>
+                          )}
+                        </div>
+                        <ButtonGroup size="lg" className="w-100" style={{ height: '46px' }}>
+                          <Button 
+                            variant="outline-success" 
+                            onClick={decrementQuantity}
+                            style={{
+                              borderTopRightRadius: 0,
+                              borderBottomRightRadius: 0,
+                              width: '36px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
+                          >
+                            <Dash size={20} />
                           </Button>
-                          <Button variant="outline-success" disabled>
-                            {quantity}
-                          </Button>
-                          <Button variant="outline-success" onClick={incrementQuantity}>
-                            <Plus size={18} />
+                          <div 
+                            className="d-flex align-items-center justify-content-center" 
+                            style={{
+                              width: '100px',
+                              backgroundColor: '#fff',
+                              border: '1px solid #198754',
+                              borderLeft: 'none',
+                              borderRight: 'none',
+                              height: '100%',
+                              padding: '0.5rem',
+                              fontSize: '1rem',
+                              fontWeight: 500,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
+                          >
+                            <input
+                              type="text"
+                              value={inputValue}
+                              onChange={handleQuantityChange}
+                              onBlur={handleQuantityBlur}
+                              style={{
+                                width: '100%',
+                                border: 'none',
+                                textAlign: 'center',
+                                outline: 'none',
+                                background: 'transparent',
+                                padding: 0
+                              }}
+                              aria-label="Quantity"
+                            />
+                          </div>
+                          <Button
+                            variant="outline-success"
+                            onClick={incrementQuantity}
+                            disabled={product && quantity >= product.stock_quantity}
+                            style={{
+                              borderTopLeftRadius: 0,
+                              borderBottomLeftRadius: 0,
+                              width: '46px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
+                          >
+                            <Plus size={20} />
                           </Button>
                         </ButtonGroup>
                       </div>

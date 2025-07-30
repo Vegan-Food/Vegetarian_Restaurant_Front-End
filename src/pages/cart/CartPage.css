@@ -35,8 +35,37 @@
 .cart-items {
   background: white;
   border-radius: 12px;
-  padding: 24px;
+  padding: 0 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-height: 800px; /* Fixed height to enable scrolling */
+  overflow-y: hidden; /* Hide scrollbar by default */
+}
+
+/* Show scrollbar when there are more than 8 items */
+.cart-items.scrollable {
+  overflow-y: auto;
+  padding-right: 12px; /* Add some padding to prevent content from being hidden behind scrollbar */
+}
+
+/* Custom scrollbar for WebKit browsers (Chrome, Safari, etc.) */
+.cart-items.scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.cart-items.scrollable::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.cart-items.scrollable::-webkit-scrollbar-thumb {
+  background: #4CAF50;
+  border-radius: 3px;
+}
+
+/* Custom scrollbar for Firefox */
+.cart-items.scrollable {
+  scrollbar-width: thin;
+  scrollbar-color: #4CAF50 #f1f1f1;
 }
 
 .cart-item {

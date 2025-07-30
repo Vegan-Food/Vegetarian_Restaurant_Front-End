@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { getOrderList } from '../../api/order';
 import {
   Container, Row, Col, Card, Table, Button, Badge, Form, Pagination
 } from 'react-bootstrap';
@@ -14,18 +14,62 @@ import Footer from '../../components/Footer';
 const PAGE_SIZE = 5;
 
 const statusVariant = (status) => {
-  switch (status.toLowerCase()) {
-    case 'completed':
-      return 'success';
-    case 'processing':
-    case 'pending':
-    case 'shipped':
-      return 'warning';
-    case 'cancelled':
-      return 'danger';
-    default:
-      return 'secondary';
+  const statusLower = status.toLowerCase();
+
+  if (statusLower === 'pending') {
+    return {
+      variant: 'warning',
+      color: '#FFA500',
+      text: 'Pending'
+    };
   }
+
+  if (statusLower === 'paid') {
+    return {
+      variant: 'success',
+      color: '#28a745',
+      text: 'Paid'
+    };
+  }
+
+  if (statusLower === 'shipping') {
+    return {
+      variant: 'info',
+      color: '#90BE6D',
+      text: 'Shipping'
+    };
+  }
+
+  if (statusLower === 'delivered') {
+    return {
+      variant: 'primary',
+      color: '#6f42c1',
+      text: 'Delivered'
+    };
+  }
+
+  if (statusLower === 'cancelled') {
+    return {
+      variant: 'danger',
+      color: '#F94144',
+      text: 'Cancelled'
+    };
+  }
+
+  if (statusLower === 'completed') {
+    return {
+      variant: 'info',
+      color: '#6A4C93',
+      text: 'Completed'
+    };
+  }
+
+  // Default fallback
+  return {
+    variant: 'secondary',
+    color: '#6c757d',
+    text: status
+  };
 };
 
 const formatCurrency = (amount) => {
@@ -36,13 +80,13 @@ const formatCurrency = (amount) => {
 const formatDateTime = (dateStr) => {
   if (!dateStr) return '';
   const date = new Date(dateStr);
-  return date.toLocaleString('en-US', { 
+  return date.toLocaleString('en-US', {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
-    hour12: false 
+    hour12: false
   });
 };
 
@@ -55,7 +99,7 @@ const OrderHistory = () => {
   // State for validation
   const [dateError, setDateError] = useState('');
   const [amountError, setAmountError] = useState('');
-  
+
   // Filters
   const [orderDateFrom, setOrderDateFrom] = useState('');
   const [orderDateTo, setOrderDateTo] = useState('');
@@ -63,68 +107,117 @@ const OrderHistory = () => {
   const [maxTotal, setMaxTotal] = useState('');
   const [status, setStatus] = useState('');
   const [paymentMethod, setPaymentMethod] = useState('');
-  
+
   // Get current date in YYYY-MM-DD format
   const today = new Date().toISOString().split('T')[0];
-  
+
   // Validate date range
   const validateDateRange = (from, to) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
+
+    const fromDate = parseDate(from);
+    const toDate = parseDate(to);
+
+    // Check if start date is valid
+    if (from && !fromDate) {
+      setDateError('Invalid start date format');
+      return false;
+    }
+
+    // Check if end date is valid
+    if (to && !toDate) {
+      setDateError('Invalid end date format');
+      return false;
+    }
+
     // Check if start date is in the future
-    if (from && new Date(from) > today) {
+    if (fromDate && fromDate > today) {
       setDateError('Cannot select future date');
       return false;
     }
-    
+
     // Check if end date is before start date
-    if (from && to && new Date(from) > new Date(to)) {
+    if (fromDate && toDate && fromDate > toDate) {
       setDateError('End date cannot be before start date');
       return false;
     }
-    
+
     setDateError('');
     return true;
   };
-  
-  // Handle date change
-  const handleDateChange = (type, value) => {
-    // Only update state if validation passes
+
+  // Parse date string in dd/mm/yyyy format to Date object
+  const parseDate = (dateStr) => {
+    if (!dateStr) return null;
+    const [day, month, year] = dateStr.split('/').map(Number);
+    if (day && month && year) {
+      // Note: month is 0-indexed in JavaScript Date
+      return new Date(year, month - 1, day);
+    }
+    return null;
+  };
+
+  // Validate date string format (dd/mm/yyyy)
+  const isValidDate = (dateStr) => {
+    if (!dateStr) return true; // Empty is valid
+    const regex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
+    if (!regex.test(dateStr)) return false;
+
+    const [day, month, year] = dateStr.split('/').map(Number);
+    const date = new Date(year, month - 1, day);
+    return date.getDate() === day && date.getMonth() === month - 1 && date.getFullYear() === year;
+  };
+
+  // Handle date input change
+  const handleDateInputChange = (type, value) => {
+    // Only allow numbers and slashes
+    if (value && !/^[0-9/]*$/.test(value)) return;
+
+    // Auto-format as user types
+    let formattedValue = value;
+    if (value.length === 2 || value.length === 5) {
+      formattedValue = value + '/';
+    }
+
     if (type === 'from') {
-      if (value) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const selectedDate = new Date(value);
-        
-        if (selectedDate > today) {
-          setDateError('Cannot select future date');
-          return;
-        }
-      }
-      
-      setOrderDateFrom(value);
+      setOrderDateFrom(formattedValue);
       if (orderDateTo) {
-        validateDateRange(value, orderDateTo);
+        validateDateRange(formattedValue, orderDateTo);
       } else {
-        // Clear error if no end date is selected
         setDateError('');
       }
     } else {
-      setOrderDateTo(value);
+      setOrderDateTo(formattedValue);
       if (orderDateFrom) {
-        validateDateRange(orderDateFrom, value);
+        validateDateRange(orderDateFrom, formattedValue);
       } else {
-        // Clear error if no start date is selected
         setDateError('');
       }
     }
   };
-  
+
+  // Handle date input blur - validate format
+  const handleDateBlur = (type, value) => {
+    if (!value) return;
+
+    if (!isValidDate(value)) {
+      setDateError('Please enter a valid date in dd/mm/yyyy format');
+      return;
+    }
+
+    // If we get here, the date is valid, so validate the range
+    if (type === 'from') {
+      validateDateRange(value, orderDateTo);
+    } else {
+      validateDateRange(orderDateFrom, value);
+    }
+  };
+
   // Handle amount change
   const handleAmountChange = (type, value) => {
     const numValue = value === '' ? '' : parseFloat(value);
-    
+
     if (type === 'min') {
       setMinTotal(value);
       if (value !== '' && maxTotal !== '' && numValue > parseFloat(maxTotal)) {
@@ -146,24 +239,40 @@ const OrderHistory = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:8080/api/order/list', {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+        console.log('Fetching orders...');
+        const response = await getOrderList();
+        console.log('Raw API response:', response);
 
-        const mapped = response.data.map(order => ({
-          id: order.orderId,
-          userName: order.userName,
-          orderDate: order.createdAt,
-          status: order.status.charAt(0).toUpperCase() + order.status.slice(1),
-          paymentMethod: order.paymentMethod,
-          totalAmount: order.totalAmount,
-          phoneNumber: order.phoneNumber,
-          address: order.address,
-          items: order.items
-        }));
+        if (!response || !Array.isArray(response)) {
+          console.error('Invalid response format:', response);
+          return;
+        }
+
+        // Map and sort orders by orderDate in descending order (newest first)
+        const mapped = response
+          .map(order => {
+            // Convert status to lowercase for consistent comparison
+            const status = order.status.toLowerCase();
+            let displayStatus = status.charAt(0).toUpperCase() + status.slice(1);
+
+            // Handle 'shipped' status from API - map to 'Shipping' for display
+            if (status === 'shipped') {
+              displayStatus = 'Shipping';
+            }
+
+            return {
+              id: order.orderId,
+              userName: order.userName,
+              orderDate: order.createdAt,
+              status: displayStatus,
+              paymentMethod: order.paymentMethod,
+              totalAmount: order.totalAmount,
+              phoneNumber: order.phoneNumber,
+              address: order.address,
+              items: order.items
+            };
+          })
+          .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate));
 
         setOrders(mapped);
         setFilteredOrders(mapped);
@@ -179,11 +288,27 @@ const OrderHistory = () => {
   useEffect(() => {
     let filtered = [...orders];
 
-    if (orderDateFrom) {
-      filtered = filtered.filter(o => new Date(o.orderDate) >= new Date(orderDateFrom));
+    // Convert dd/mm/yyyy to yyyy-mm-dd for date comparison
+    const formatDateForComparison = (dateStr) => {
+      if (!dateStr) return null;
+      const [day, month, year] = dateStr.split('/');
+      return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    };
+
+    if (orderDateFrom && isValidDate(orderDateFrom)) {
+      const fromDate = formatDateForComparison(orderDateFrom);
+      filtered = filtered.filter(o => {
+        const orderDate = o.orderDate.split('T')[0]; // Get YYYY-MM-DD part
+        return orderDate >= fromDate;
+      });
     }
-    if (orderDateTo) {
-      filtered = filtered.filter(o => new Date(o.orderDate) <= new Date(orderDateTo + 'T23:59:59'));
+
+    if (orderDateTo && isValidDate(orderDateTo)) {
+      const toDate = formatDateForComparison(orderDateTo);
+      filtered = filtered.filter(o => {
+        const orderDate = o.orderDate.split('T')[0]; // Get YYYY-MM-DD part
+        return orderDate <= toDate;
+      });
     }
     if (minTotal) {
       filtered = filtered.filter(o => o.totalAmount >= parseFloat(minTotal));
@@ -246,26 +371,28 @@ const OrderHistory = () => {
                       <Form.Label>Date Range</Form.Label>
                       <div className="d-flex align-items-center">
                         <div className="position-relative flex-grow-1">
-                          <Form.Control 
-                            type="date" 
-                            value={orderDateFrom} 
-                            max={today}
-                            onChange={e => handleDateChange('from', e.target.value)} 
+                          <Form.Control
+                            type="text"
+                            placeholder="dd/mm/yyyy"
+                            value={orderDateFrom}
+                            onChange={e => handleDateInputChange('from', e.target.value)}
+                            onBlur={(e) => handleDateBlur('from', e.target.value)}
                             isInvalid={!!dateError}
                             className="w-100"
-                            lang="en-US"
+                            maxLength={10}
                           />
                         </div>
                         <span className="mx-2">-</span>
                         <div className="position-relative flex-grow-1">
-                          <Form.Control 
-                            type="date" 
-                            value={orderDateTo} 
-                            min={orderDateFrom}
-                            onChange={e => handleDateChange('to', e.target.value)} 
+                          <Form.Control
+                            type="text"
+                            placeholder="dd/mm/yyyy"
+                            value={orderDateTo}
+                            onChange={e => handleDateInputChange('to', e.target.value)}
+                            onBlur={(e) => handleDateBlur('to', e.target.value)}
                             isInvalid={!!dateError}
                             className="w-100"
-                            lang="en-US"
+                            maxLength={10}
                           />
                         </div>
                       </div>
@@ -283,9 +410,10 @@ const OrderHistory = () => {
                         <option value="">All Status</option>
                         <option value="Pending">Pending</option>
                         <option value="Paid">Paid</option>
-                        <option value="Shipped">Shipped</option>
+                        <option value="Shipping">Shipping</option>
                         <option value="Delivered">Delivered</option>
                         <option value="Cancelled">Cancelled</option>
+                        <option value="Completed">Completed</option>
                       </Form.Select>
                     </Form.Group>
                   </Col>
@@ -304,20 +432,20 @@ const OrderHistory = () => {
                       <Form.Label>Total Amount</Form.Label>
                       <div className="d-flex flex-column gap-2">
                         <div className="d-flex align-items-center">
-                          <Form.Control 
-                            type="number" 
-                            placeholder="Min" 
-                            value={minTotal} 
+                          <Form.Control
+                            type="number"
+                            placeholder="Min"
+                            value={minTotal}
                             onChange={e => handleAmountChange('min', e.target.value)}
                             min="0"
                             step="1000"
                             className="flex-grow-1"
                           />
                           <span className="mx-2">-</span>
-                          <Form.Control 
-                            type="number" 
-                            placeholder="Max" 
-                            value={maxTotal} 
+                          <Form.Control
+                            type="number"
+                            placeholder="Max"
+                            value={maxTotal}
                             onChange={e => handleAmountChange('max', e.target.value)}
                             isInvalid={!!amountError}
                             min={minTotal || '0'}
@@ -339,18 +467,18 @@ const OrderHistory = () => {
 
             {/* Table */}
             <div className="table-responsive">
-              <Table className="order-history-table align-middle text-center" bordered hover style={{width: '100%', background: '#FFFBE6', minWidth: 1100}}>
+              <Table className="order-history-table align-middle text-center" bordered hover style={{ width: '100%', background: '#FFFBE6', minWidth: 1100 }}>
                 <thead>
                   <tr>
-                    <th className="rounded-top-left" style={{minWidth: 90, padding: '18px 18px'}}>Order ID</th>
-                    <th style={{minWidth: 140, padding: '18px 18px'}}>
+                    <th className="rounded-top-left" style={{ minWidth: 70, padding: '18px 10px' }}>NO</th>
+                    <th style={{ minWidth: 140, padding: '18px 18px' }}>
                       Order Time
                       <div className="date-format-hint">(mm/dd/yyyy)</div>
                     </th>
-                    <th style={{minWidth: 120, padding: '18px 18px'}}>Total</th>
-                    <th style={{minWidth: 120, padding: '18px 18px'}}>Status</th>
-                    <th style={{minWidth: 120, padding: '18px 18px'}}>Payment</th>
-                    <th className="rounded-top-right" style={{minWidth: 90, padding: '18px 18px'}}>Details</th>
+                    <th style={{ minWidth: 120, padding: '18px 18px' }}>Total</th>
+                    <th style={{ minWidth: 120, padding: '18px 18px' }}>Status</th>
+                    <th style={{ minWidth: 120, padding: '18px 18px' }}>Payment</th>
+                    <th className="rounded-top-right" style={{ minWidth: 90, padding: '18px 18px' }}>Details</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -359,18 +487,30 @@ const OrderHistory = () => {
                       <td colSpan={6} className="text-center text-muted py-4">No matching orders</td>
                     </tr>
                   )}
-                  {paginatedOrders.map((order) => (
+                  {paginatedOrders.map((order, index) => (
                     <tr key={order.id} className="order-row">
-                      <td className="rounded-cell-left" style={{padding: '16px 18px'}}><strong>{order.id}</strong></td>
-                      <td style={{padding: '16px 18px'}}>{formatDateTime(order.orderDate)}</td>
-                      <td style={{padding: '16px 18px'}}><span className="fw-bold text-success">{formatCurrency(order.totalAmount)}</span></td>
-                      <td style={{padding: '16px 18px'}}>
-                        <Badge bg={statusVariant(order.status)} className="order-status-badge px-3 py-2 fs-6 rounded-pill shadow-sm">
-                          {order.status}
-                        </Badge>
+                      <td className="rounded-cell-left text-muted" style={{ padding: '16px 10px' }}>
+                        {index + 1 + (currentPage - 1) * PAGE_SIZE}
                       </td>
-                      <td style={{padding: '16px 18px'}}>{order.paymentMethod}</td>
-                      <td className="rounded-cell-right action-cell" style={{padding: '16px 18px'}}>
+                      <td style={{ padding: '16px 18px' }}>{formatDateTime(order.orderDate)}</td>
+                      <td style={{ padding: '16px 18px' }}><span className="fw-bold text-success">{formatCurrency(order.totalAmount)}</span></td>
+                      <td style={{ padding: '16px 18px', textAlign: 'center' }}>
+                        <Badge
+                          style={{
+                            backgroundColor: statusVariant(order.status).color,
+                            color: "#fff",
+                            padding: "0.5rem 1.5rem",
+                            fontSize: "1rem",
+                            minWidth: "120px",
+                            textAlign: "center",
+                          }}
+                        >
+                          {statusVariant(order.status).text}
+                        </Badge>
+
+                      </td>
+                      <td style={{ padding: '16px 18px' }}>{order.paymentMethod}</td>
+                      <td className="rounded-cell-right action-cell" style={{ padding: '16px 18px' }}>
                         <Button
                           variant="outline-primary"
                           className="d-flex align-items-center justify-content-center"
@@ -406,45 +546,45 @@ const OrderHistory = () => {
 
             {/* Pagination */}
             <div className="d-flex justify-content-between align-items-center mt-3 px-2 flex-wrap">
-              <div className="text-muted" style={{fontSize: '0.98rem'}}>
+              <div className="text-muted" style={{ fontSize: '0.98rem' }}>
                 {totalPages === 1
                   ? `Showing ${filteredOrders.length} of ${filteredOrders.length} orders`
-                  : `Showing ${filteredOrders.length === 0 ? 0 : ((currentPage-1)*PAGE_SIZE)+1} to ${Math.min(currentPage*PAGE_SIZE, filteredOrders.length)} of ${filteredOrders.length} orders`}
+                  : `Showing ${filteredOrders.length === 0 ? 0 : ((currentPage - 1) * PAGE_SIZE) + 1} to ${Math.min(currentPage * PAGE_SIZE, filteredOrders.length)} of ${filteredOrders.length} orders`}
               </div>
               <Pagination className="mb-0">
-                <Pagination.First 
-                  onClick={() => handlePageChange(1)} 
+                <Pagination.First
+                  onClick={() => handlePageChange(1)}
                   disabled={currentPage === 1}
                   className="page-link-custom"
                 >
                   First
                 </Pagination.First>
-                <Pagination.Prev 
-                  onClick={() => handlePageChange(currentPage-1)} 
+                <Pagination.Prev
+                  onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
                   className="page-link-custom"
                 >
                   Prev
                 </Pagination.Prev>
                 {[...Array(totalPages)].map((_, idx) => (
-                  <Pagination.Item 
-                    key={idx+1} 
-                    active={currentPage === idx+1} 
-                    onClick={() => handlePageChange(idx+1)}
+                  <Pagination.Item
+                    key={idx + 1}
+                    active={currentPage === idx + 1}
+                    onClick={() => handlePageChange(idx + 1)}
                     className="page-item-custom"
                   >
-                    {idx+1}
+                    {idx + 1}
                   </Pagination.Item>
                 ))}
-                <Pagination.Next 
-                  onClick={() => handlePageChange(currentPage+1)} 
+                <Pagination.Next
+                  onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
                   className="page-link-custom"
                 >
                   Next
                 </Pagination.Next>
-                <Pagination.Last 
-                  onClick={() => handlePageChange(totalPages)} 
+                <Pagination.Last
+                  onClick={() => handlePageChange(totalPages)}
                   disabled={currentPage === totalPages}
                   className="page-link-custom"
                 >

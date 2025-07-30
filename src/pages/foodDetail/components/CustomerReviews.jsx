@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { PencilSquare, StarFill, Star } from "react-bootstrap-icons";
+import { PencilSquare } from "react-bootstrap-icons";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import { getProductReviews, submitReview } from "../../../api/feedback";
 import {
   Container,
   Row,
@@ -31,10 +31,8 @@ const CustomerReviews = () => {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:8080/api/feedback/product/${productId}`
-        );
-        setReviews(response.data || []);
+        const reviewsData = await getProductReviews(productId);
+        setReviews(reviewsData || []);
       } catch (error) {
         console.error("Error fetching reviews:", error);
         setReviews([]);
@@ -78,32 +76,19 @@ const CustomerReviews = () => {
     };
 
     try {
-      const res = await axios.post(
-        "http://localhost:8080/api/feedback",
-        payload,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      // Submit the review using the API service
+      await submitReview(payload);
+      
+      // Update UI on success
+      setToastMessage("✅ Review submitted successfully!");
+      setToastVariant("success");
+      setShowToast(true);
+      setNewComment("");
+      setShowModal(false);
 
-      if (res.status === 201 || res.status === 200) {
-        setToastMessage("✅ Review submitted successfully!");
-        setToastVariant("success");
-        setShowToast(true);
-        setNewComment("");
-        setShowModal(false);
-
-        // Refresh list
-        const refreshed = await axios.get(
-          `http://localhost:8080/api/feedback/product/${productId}`
-        );
-        setReviews(refreshed.data || []);
-      } else {
-        throw new Error("Unexpected status: " + res.status);
-      }
+      // Refresh the reviews list
+      const refreshedReviews = await getProductReviews(productId);
+      setReviews(refreshedReviews || []);
     } catch (error) {
       console.error("Error submitting review:", error);
       setToastMessage("❌ Failed to submit review.");

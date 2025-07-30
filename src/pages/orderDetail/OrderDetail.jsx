@@ -4,19 +4,66 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'react-bootstrap-icons';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
+import { getBill } from '../../api/order';
 import './OrderDetail.css';
 
 const statusVariant = (status) => {
-  switch (status) {
-    case 'Delivered':
-      return 'success';
-    case 'Processing':
-      return 'warning';
-    case 'Cancelled':
-      return 'danger';
-    default:
-      return 'secondary';
+  const statusLower = status.toLowerCase();
+
+  if (statusLower === 'pending') {
+    return {
+      variant: 'warning',
+      color: '#F9C74F',
+      text: 'Pending'
+    };
   }
+
+  if (statusLower === 'paid') {
+    return {
+      variant: 'success',
+      color: '#28a745',
+      text: 'Paid'
+    };
+  }
+
+  if (statusLower === 'shipping') {
+    return {
+      variant: 'info',
+      color: '#90BE6D',
+      text: 'Shipping'
+    };
+  }
+
+  if (statusLower === 'delivered') {
+    return {
+      variant: 'primary',
+      color: '#6f42c1',
+      text: 'Delivered'
+    };
+  }
+
+  if (statusLower === 'cancelled') {
+    return {
+      variant: 'danger',
+      color: '#F94144',
+      text: 'Cancelled'
+    };
+  }
+
+  if (statusLower === 'completed') {
+    return {
+      variant: 'info',
+      color: '#6A4C93',
+      text: 'Completed'
+    };
+  }
+
+  // Default fallback
+  return {
+    variant: 'secondary',
+    color: '#6c757d',
+    text: status
+  };
 };
 
 function formatCurrency(amount) {
@@ -42,11 +89,7 @@ const OrderDetail = () => {
   useEffect(() => {
     const fetchOrder = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/api/order/list/${orderId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error('Failed to fetch order');
-        const data = await res.json();
+        const data = await getBill(orderId);
         setOrder(data);
       } catch (error) {
         console.error('Error fetching order:', error);
@@ -96,13 +139,22 @@ const OrderDetail = () => {
                   <ArrowLeft className="me-2" /> Back to Orders
                 </Button>
                 <div className="order-title-wrapper">
-                  <h2 className="order-detail-title">Order #{order.orderId}</h2>
-                  <Badge
-                    bg={statusVariant(order.status)}
-                    className="order-status-badge"
-                  >
-                    {order.status}
-                  </Badge>
+                  <h2 className="order-detail-title">Order Detail</h2>
+                  <div className="d-flex justify-content-center">
+                    <Badge
+                      className="order-status-badge"
+                      style={{
+                        backgroundColor: statusVariant(order.status).color,
+                        color: '#fff',
+                        padding: '0.5rem 1.5rem',
+                        fontSize: '1rem',
+                        minWidth: '120px',
+                        textAlign: 'center'
+                      }}
+                    >
+                      {statusVariant(order.status).text}
+                    </Badge>
+                  </div>
                 </div>
               </div>
 
@@ -123,8 +175,8 @@ const OrderDetail = () => {
                         {order.paymentMethod === 'Tiền mặt'
                           ? 'Cash'
                           : order.paymentMethod === 'Chuyển khoản'
-                          ? 'Bank Transfer'
-                          : order.paymentMethod}
+                            ? 'Bank Transfer'
+                            : order.paymentMethod}
                       </td>
                     </tr>
                     <tr>
@@ -187,19 +239,19 @@ const OrderDetail = () => {
                     <span>Subtotal ({order.items.reduce((sum, item) => sum + item.quantity, 0)} items):</span>
                     <span>{formatCurrency(subtotal)}</span>
                   </div>
-                  
+
                   {discountAmount > 0 && (
                     <div className="d-flex justify-content-between text-success">
                       <span>Discount {discountCode ? `(${discountPercentage}% off)` : ''}:</span>
                       <span>-{formatCurrency(discountAmount)}</span>
                     </div>
                   )}
-                  
+
                   <div className="order-summary-total">
                     <h5 className="mb-0 fw-bold">Total Amount:</h5>
                     <h4 className="mb-0 fw-bold text-success">{formatCurrency(subtotal - discountAmount)}</h4>
                   </div>
-                
+
                 </div>
               </div>
             </Card.Body>

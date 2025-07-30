@@ -6,13 +6,13 @@ import mealData from '../data/meal_data.json';
 const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
 
 async function callGeminiAPI(userInput) {
-  // Lấy danh sách sản phẩm (ví dụ 5 sản phẩm đầu)
+  // Get the list of products (first 5 products as an example)
   const productList = mealData.products.slice(0, 5).map(p => `${p.name}: ${p.description}`).join('\n');
   const prompt = `
-    Dưới đây là danh sách món ăn chay của nhà hàng:
+    Here is the list of vegetarian dishes from our restaurant:
     ${productList}
-    Câu hỏi của khách: ${userInput}
-    Chỉ trả lời dựa trên danh sách trên.
+    Customer's question: ${userInput}
+    Please answer based only on the menu items listed above.
   `;
 
   const url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + GEMINI_API_KEY;
@@ -22,7 +22,7 @@ async function callGeminiAPI(userInput) {
         role: "user",
         parts: [
           {
-            text: "Bạn là trợ lý ảo theo phong cách GenZ của nhà hàng chay Vegan Food. Chỉ trả lời các câu hỏi liên quan đến thực phẩm chay, món ăn chay, dinh dưỡng chay, và không trả lời các chủ đề khác. Nếu câu hỏi không liên quan, hãy lịch sự từ chối."
+            text: "You are a GenZ-style virtual assistant for Vegan Food restaurant. Only answer questions related to vegetarian food, vegan dishes, and plant-based nutrition. Politely decline to answer questions on other topics. Keep responses friendly, concise, and helpful."
           }
         ]
       },
@@ -40,7 +40,7 @@ async function callGeminiAPI(userInput) {
     body: JSON.stringify(body)
   });
   const data = await response.json();
-  return data?.candidates?.[0]?.content?.parts?.[0]?.text || "Xin lỗi, tôi chỉ hỗ trợ các câu hỏi về thực phẩm chay.";
+  return data?.candidates?.[0]?.content?.parts?.[0]?.text || "I'm sorry, I can only assist with questions about vegetarian food.";
 }
 
 const Chatbot = () => {
@@ -48,7 +48,7 @@ const Chatbot = () => {
   const [messages, setMessages] = useState([
     {
       id: 1,
-      text: "Xin chào! Tôi là trợ lý ảo của nhà hàng chay Vegan Food. Tôi có thể giúp gì cho bạn?",
+      text: "Hello! I'm the virtual assistant for Vegan Food restaurant. How can I help you today?",
       sender: 'bot',
       timestamp: new Date()
     }
@@ -94,7 +94,7 @@ const Chatbot = () => {
         ...prev,
         {
           id: messages.length + 2,
-          text: "Xin lỗi, có lỗi xảy ra khi kết nối đến AI.",
+          text: "Sorry, there was an error connecting to the AI assistant.",
           sender: 'bot',
           timestamp: new Date()
         }
@@ -114,7 +114,7 @@ const Chatbot = () => {
       {/* Chat Button */}
       <div className="chatbot-button" onClick={() => setIsOpen(true)}>
         <MessageCircle size={24} />
-        <span className="chatbot-button-text">Chat với chúng tôi</span>
+        <span className="chatbot-button-text">Chat with us</span>
       </div>
 
       {/* Chat Popup */}
@@ -128,8 +128,8 @@ const Chatbot = () => {
                   <Bot size={20} />
                 </div>
                 <div>
-                  <h4 className="chatbot-title">Trợ lý ảo</h4>
-                  <p className="chatbot-subtitle">Nhà hàng chay</p>
+                  <h4 className="chatbot-title">Virtual Assistant</h4>
+                  <p className="chatbot-subtitle">Vegan Restaurant</p>
                 </div>
               </div>
               <button className="chatbot-close" onClick={() => setIsOpen(false)}>
@@ -181,7 +181,7 @@ const Chatbot = () => {
             <div className="chatbot-input">
               <input
                 type="text"
-                placeholder="Nhập tin nhắn..."
+                placeholder="Type your message..."
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
