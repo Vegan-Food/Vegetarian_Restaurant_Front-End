@@ -33,6 +33,8 @@ import StaffFoodDetail from './pages/Staff/StaffFoodDetail/StaffFoodDetail';
 import StaffSupportDetail from './pages/Staff/StaffSupportDetail/StaffSupportDetail';
 import ManagerFoodDetail from './pages/Manager/FoodManagement/ManagerFoodDetail';
 import SupportPage from './pages/support/SupportPage';
+import About from './components/About';
+import Faq from './components/Faq';
 
 function App() {
   return (
@@ -113,6 +115,9 @@ function App() {
             
 
             {/* Catch-all route */}
+            <Route path="/about" element={<About />} />
+            <Route path="/faq" element={<Faq />} />
+
 
 
           </Routes>
