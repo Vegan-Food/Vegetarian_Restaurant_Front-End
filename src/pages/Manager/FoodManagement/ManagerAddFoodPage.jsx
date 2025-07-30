@@ -91,35 +91,70 @@ const ManagerAddFoodPage = ({ onSave }) => {
     return Object.keys(newErrors).length === 0
   }
 
+  const CLOUDINARY = process.env.REACT_APP_CLOUDINARY;
+  const uploadToCloudinary = async (file) => {
+    const formData = new FormData()
+    formData.append("file", file)
+    formData.append("upload_preset", "veganfood"); 
+    formData.append("cloud_name", CLOUDINARY);
+
+
+    try {
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY}/image/upload`, {
+        method: "POST",
+        body: formData,
+      })
+      const data = await res.json()
+      return data.secure_url
+    } catch (error) {
+      console.error("Cloudinary upload error:", error)
+      return null
+    }
+  }
+
+
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!validateForm()) {
-      return
-    }
-
-    // Chuẩn hóa dữ liệu gửi lên API
-    const foodData = {
-      name: formData.name,
-      description: formData.description,
-      price: Number.parseInt(formData.price),
-      stock_quantity: Number.parseInt(formData.stock_quantity),
-      image_url: formData.image_url,
-      category: formData.category,
-      total_order: 0
-    }
+    if (!validateForm()) return
 
     setLoading(true)
+
     try {
+      let imageUrl = formData.image_url
+
+      // Nếu user đã chọn file, upload file lên Cloudinary
+      if (imageFile) {
+        const uploadedUrl = await uploadToCloudinary(imageFile)
+        if (!uploadedUrl) {
+          alert("Image upload failed. Please try again.")
+          setLoading(false)
+          return
+        }
+        imageUrl = uploadedUrl
+      }
+
+      const foodData = {
+        name: formData.name,
+        description: formData.description,
+        price: Number.parseInt(formData.price),
+        stock_quantity: Number.parseInt(formData.stock_quantity),
+        image_url: imageUrl,
+        category: formData.category,
+        total_order: 0,
+      }
+
       await createProduct(foodData)
       alert("Food item added successfully!")
       navigate("/manager-food")
     } catch (error) {
+      console.error("Submit error:", error)
       alert("Failed to add food item. Please try again!")
     } finally {
       setLoading(false)
     }
   }
+
 
   const handleCancel = () => {
     if (Object.values(formData).some((value) => value !== "" && value !== "Active")) {
@@ -241,7 +276,7 @@ const ManagerAddFoodPage = ({ onSave }) => {
                   </div>
 
                   <div className="form-group">
-                    
+
                   </div>
                 </div>
               </div>

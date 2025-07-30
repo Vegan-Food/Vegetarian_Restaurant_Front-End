@@ -246,7 +246,7 @@ const OrderPage = () => {
                                 </Col>
                             </Row>
 
-                            <Form.Group className="mb-3">
+                            {/* <Form.Group className="mb-3">
                                 <Form.Label>Note</Form.Label>
                                 <Form.Control
                                     as="textarea"
@@ -256,7 +256,7 @@ const OrderPage = () => {
                                     rows={3}
                                     placeholder="Note for the dish (if any)"
                                 />
-                            </Form.Group>
+                            </Form.Group> */}
 
                             {/* Payment Methods Section */}
                             <div className="payment-methods mt-4">
