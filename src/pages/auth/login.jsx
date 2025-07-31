@@ -92,7 +92,7 @@ const Login = () => {
   };
 
   return (
-    <div style={{ background: appTheme.background, minHeight: '100vh' }}>
+    <div style={{ background: appTheme.background, minHeight: '100vh', zoom: 0.8 }}>
       <Header />
       <Container className="d-flex align-items-center" style={{ minHeight: '90vh' }}>
         <Row className="w-100 justify-content-center">

@@ -98,7 +98,7 @@ const SupportPage = () => {
   );
 
   return (
-    <div className="support-page">
+    <div className="support-page" style={{ zoom: 0.8 }}>
       <Header />
       <div className="support-content">
         <Container>

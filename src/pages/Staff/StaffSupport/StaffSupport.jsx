@@ -225,47 +225,6 @@ const StaffSupport = () => {
             </Col>
           </Row>
 
-
-          {/* Support Statistics */}
-          <Row className="mb-4">
-            <Col md={3}>
-              <Card className="h-100" style={{ backgroundColor: "#FFEBEE", border: "none" }}>
-                <Card.Body>
-                  <h3 className="mb-1">{openTickets}</h3>
-                  <p className="text-muted mb-0">Open Tickets</p>
-                  <small className="text-danger">Pending</small>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col md={3}>
-              <Card className="h-100" style={{ backgroundColor: "#FFF3E0", border: "none" }}>
-                <Card.Body>
-                  <h3 className="mb-1">{inProgressTickets}</h3>
-                  <p className="text-muted mb-0">In Progress</p>
-                  <small className="text-warning">Being handled</small>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col md={3}>
-              <Card className="h-100" style={{ backgroundColor: appTheme.secondary, border: "none" }}>
-                <Card.Body>
-                  <h3 className="mb-1">{resolvedTickets}</h3>
-                  <p className="text-muted mb-0">Resolved</p>
-                  <small className="text-success">Completed</small>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col md={3}>
-              <Card className="h-100" style={{ backgroundColor: "#E8F5E8", border: "none" }}>
-                <Card.Body>
-                  <h3 className="mb-1">{closedTickets}</h3>
-                  <p className="text-muted mb-0">Closed</p>
-                  <small className="text-secondary">Finished</small>
-                </Card.Body>
-              </Card>
-            </Col>
-          </Row>
-
           <Row className="mb-3">
             <Col md={3}>
               <InputGroup>

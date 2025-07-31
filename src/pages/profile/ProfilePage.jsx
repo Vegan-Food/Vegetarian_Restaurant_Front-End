@@ -218,7 +218,7 @@ const ProfilePage = () => {
     };
 
     return (
-        <div className="min-vh-100 d-flex flex-column" style={{ backgroundColor: '#FFFBE6' }}>
+        <div className="min-vh-100 d-flex flex-column" style={{ backgroundColor: '#FFFBE6', zoom: 0.8 }}>
             <Header />
             <Container className="flex-grow-1 py-4 mt-100">
                 <Row>

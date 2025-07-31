@@ -101,7 +101,7 @@ const BillPage = () => {
     };
 
     return (
-        <div className="bill-bg min-vh-100" style={{ backgroundColor: "#FFFBE6", paddingTop: 100 }}>
+        <div className="bill-bg min-vh-100" style={{ backgroundColor: "#FFFBE6", paddingTop: 100, zoom: 0.8 }}>
             <Header />
             <Container fluid className="py-5">
                

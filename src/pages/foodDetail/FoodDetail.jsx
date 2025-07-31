@@ -20,7 +20,7 @@ const FoodDetail = () => {
   }, [productId]); // Re-run when productId changes
 
   return (
-    <div className="food-detail-page" style={{ scrollBehavior: 'auto', backgroundColor: '#FFFBE6', minHeight: '100vh', paddingTop: '55px' }}>
+    <div className="food-detail-page" style={{ zoom: 0.8, scrollBehavior: 'auto', backgroundColor: '#FFFBE6', minHeight: '100vh', paddingTop: '55px' }}>
       <Header />
       <ProductDetails />
       <SimilarProducts />
