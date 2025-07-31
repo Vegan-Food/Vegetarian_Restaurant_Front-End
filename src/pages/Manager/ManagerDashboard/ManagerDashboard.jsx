@@ -122,10 +122,10 @@ setTopUsers(topConsumers)
       <ManagerSidebar />
       <div className="dashboard-main">
         {/* Header */}
-        <div className="dashboard-header">
+        {/* <div className="dashboard-header">
           <h2 className="dashboard-title">Vegan Food Analytics</h2>
           <p className="dashboard-subtitle">Tổng quan về doanh thu và hiệu suất bán hàng thực phẩm chay</p>
-        </div>
+        </div> */}
 
         {/* Doanh thu theo tháng */}
         <div className="chart-card revenue-card">

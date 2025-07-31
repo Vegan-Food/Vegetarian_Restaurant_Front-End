@@ -7,62 +7,10 @@ import Footer from '../../components/Footer';
 import { getBill } from '../../api/order';
 import './OrderDetail.css';
 
-const statusVariant = (status) => {
-  const statusLower = status.toLowerCase();
-
-  if (statusLower === 'pending') {
-    return {
-      variant: 'warning',
-      color: '#F9C74F',
-      text: 'Pending'
-    };
-  }
-
-  if (statusLower === 'paid') {
-    return {
-      variant: 'success',
-      color: '#28a745',
-      text: 'Paid'
-    };
-  }
-
-  if (statusLower === 'shipping') {
-    return {
-      variant: 'info',
-      color: '#90BE6D',
-      text: 'Shipping'
-    };
-  }
-
-  if (statusLower === 'delivered') {
-    return {
-      variant: 'primary',
-      color: '#6f42c1',
-      text: 'Delivered'
-    };
-  }
-
-  if (statusLower === 'cancelled') {
-    return {
-      variant: 'danger',
-      color: '#F94144',
-      text: 'Cancelled'
-    };
-  }
-
-  if (statusLower === 'completed') {
-    return {
-      variant: 'info',
-      color: '#6A4C93',
-      text: 'Completed'
-    };
-  }
-
-  // Default fallback
+const getStatusText = (status) => {
+  if (!status) return { text: 'N/A' };
   return {
-    variant: 'secondary',
-    color: '#6c757d',
-    text: status
+    text: status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()
   };
 };
 
@@ -141,18 +89,20 @@ const OrderDetail = () => {
                 <div className="order-title-wrapper">
                   <h2 className="order-detail-title">Order Detail</h2>
                   <div className="d-flex justify-content-center">
-                    <Badge
+                    <Badge 
+                      bg="secondary"
                       className="order-status-badge"
                       style={{
-                        backgroundColor: statusVariant(order.status).color,
+                        backgroundColor: '#6c757d',
                         color: '#fff',
                         padding: '0.5rem 1.5rem',
                         fontSize: '1rem',
                         minWidth: '120px',
-                        textAlign: 'center'
+                        textAlign: 'center',
+                        border: 'none'
                       }}
                     >
-                      {statusVariant(order.status).text}
+                      {getStatusText(order.status).text}
                     </Badge>
                   </div>
                 </div>

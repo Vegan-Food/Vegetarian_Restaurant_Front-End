@@ -1,31 +1,40 @@
-body, .order-detail-bg {
-  background: #FFFBE6;
-  font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+/* Đảm bảo các style cơ bản được áp dụng đúng */
+body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: #FFFBE6;
+  font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
 }
 
-.order-detail-bg {
+.order-detail-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+  background: #FFFBE6;
+}
+
+.order-detail-page .order-detail-bg {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
-.order-detail-card {
-  border-radius: 24px;
-  background: linear-gradient(120deg, #FFFFFF 90%, #FFFBE6);
-  border: 2px solid #FCCD2A;
-  box-shadow: 0 4px 20px rgba(52, 121, 40, 0.1);
-  max-width: 1000px;
-  width: 90%;
-  margin: 2rem auto;
-  padding: 1.5rem;
+.order-detail-page .order-detail-card {
+  border-radius: 20px;
+  background: #FFFBE6;
+  border: none;
+  box-shadow: 0 4px 24px rgba(52, 121, 40, 0.10);
+  max-width: 1300px;
+  width: 100%;
+  margin: 1.5rem auto;
+  padding: 2rem;
 }
 
-.order-detail-title {
+.order-detail-page .order-detail-title {
   color: #347928;
   font-weight: 800;
   font-size: 2rem;
@@ -38,7 +47,7 @@ body, .order-detail-bg {
   padding: 0 2rem 0.5rem;
 }
 
-.order-info {
+.order-detail-page .order-info {
   font-size: 1.1rem;
   color: #2c3e50;
   background: #f8f9fa;
@@ -50,17 +59,17 @@ body, .order-detail-bg {
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.order-info-table {
+.order-detail-page .order-info-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.order-info-table td {
+.order-detail-page .order-info-table td {
   padding: 10px 15px;
   vertical-align: middle;
 }
 
-.order-info-table .info-label {
+.order-detail-page .order-info-table .info-label {
   color: #198754; /* Green color for labels */
   font-weight: 500;
   white-space: nowrap;
@@ -68,7 +77,7 @@ body, .order-detail-bg {
   width: auto;
 }
 
-.order-info-table .info-value {
+.order-detail-page .order-info-table .info-value {
   color: #495057;
   padding-left: 5px; /* Added left padding instead of right */
   width: auto;
@@ -76,25 +85,23 @@ body, .order-detail-bg {
   display: inline-block; /* Keep value on same line as label */
 }
 
-/* Add border between rows */
-.order-info-table tr:not(:last-child) {
+.order-detail-page .order-info-table tr:not(:last-child) {
   border-bottom: 1px solid #e9ecef;
 }
 
-/* Responsive adjustments */
 @media (max-width: 768px) {
-  .order-info {
+  .order-detail-page .order-info {
     padding: 15px;
   }
   
-  .order-info-table .info-label,
-  .order-info-table .info-value {
+  .order-detail-page .order-info-table .info-label,
+  .order-detail-page .order-info-table .info-value {
     display: block;
     width: 100%;
     padding: 8px 0;
   }
   
-  .order-info-table td {
+  .order-detail-page .order-info-table td {
     display: block;
     width: 100%;
     padding: 4px 0;
@@ -163,19 +170,21 @@ body, .order-detail-bg {
 
 /* All styles scoped under .order-detail-page */
 .order-detail-page .order-detail-bg {
-  min-height: 100vh;
+  flex: 1;
   display: flex;
   flex-direction: column;
-  background-color: #f8f9fa;
+  background-color: #FFFBE6;
+  min-height: calc(100vh - 80px);
+  padding-top: 80px;
 }
 
 .order-detail-page .order-detail-container {
-  flex: 1;
   width: 100%;
-  max-width: 1200px;
+  max-width: 1300px;
   margin: 0 auto;
-  padding: 80px 20px 20px; /* Added more top padding */
+  padding: 0 20px 40px;
   box-sizing: border-box;
+  flex: 1;
 }
 
 /* Header Styles */
@@ -275,13 +284,20 @@ body, .order-detail-bg {
   width: 100%;
 }
 
-.total-breakdown .text-success {
-  color: #198754 !important;
+.order-detail-page .total-breakdown .text-success {
+  color: #198754;
   font-weight: 500;
 }
 
-.total-breakdown .text-muted {
-  color: #6c757d !important;
+/* Tăng độ ưu tiên cho text-success trong order-summary-total */
+.order-detail-page .total-breakdown .order-summary-total .text-success {
+  color: #198754;
+  font-size: 1.4rem;
+  text-align: right;
+}
+
+.order-detail-page .total-breakdown .text-muted {
+  color: #6c757d;
 }
 
 .total-breakdown hr {
@@ -355,25 +371,35 @@ body, .order-detail-bg {
   display: table;
   width: 100%;
   table-layout: fixed;
-  background: #347928 !important;
-  color: #FFFBE6 !important;
+  background: #347928;
+  color: #FFFBE6;
   position: sticky;
   top: 0;
   z-index: 10;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.order-detail-page .order-items-table thead tr th {
-  background-color: #347928 !important;
-  background: #347928 !important;
-  color: #FFFBE6 !important;
-  border: none !important;
-  border-bottom: 2px solid #FFFBE6 !important;
+.order-detail-page .order-detail-container .order-items-table thead tr th {
+  background-color: #347928;
+  background: #347928;
+  color: #FFFBE6;
+  border: none;
+  border-bottom: 2px solid #FFFBE6;
 }
 
 /* Override any Bootstrap styles for OrderDetail only */
-.order-detail-container .table > :not(caption) > * > * {
-  background-color: inherit !important;
+.order-detail-page .order-detail-container .order-items-table > :not(caption) > * > * {
+  background-color: inherit;
+}
+
+/* Đảm bảo các style cho bảng được áp dụng đúng */
+.order-detail-page .order-detail-container .order-items-table {
+  background-color: #fff;
+}
+
+.order-detail-page .order-detail-container .order-items-table thead tr th {
+  background-color: #347928;
+  color: #FFFBE6;
 }
 
 .order-detail-page .order-detail-container .order-items-table tbody {
@@ -397,7 +423,7 @@ body, .order-detail-bg {
   vertical-align: middle;
 }
 
-.order-items-table th {
+.order-detail-page .order-detail-container .order-items-table th {
   font-weight: 600;
   color: #FFFBE6;
   border-bottom: 2px solid #FFFBE6;
@@ -443,23 +469,23 @@ body, .order-detail-bg {
   font-weight: 500;
 }
 
-.order-items-table tbody tr:hover td {
+.order-detail-page .order-detail-container .order-items-table tbody tr:hover td {
   background: #C0EBA6;
 }
 
-.order-items-table .product-image-container {
+.order-detail-page .order-detail-container .order-items-table .product-image-container {
   width: 50px;
   height: 50px;
 }
 
-.order-items-table .product-image {
+.order-detail-page .order-detail-container .order-items-table .product-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
   border-radius: 8px;
 }
 
-.order-items-table td button {
+.order-detail-page .order-detail-container .order-items-table td button {
   border-radius: 12px;
   border: 2px solid #FCCD2A;
   color: #347928;
@@ -468,7 +494,7 @@ body, .order-detail-bg {
   padding: 6px 16px;
 }
 
-.order-items-table td button:hover {
+.order-detail-page .order-detail-container .order-items-table td button:hover {
   background: #FCCD2A;
   border-color: #347928;
   color: #347928;
@@ -522,7 +548,7 @@ body, .order-detail-bg {
   font-weight: 800;
 }
 
-button.btn-outline-success {
+.order-detail-page .btn-outline-success {
   border-radius: 12px;
   border: 2px solid #FCCD2A;
   color: #347928;
@@ -531,7 +557,7 @@ button.btn-outline-success {
   padding: 8px 20px;
 }
 
-button.btn-outline-success:hover {
+.order-detail-page .btn-outline-success:hover {
   background: #FCCD2A;
   border-color: #347928;
   color: #347928;

@@ -1,7 +1,8 @@
 "use client"
 
 import { Navbar, Nav, Container } from "react-bootstrap"
-import { useRef, useState } from "react" 
+import { useRef, useState, useEffect } from "react"
+import { getOrderList } from "../../../api/order" 
 import "./Navigation.css"
 
 const CATEGORY_ANCHORS = [
@@ -18,34 +19,48 @@ const CATEGORY_ANCHORS = [
 ]
 
 const Navigation = () => {
-  const [activeSection, setActiveSection] = useState("best-seller")
-  const isScrollingByClickRef = useRef(false)
-  const scrollTimeout = useRef(null)
+  const [activeSection, setActiveSection] = useState("best-seller");
+  const [hasPreviousOrders, setHasPreviousOrders] = useState(true);
+  const isScrollingByClickRef = useRef(false);
+  const scrollTimeout = useRef(null);
+
+  useEffect(() => {
+    const checkOrders = async () => {
+      try {
+        const orders = await getOrderList();
+        setHasPreviousOrders(orders && orders.length > 0);
+      } catch (error) {
+        console.error("Error checking for previous orders:", error);
+        setHasPreviousOrders(false); // On error, assume no orders and disable the link
+      }
+    };
+
+    checkOrders();
+  }, []);
 
   const handleNavClick = (e, id) => {
     e.preventDefault();
     const el = document.getElementById(id);
     if (!el) return;
-  
+
     isScrollingByClickRef.current = true;
     setActiveSection(id);
-  
+
     const offset = 150 + 50 + 10;
     const targetTop = el.getBoundingClientRect().top + window.scrollY;
     const finalScroll = targetTop - offset + 30;
-  
+
     window.scrollTo({
       top: finalScroll,
       behavior: 'smooth'
     });
-  
+
     if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
-  
+
     scrollTimeout.current = setTimeout(() => {
       isScrollingByClickRef.current = false;
     }, 800);
   };
-  
 
   return (
     <div className="navigation-wrapper">
@@ -54,22 +69,37 @@ const Navigation = () => {
           <Navbar.Toggle aria-controls="category-navbar-nav" />
           <Navbar.Collapse id="category-navbar-nav">
             <Nav className="w-100 justify-content-center align-items-center">
-              {CATEGORY_ANCHORS.map((item) => (
-                <Nav.Link
-                  key={item.id}
-                  href={item.href}
-                  className={`category-nav-item ${activeSection === item.id ? 'active' : ''}`}
-                  onClick={(e) => handleNavClick(e, item.id)}
-                >
-                  {item.name}
-                </Nav.Link>
-              ))}
+              {CATEGORY_ANCHORS.map((item) => {
+                const isPreviouslyOrdered = item.id === 'previously-ordered';
+                const isDisabled = isPreviouslyOrdered && !hasPreviousOrders;
+
+                const stylee = isDisabled
+                  ? { color: '#aaa', cursor: 'not-allowed', pointerEvents: 'none', fontWeight: 'normal' }
+                  : {};
+
+                return (
+                  <Nav.Link
+                    key={item.id}
+                    href={item.href}
+                    className={`category-nav-item ${activeSection === item.id ? 'active' : ''}`}
+                    onClick={(e) => {
+                      if (isDisabled) {
+                        e.preventDefault();
+                      }
+                      handleNavClick(e, item.id);
+                    }}
+                    style={stylee}
+                  >
+                    {item.name}
+                  </Nav.Link>
+                );
+              })}
             </Nav>
           </Navbar.Collapse>
         </Navbar>
       </Container>
     </div>
-  )
-}
+  );
+};
 
 export default Navigation

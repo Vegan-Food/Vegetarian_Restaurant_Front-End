@@ -225,62 +225,99 @@ const ManageStaff = () => {
       )}
 
       {isAddModalOpen && (
-        <div className="modal-backdrop">
+        <div className="modal-backdrop" onClick={(e) => e.target === e.currentTarget && setIsAddModalOpen(false)}>
           <div className="modal-box">
             <h2>Add New Employee</h2>
             <form onSubmit={handleAddEmployee}>
               <div className="form-group">
-                <label>Name</label>
-                <input value={newEmployee.name} onChange={e => setNewEmployee({ ...newEmployee, name: e.target.value })} required />
+                <label htmlFor="name">Name</label>
+                <input 
+                  id="name"
+                  type="text"
+                  value={newEmployee.name} 
+                  onChange={e => setNewEmployee({ ...newEmployee, name: e.target.value })} 
+                  placeholder="Enter full name"
+                  required 
+                />
               </div>
+              
               <div className="form-group">
-                <label>Email</label>
-                <input type="email" value={newEmployee.email} onChange={e => setNewEmployee({ ...newEmployee, email: e.target.value })} required />
+                <label htmlFor="email">Email</label>
+                <input 
+                  id="email"
+                  type="email" 
+                  value={newEmployee.email} 
+                  onChange={e => setNewEmployee({ ...newEmployee, email: e.target.value })} 
+                  placeholder="Enter email address"
+                  required 
+                />
               </div>
+              
               <div className="form-group">
-                <label>Password</label>
-                <input type="password" value={newEmployee.password} onChange={e => setNewEmployee({ ...newEmployee, password: e.target.value })} required />
+                <label htmlFor="password">Password</label>
+                <input 
+                  id="password"
+                  type="password" 
+                  value={newEmployee.password} 
+                  onChange={e => setNewEmployee({ ...newEmployee, password: e.target.value })} 
+                  placeholder="Create a strong password"
+                  minLength="6"
+                  required 
+                />
               </div>
-              <div className="form-group" style={{ marginBottom: 20 }}>
-                <label style={{ marginBottom: 6, fontWeight: 500 }}>Role</label>
+              
+              <div className="form-group">
+                <label htmlFor="role">Role</label>
                 <select
+                  id="role"
                   value={newEmployee.role}
                   onChange={e => setNewEmployee({ ...newEmployee, role: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    borderRadius: 8,
-                    border: '1px solid #d1d5db',
-                    fontSize: 16,
-                    background: '#f8fafc'
-                  }}
+                  required
                 >
+                  <option value="">Select a role</option>
                   <option value="manager">Manager</option>
                   <option value="staff">Staff</option>
                 </select>
               </div>
+              
               <div className="form-group">
-                <label>Phone Number</label>
-                <input value={newEmployee.phoneNumber} onChange={e => setNewEmployee({ ...newEmployee, phoneNumber: e.target.value })} />
+                <label htmlFor="phoneNumber">Phone Number</label>
+                <input 
+                  id="phoneNumber"
+                  type="tel"
+                  value={newEmployee.phoneNumber} 
+                  onChange={e => setNewEmployee({ ...newEmployee, phoneNumber: e.target.value })}
+                  placeholder="Enter phone number"
+                />
               </div>
+              
               <div className="form-group">
-                <label>Address</label>
-                <input value={newEmployee.address} onChange={e => setNewEmployee({ ...newEmployee, address: e.target.value })} />
+                <label htmlFor="address">Address</label>
+                <textarea
+                  id="address"
+                  value={newEmployee.address} 
+                  onChange={e => setNewEmployee({ ...newEmployee, address: e.target.value })}
+                  placeholder="Enter full address"
+                  rows="3"
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #d1d5db',
+                    fontSize: '0.9375rem',
+                    fontFamily: 'inherit',
+                    resize: 'vertical',
+                    minHeight: '44px',
+                    backgroundColor: '#f9fafb',
+                    transition: 'border-color 0.2s, box-shadow 0.2s'
+                  }}
+                />
               </div>
-              <div className="modal-actions center" style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 24 }}>
+              
+              <div className="modal-actions">
                 <button
                   type="button"
                   className="btn-modal-close"
-                  style={{
-                    background: '#2563eb',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: 8,
-                    padding: '10px 32px',
-                    fontWeight: 600,
-                    fontSize: 16,
-                    cursor: 'pointer'
-                  }}
                   onClick={() => setIsAddModalOpen(false)}
                 >
                   Cancel
@@ -288,18 +325,8 @@ const ManageStaff = () => {
                 <button
                   type="submit"
                   className="btn-modal-save"
-                  style={{
-                    background: '#347928',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: 8,
-                    padding: '10px 32px',
-                    fontWeight: 600,
-                    fontSize: 16,
-                    cursor: 'pointer'
-                  }}
                 >
-                  Add
+                  Add Employee
                 </button>
               </div>
             </form>

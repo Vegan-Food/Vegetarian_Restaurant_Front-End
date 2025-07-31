@@ -23,7 +23,7 @@ const ProductCard = ({ product }) => {
 
     try {
       const response = await axios.post(
-        `http://localhost:8080/api/cart/items/add?productId=${product.product_id}&quantity=1`,
+        `https://vegan-backend-server.onrender.com/api/cart/items/add?productId=${product.product_id}&quantity=1`,
         {},
         {
           headers: {

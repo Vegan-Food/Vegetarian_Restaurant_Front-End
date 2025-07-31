@@ -1,4 +1,4 @@
-export const BASE_URL = "http://localhost:8080";
+export const BASE_URL = "https://vegan-backend-server.onrender.com";
 
 export const get = async (endpoint) => {
     const token = localStorage.getItem('token');
