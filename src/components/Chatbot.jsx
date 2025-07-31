@@ -4,7 +4,7 @@ import { MessageCircle, Send, Bot, User } from 'lucide-react';
 import './Chatbot.css';
 import { getProducts, getBestsellerProducts } from '../api/product';
 
-const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
+const GEMINI_API_KEY = 'AIzaSyCaaYPKYiTeHXIHyU3OPHFWbCN8su3yL7E';
 
 async function callGeminiAPI(userInput, products, bestsellerProducts) {
   const productList = products.slice(0, 10).map(p => `${p.name}: ${p.description} - Price: ${p.price}₫ - Category: ${p.category}`).join('\n');

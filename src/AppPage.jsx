@@ -37,7 +37,7 @@ import Faq from './components/Faq';
 
 function App() {
   return (
-    <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+    <GoogleOAuthProvider clientId={'983246949849-9u867h45gdi8110iovgn6jdgmqmf120q.apps.googleusercontent.com'}>
       <CartProvider>
         <BrowserRouter>
           <CartAlert />
