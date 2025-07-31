@@ -107,7 +107,7 @@ const OrderPage = () => {
         return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     };
 
-    const shippingFee = 30000;
+    const shippingFee = 20000;
     const subtotal = calculateSubtotal();
     const total = subtotal + shippingFee;
 
