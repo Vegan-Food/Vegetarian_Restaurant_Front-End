@@ -41,7 +41,7 @@ const Header = () => {
   useEffect(() => {
     const fetchAllProducts = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/products')
+        const response = await axios.get('https://vegan-backend-server.onrender.com/api/products')
         setAllProducts(response.data)
       } catch (error) {
         console.error("Error fetching products:", error)

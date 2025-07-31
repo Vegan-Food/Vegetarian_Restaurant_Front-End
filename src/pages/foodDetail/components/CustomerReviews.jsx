@@ -6,8 +6,6 @@ import { useParams } from "react-router-dom";
 import { getProductReviews, submitReview } from "../../../api/feedback";
 import {
   Container,
-  Row,
-  Col,
   Button,
   Modal,
   Form,
@@ -22,6 +20,7 @@ const CustomerReviews = () => {
   const [showModal, setShowModal] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [showToast, setShowToast] = useState(false);
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastVariant, setToastVariant] = useState("success");
 
@@ -32,7 +31,11 @@ const CustomerReviews = () => {
     const fetchReviews = async () => {
       try {
         const reviewsData = await getProductReviews(productId);
-        setReviews(reviewsData || []);
+        // Sort reviews by date in descending order (newest first)
+        const sortedReviews = (reviewsData || []).sort((a, b) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        setReviews(sortedReviews);
       } catch (error) {
         console.error("Error fetching reviews:", error);
         setReviews([]);
@@ -80,15 +83,22 @@ const CustomerReviews = () => {
       await submitReview(payload);
       
       // Update UI on success
-      setToastMessage("✅ Review submitted successfully!");
-      setToastVariant("success");
-      setShowToast(true);
+      setToastMessage("Review submitted successfully!");
+      setShowSuccessAlert(true);
       setNewComment("");
       setShowModal(false);
 
-      // Refresh the reviews list
+      // Hide success message after 3 seconds
+      setTimeout(() => {
+        setShowSuccessAlert(false);
+      }, 3000);
+
+      // Refresh and sort the reviews list
       const refreshedReviews = await getProductReviews(productId);
-      setReviews(refreshedReviews || []);
+      const sortedReviews = (refreshedReviews || []).sort((a, b) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      setReviews(sortedReviews);
     } catch (error) {
       console.error("Error submitting review:", error);
       setToastMessage("❌ Failed to submit review.");
@@ -99,6 +109,31 @@ const CustomerReviews = () => {
 
   return (
     <section className="customer-reviews-section py-5 bg-light">
+      {/* Success Alert */}
+      {showSuccessAlert && (
+        <div 
+          className="position-fixed top-0 end-0 m-4 shadow-lg" 
+          style={{ 
+            zIndex: 1050,
+            backgroundColor: '#48BB78',
+            borderColor: '#48BB78',
+            color: '#2d3748',
+            border: 'none',
+            borderRadius: '12px',
+            padding: '16px 20px',
+            minWidth: '300px',
+            animation: 'slideInRight 0.3s ease'
+          }}
+        >
+          <div className="d-flex align-items-center">
+            <div className="me-3" style={{ color: '#347928', fontWeight: 'bold' }}>✓</div>
+            <div>
+              <strong style={{ color: '#347928' }}>Success!</strong>
+              <div className="mt-1">{toastMessage}</div>
+            </div>
+          </div>
+        </div>
+      )}
       <Container>
         {/* Section Header - Matching SimilarProducts style */}
         <div className="text-center mb-5">
@@ -248,7 +283,7 @@ const CustomerReviews = () => {
           </Form>
         </Modal>
 
-        {/* Toast Message */}
+        {/* Error Toast Message */}
         <ToastContainer position="bottom-end" className="p-3">
           <Toast
             bg={toastVariant}

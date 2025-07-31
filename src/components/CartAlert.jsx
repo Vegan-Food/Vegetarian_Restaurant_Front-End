@@ -10,13 +10,12 @@ const CartAlert = () => {
   if (!showAlert) return null;
 
   return (
-    <Alert 
-      variant="success" 
+    <div 
       className="cart-alert position-fixed top-0 end-0 m-4 shadow-lg" 
       style={{ 
         zIndex: 1050,
-        backgroundColor: '#FCCD2A',
-        borderColor: '#FCCD2A',
+        backgroundColor: '#48BB78',
+        borderColor: '#48BB78',
         color: '#2d3748',
         border: 'none',
         borderRadius: '12px',
@@ -32,7 +31,7 @@ const CartAlert = () => {
           <div className="mt-1">{alertMessage}</div>
         </div>
       </div>
-    </Alert>
+    </div>
   );
 };
 

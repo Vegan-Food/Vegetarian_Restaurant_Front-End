@@ -14,61 +14,9 @@ import Footer from '../../components/Footer';
 const PAGE_SIZE = 5;
 
 const statusVariant = (status) => {
-  const statusLower = status.toLowerCase();
-
-  if (statusLower === 'pending') {
-    return {
-      variant: 'warning',
-      color: '#FFA500',
-      text: 'Pending'
-    };
-  }
-
-  if (statusLower === 'paid') {
-    return {
-      variant: 'success',
-      color: '#28a745',
-      text: 'Paid'
-    };
-  }
-
-  if (statusLower === 'shipping') {
-    return {
-      variant: 'info',
-      color: '#90BE6D',
-      text: 'Shipping'
-    };
-  }
-
-  if (statusLower === 'delivered') {
-    return {
-      variant: 'primary',
-      color: '#6f42c1',
-      text: 'Delivered'
-    };
-  }
-
-  if (statusLower === 'cancelled') {
-    return {
-      variant: 'danger',
-      color: '#F94144',
-      text: 'Cancelled'
-    };
-  }
-
-  if (statusLower === 'completed') {
-    return {
-      variant: 'info',
-      color: '#6A4C93',
-      text: 'Completed'
-    };
-  }
-
-  // Default fallback
+  if (!status) return { text: 'N/A' };
   return {
-    variant: 'secondary',
-    color: '#6c757d',
-    text: status
+    text: status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()
   };
 };
 
@@ -335,13 +283,12 @@ const OrderHistory = () => {
   };
 
   return (
-    <div className="order-history-bg min-vh-100 d-flex flex-column">
+    <div className="order-history-bg">
       <Header />
-      <Container className="flex-grow-1 d-flex flex-column align-items-center justify-content-center py-5" style={{ marginTop: '80px' }}>
+      <Container className="flex-grow-1 d-flex flex-column align-items-center py-5" style={{ marginTop: '80px', flex: '1 0 auto' }}>
         <Card className="order-history-card-new p-4 w-100" style={{ maxWidth: 1300, borderRadius: 32 }}>
           <Card.Body>
             <h2 className="mb-4 text-center">
-              <ClockHistory className="me-2" />
               Order History
             </h2>
 
@@ -470,7 +417,7 @@ const OrderHistory = () => {
               <Table className="order-history-table align-middle text-center" bordered hover style={{ width: '100%', background: '#FFFBE6', minWidth: 1100 }}>
                 <thead>
                   <tr>
-                    <th className="rounded-top-left" style={{ minWidth: 70, padding: '18px 10px' }}>NO</th>
+                    <th style={{ minWidth: 70, padding: '18px 10px' }}>NO</th>
                     <th style={{ minWidth: 140, padding: '18px 18px' }}>
                       Order Time
                       <div className="date-format-hint">(mm/dd/yyyy)</div>
@@ -478,7 +425,7 @@ const OrderHistory = () => {
                     <th style={{ minWidth: 120, padding: '18px 18px' }}>Total</th>
                     <th style={{ minWidth: 120, padding: '18px 18px' }}>Status</th>
                     <th style={{ minWidth: 120, padding: '18px 18px' }}>Payment</th>
-                    <th className="rounded-top-right" style={{ minWidth: 90, padding: '18px 18px' }}>Details</th>
+                    <th style={{ minWidth: 90, padding: '18px 18px' }}>Details</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -496,13 +443,15 @@ const OrderHistory = () => {
                       <td style={{ padding: '16px 18px' }}><span className="fw-bold text-success">{formatCurrency(order.totalAmount)}</span></td>
                       <td style={{ padding: '16px 18px', textAlign: 'center' }}>
                         <Badge
+                          bg="secondary"
                           style={{
-                            backgroundColor: statusVariant(order.status).color,
-                            color: "#fff",
-                            padding: "0.5rem 1.5rem",
-                            fontSize: "1rem",
-                            minWidth: "120px",
-                            textAlign: "center",
+                            backgroundColor: '#6c757d',
+                            color: '#fff',
+                            padding: '0.5rem 1.5rem',
+                            fontSize: '1rem',
+                            minWidth: '120px',
+                            textAlign: 'center',
+                            border: 'none'
                           }}
                         >
                           {statusVariant(order.status).text}

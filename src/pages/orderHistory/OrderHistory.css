@@ -1,6 +1,20 @@
+/* Main container */
 .order-history-bg {
   background-color: #FFFBE6;
-  padding: 1.5rem 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure content takes up available space */
+.order-history-bg > .container {
+  flex: 1 0 auto;
+  padding-bottom: 2rem;
+}
+
+/* Footer styles */
+.order-history-bg + footer {
+  flex-shrink: 0;
 }
 
 /* Filter Card Styles */
@@ -161,10 +175,18 @@
   }
 }
 
+/* Giữ nguyên border-radius nhưng không dùng !important */
 .order-history-card,
 .order-history-card-new,
 .order-filter-card {
-  border-radius: 0 !important;
+  border-radius: 0;
+}
+
+/* Thêm selector cụ thể hơn nếu cần */
+.order-history-page .order-history-card,
+.order-history-page .order-history-card-new,
+.order-history-page .order-filter-card {
+  border-radius: 0;
 }
 
 .order-history-card {
@@ -184,16 +206,22 @@
   font-size: 2.1rem;
 }
 
+/* Đảm bảo border-radius của bảng giữ nguyên */
+.order-history-page .order-history-table,
+.order-history-page .order-history-table thead th,
+.order-history-page .order-history-table tbody td,
+.order-history-page .rounded-top-left,
+.order-history-page .rounded-top-right,
 .order-history-table,
-.order-history-table th,
-.order-history-table td,
+.order-history-table thead th,
+.order-history-table tbody td,
 .rounded-top-left,
 .rounded-top-right {
-  border-radius: 0 !important;
+  border-radius: 0;
 }
 
 .order-history-table {
-  border-radius: 20px;
+  border-radius: 0 0 20px 20px; /* Only round bottom corners */
   overflow: hidden;
   box-shadow: 0 4px 24px rgba(52, 121, 40, 0.10);
   background: #FFFBE6;
@@ -201,15 +229,21 @@
   transition: box-shadow 0.2s;
 }
 
-.order-history-table th, .order-history-table td {
-  vertical-align: middle !important;
+/* Đảm bảo canh giữa ô bảng */
+.order-history-page .order-history-table thead th,
+.order-history-page .order-history-table tbody td,
+.order-history-table thead th,
+.order-history-table tbody td {
+  vertical-align: middle;
   text-align: center;
   padding-top: 14px;
   padding-bottom: 14px;
 }
-.order-history-table th {
-  background: #347928 !important;
-  color: #FFFBE6 !important;
+/* Đảm bảo kiểu dáng tiêu đề bảng giữ nguyên */
+.order-history-page .order-history-table thead th,
+.order-history-table thead th {
+  background: #347928;
+  color: #FFFBE6;
   font-weight: 700;
   text-transform: uppercase;
   font-size: 1.22rem; /* Slightly larger font */
@@ -224,10 +258,13 @@
   z-index: 10;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
+  border-radius: 0 !important; /* Ensure no rounded corners */
 }
 
-.order-history-table th:hover {
-  background: #2d6a23 !important;
+/* Đảm bảo hover cho tiêu đề bảng giữ nguyên */
+.order-history-page .order-history-table thead th:hover,
+.order-history-table thead th:hover {
+  background: #2d6a23;
 }
 
 .order-history-table td {
@@ -247,10 +284,12 @@
   transition: background 0.2s, box-shadow 0.2s;
 }
 
+/* Đảm bảo kiểu dáng badge trạng thái giữ nguyên */
+.order-history-page .order-status-badge,
 .order-status-badge {
-  padding: 10px 22px !important;
-  font-size: 1.05rem !important;
-  border-radius: 18px !important;
+  padding: 10px 22px;
+  font-size: 1.05rem;
+  border-radius: 18px;
   min-width: 130px;
   display: inline-block;
   text-align: center;
@@ -259,20 +298,26 @@
   box-sizing: border-box;
   box-shadow: 0 2px 10px #34792822;
 }
+/* Đảm bảo màu sắc badge thành công giữ nguyên */
+.order-history-page .order-status-badge.bg-success,
 .order-status-badge.bg-success {
-  background-color: #347928 !important;
-  color: #FFFBE6 !important;
+  background-color: #347928;
+  color: #FFFBE6;
   font-weight: 700;
   letter-spacing: 0.5px;
 }
+/* Đảm bảo màu sắc badge cảnh báo giữ nguyên */
+.order-history-page .order-status-badge.bg-warning,
 .order-status-badge.bg-warning {
-  background-color: #FCCD2A !important;
-  color: #347928 !important;
+  background-color: #FCCD2A;
+  color: #347928;
   font-weight: 700;
 }
+/* Đảm bảo màu sắc badge nguy hiểm giữ nguyên */
+.order-history-page .order-status-badge.bg-danger,
 .order-status-badge.bg-danger {
-  background-color: #ff4d4f !important;
-  color: #FFFBE6 !important;
+  background-color: #ff4d4f;
+  color: #FFFBE6;
   font-weight: 700;
 }
 
@@ -374,21 +419,25 @@ button.btn-outline-success.rounded-circle {
   text-align: center;
   letter-spacing: 0.2px;
 }
-.filter-input {
-  background: #fff !important;
-  border-radius: 20px !important;
-  border: 1.5px solid #A3D977 !important;
-  padding: 8px 18px !important;
+/* Đảm bảo kiểu dáng ô input lọc giữ nguyên */
+.order-history-page .filter-card .filter-input,
+.filter-card .filter-input {
+  background: #fff;
+  border-radius: 20px;
+  border: 1.5px solid #A3D977;
+  padding: 8px 18px;
   font-size: 1.04rem;
   color: #25691b;
-  box-shadow: none !important;
+  box-shadow: none;
   transition: border-color 0.2s;
   min-width: 120px;
   text-align: center;
 }
-.filter-input:focus {
-  border-color: #347928 !important;
-  outline: none !important;
+/* Đảm bảo trạng thái focus của input giữ nguyên */
+.order-history-page .filter-card .filter-input:focus,
+.filter-card .filter-input:focus {
+  border-color: #347928;
+  outline: none;
   box-shadow: 0 0 0 2px #C0EBA6;
 }
 .filter-arrow {
@@ -465,11 +514,17 @@ button.btn-outline-success.rounded-circle {
   box-shadow: none;
 }
 
+.order-history-table th {
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
 .order-history-table th.rounded-top-left {
-  border-top-left-radius: 18px !important;
+  border-top-left-radius: 0 !important;
 }
 .order-history-table th.rounded-top-right {
-  border-top-right-radius: 18px !important;
+  border-top-right-radius: 0 !important;
 }
 .order-history-table th.rounded-top-left, .order-history-table td.rounded-cell-left {
   border-top-left-radius: 18px;

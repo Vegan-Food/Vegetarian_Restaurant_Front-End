@@ -34,7 +34,11 @@ const StaffFoodDetail = () => {
       try {
         const data = await feedBack(id)
         console.log("Feedbacks:", data)
-        setFeedbacks(data)
+        // Sort feedback by date in descending order (newest first)
+        const sortedFeedbacks = (data || []).sort((a, b) => 
+          new Date(b.createdAt) - new Date(a.createdAt)
+        )
+        setFeedbacks(sortedFeedbacks)
       } catch (err) {
         setFeedbacks([])
       }

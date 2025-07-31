@@ -60,12 +60,12 @@ const ManageCustomers = () => {
       <div className="dashboard-content main-content">
         <div className="manage-customers">
           {/* Add Customer Button */}
-          <div className="page-actions">
+          {/* <div className="page-actions">
             <button className="add-btn">
               <span className="add-icon">➕</span>
               Add Customer
             </button>
-          </div>
+          </div> */}
 
           {/* Search */}
           <div className="search-card">

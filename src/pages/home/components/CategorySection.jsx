@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import axios from "axios";
 import { Container, Row, Col, Button, Spinner } from "react-bootstrap";
-import { Package, Badge, Sparkles, Award } from "lucide-react";
-import { getProducts } from "../../../api/product";
 import ProductCard from "../../../components/ProductCard";
 import "./CategorySection.css";
 
@@ -38,8 +37,8 @@ const CategorySection = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await getProducts();
-        setProducts(response);
+        const response = await axios.get("https://vegan-backend-server.onrender.com/api/products"); // URL API thật của bạn
+        setProducts(response.data);
       } catch (error) {
         console.error("Failed to fetch products:", error);
       } finally {
@@ -76,19 +75,6 @@ const CategorySection = () => {
 
   return (
     <div className="category-section">
-      {/* Section Header */}
-      <div className="category-main-header">
-        <h2 className="category-main-title">
-          <span className="title-explore">Explore Our</span>
-          <br />
-          <span className="title-menu">Full Menu</span>
-        </h2>
-
-        <p className="category-main-subtitle">
-          Browse through our carefully curated categories of delicious vegan dishes, each crafted with love and the
-          finest ingredients
-        </p>
-      </div>
       <Container>
         {CATEGORY_LIST.map((category) => {
           const allProducts = products.filter((p) => p.category === category);

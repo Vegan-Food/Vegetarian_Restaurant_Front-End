@@ -122,17 +122,17 @@ setTopUsers(topConsumers)
       <ManagerSidebar />
       <div className="dashboard-main">
         {/* Header */}
-        <div className="dashboard-header">
+        {/* <div className="dashboard-header">
           <h2 className="dashboard-title">Vegan Food Analytics</h2>
           <p className="dashboard-subtitle">Tổng quan về doanh thu và hiệu suất bán hàng thực phẩm chay</p>
-        </div>
+        </div> */}
 
         {/* Doanh thu theo tháng */}
         <div className="chart-card revenue-card">
           <div className="card-accent revenue-accent"></div>
           <h3 className="chart-title">
             <span className="title-dot revenue-dot"></span>
-            Doanh thu theo tháng
+            Monthly Revenue
           </h3>
           <div className="chart-container revenue-container">
             <ResponsiveContainer width="100%" height={350}>
@@ -146,8 +146,8 @@ setTopUsers(topConsumers)
                 <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 12, fill: "#4a5568", fontWeight: "500" }} />
                 <Tooltip content={<CustomTooltip />} />
                 <Legend wrapperStyle={{ paddingTop: "20px", fontSize: "14px", fontWeight: "500" }} />
-                <Bar dataKey="totalRevenue" fill="url(#revenueGradient)" name="Doanh thu (VNĐ)" radius={[6, 6, 0, 0]} />
-                <Bar dataKey="orderCount" fill="url(#orderGradient)" name="Số đơn" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="totalRevenue" fill="url(#revenueGradient)" name="Revenue (VNĐ)" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="orderCount" fill="url(#orderGradient)" name="Order Count" radius={[6, 6, 0, 0]} />
                 <defs>
                   <linearGradient id="revenueGradient" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#48bb78" />
@@ -169,7 +169,7 @@ setTopUsers(topConsumers)
           <div className="card-accent products-accent"></div>
           <h3 className="chart-title">
             <span className="title-dot products-dot"></span>
-            Top 5 món chay bán chạy nhất
+            Top 5 Bestseller Products
           </h3>
           <div className="chart-container products-container">
             <ResponsiveContainer width="100%" height={350}>
