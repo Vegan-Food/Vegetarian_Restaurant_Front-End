@@ -15,7 +15,7 @@ const ProductCard = ({ product }) => {
   const handleAddToCart = async (e) => {
     e.stopPropagation()
     const token = localStorage.getItem("token")
-    
+
     if (!token) {
       alert("❌ You must be logged in to add products to the cart.")
       return
@@ -79,20 +79,13 @@ const ProductCard = ({ product }) => {
         {/* Stock & Sold */}
         <div className="d-flex align-items-center mb-3" style={{ fontWeight: 600 }}>
           <div className="d-flex align-items-center" style={{ flex: 1 }}>
-            <span style={{ color: '#347928', fontWeight: 700, fontSize: '1rem' }}>
-              In stock: {product.stock_quantity || 0}
-            </span>
+            <h6 className="text-danger fw-bold mb-0">
+              {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(product.price)}
+            </h6>
           </div>
           <div className="text-end" style={{ flex: 1, color: '#6c757d', fontWeight: 650, fontSize: '1rem' }}>
             {product.total_order} sold
           </div>
-        </div>
-
-        {/* Price */}
-        <div className="mb-3">
-          <h6 className="text-danger fw-bold mb-0">
-            {new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(product.price)}
-          </h6>
         </div>
 
         {/* Description */}

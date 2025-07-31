@@ -9,7 +9,6 @@ import BestsellerSection from "./components/BestsellerSection"
 import PreviouslyOrderedSection from "./components/PreviouslyOrderedSection"
 import CategorySection from "./components/CategorySection"
 import Footer from "../../components/Footer"
-import CartAlert from "../../components/CartAlert"
 import Chatbot from '../../components/Chatbot';
 import SuggestFoodFollowBody from '../suggest_food/SuggestFoodFollowBody';
 
@@ -49,7 +48,6 @@ const Home = () => {
       <PreviouslyOrderedSection />
       <CategorySection />
       <Footer />
-      <CartAlert />
     </div>
   )
 }
