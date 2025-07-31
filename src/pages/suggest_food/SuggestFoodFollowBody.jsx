@@ -5,7 +5,7 @@ import { Heart, Activity } from 'lucide-react';
 import './SuggestFoodFollowBody.css';
 import { getProducts } from '../../api/product';
 
-const GEMINI_API_KEY = process.env.REACT_APP_GEMINI_API_KEY;
+const GEMINI_API_KEY = 'AIzaSyCaaYPKYiTeHXIHyU3OPHFWbCN8su3yL7E';
 
 async function callGeminiForFoodSuggestion(userInfo, products, currentTime) {
   const productList = products.map(p => `ID: ${p.product_id} - ${p.name}: ${p.description} - Price: ${p.price}₫ - Category: ${p.category}`).join('\n');

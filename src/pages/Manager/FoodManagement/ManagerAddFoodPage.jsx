@@ -91,7 +91,7 @@ const ManagerAddFoodPage = ({ onSave }) => {
     return Object.keys(newErrors).length === 0
   }
 
-  const CLOUDINARY = process.env.REACT_APP_CLOUDINARY;
+  const CLOUDINARY = 'dtzndkuo9';
   const uploadToCloudinary = async (file) => {
     const formData = new FormData()
     formData.append("file", file)
