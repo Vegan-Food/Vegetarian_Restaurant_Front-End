@@ -1,50 +1,96 @@
-"use client"
-
-import { useState, useEffect } from "react"
-import { Container, Row, Col, Card, Badge, Table } from "react-bootstrap"
-import { appTheme } from "../../../constant/color_constants"
-import StaffSidebar from "../StaffSidebar/StaffSidebar"
-import { useNavigate } from "react-router-dom"
+import React, { useState, useEffect } from "react";
+import { Container, Row, Col, Card, Badge, Table, Spinner, Alert } from "react-bootstrap";
+import { appTheme } from "../../../constant/color_constants";
+import StaffSidebar from "../StaffSidebar/StaffSidebar";
+import { useNavigate } from "react-router-dom";
+import { getOrder } from "../../../api/order";
+import { getProducts } from "../../../api/product";
+import PieChartGeneral from "./PieChartGeneral";
+import LineChartOrderByDate from "./LineChartOrderByDate";
+import TimeGranularityOrderChart from "./TimeGranularityOrderChart";
+import RevenueBarChart from "./RevenueBarChart";
+import OrderStatusPieChart from "./OrderStatusPieChart";
 
 const StaffDashboard = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const [recentOrders, setRecentOrders] = useState([]);
+  const [dashboardData, setDashboardData] = useState({
+    assignedOrders: 0,
+    completedToday: 0,
+    pendingOrders: 0,
+    customerSupport: 0
+  });
+  const [products, setProducts] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+  const [errorProducts, setErrorProducts] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const token = localStorage.getItem("token")
-    const user = localStorage.getItem("user")
-    if (!token || !user) {
-      navigate("/login")
-      return
+    const token = localStorage.getItem("token");
+    const userJson = localStorage.getItem("user");
+    if (!token || !userJson) {
+      navigate("/login");
+      return;
     }
-    const { role } = JSON.parse(user)
+
+    const { role } = JSON.parse(userJson);
     if (role !== "staff") {
-      navigate("/")
+      navigate("/");
+      return;
     }
-  }, [navigate])
 
-  const [dashboardData, setDashboardData] = useState({
-    assignedOrders: 12,
-    completedToday: 8,
-    pendingOrders: 4,
-    customerSupport: 3,
-  })
+    const fetchStaffOrders = async () => {
+      try {
+        const orders = await getOrder(); // getOrder đã dùng fetch, trả về promise
+        if (Array.isArray(orders)) {
+          setRecentOrders(orders);
+          const pending = orders.filter(o => o.status === "Pending").length;
+          const completed = orders.filter(o =>
+            o.status === "Delivered" || o.status === "Completed"
+          ).length;
+          setDashboardData({
+            assignedOrders: orders.length,
+            pendingOrders: pending,
+            completedToday: completed,
+            customerSupport: 0
+          });
+        } else {
+          setError("Invalid response format");
+        }
+      } catch (err) {
+        setError("Failed to load orders. Please check your token or network.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStaffOrders();
 
-  const [recentOrders, setRecentOrders] = useState([
-    { id: "#ORD001", customer: "Nguyen Van A", items: "Beef Pho, Fish Cake", status: "Preparing", amount: "150,000đ" },
-    { id: "#ORD002", customer: "Tran Thi B", items: "Grilled Pork, Spring Rolls", status: "Ready", amount: "100,000đ" },
-    { id: "#ORD003", customer: "Le Van C", items: "Chicken Pho, Fish Cake", status: "Delivering", amount: "130,000đ" },
-    { id: "#ORD004", customer: "Pham Thi D", items: "Grilled Pork", status: "Pending", amount: "55,000đ" },
-  ])
+    const fetchProducts = async () => {
+      setLoadingProducts(true);
+      try {
+        const res = await getProducts();
+        setProducts(Array.isArray(res) ? res : []);
+      } catch (err) {
+        setErrorProducts("Failed to load menu items");
+      } finally {
+        setLoadingProducts(false);
+      }
+    };
+    fetchProducts();
+  }, [navigate]);
 
-  const getStatusBadge = (status) => {
-    const statusColors = {
+  const getStatusBadge = status => {
+    const color = {
       Preparing: "warning",
       Ready: "success",
       Delivering: "info",
       Pending: "secondary",
-    }
-    return <Badge bg={statusColors[status]}>{status}</Badge>
-  }
+      Completed: "primary",
+      Delivered: "success"
+    }[status] || "dark";
+    return <Badge bg={color}>{status}</Badge>;
+  };
 
   return (
     <div className="dashboard-container">
@@ -58,80 +104,69 @@ const StaffDashboard = () => {
             </Col>
           </Row>
 
-          {/* Statistics Cards */}
+          {/* Pie Chart: Quantity of dishes by category */}
           <Row className="mb-4">
-            <Col md={3}>
-              <Card className="h-100" style={{ backgroundColor: "#E3F2FD", border: "none" }}>
+            <Col md={6}>
+              <Card className="h-100">
                 <Card.Body>
-                  <h3 className="mb-1">{dashboardData.assignedOrders}</h3>
-                  <p className="text-muted mb-0">Assigned Orders</p>
-                  <small className="text-success">Today's assignments</small>
+                  {loadingProducts ? (
+                    <Spinner animation="border" />
+                  ) : errorProducts ? (
+                    <Alert variant="danger">{errorProducts}</Alert>
+                  ) : (
+                    <PieChartGeneral
+                      title="Quantity of dishes by category"
+                      data={Object.entries(
+                        products.reduce((acc, p) => {
+                          acc[p.category] = (acc[p.category] || 0) + 1;
+                          return acc;
+                        }, {})
+                      ).map(([name, value]) => ({ name, value }))}
+                    />
+                  )}
                 </Card.Body>
               </Card>
             </Col>
-            <Col md={3}>
-              <Card className="h-100" style={{ backgroundColor: appTheme.secondary, border: "none" }}>
+
+            {/* Pie Chart: Order Status Ratio */}
+            <Col md={6}>
+              <Card className="h-100">
                 <Card.Body>
-                  <h3 className="mb-1">{dashboardData.completedToday}</h3>
-                  <p className="text-muted mb-0">Completed Today</p>
-                  <small className="text-success">+2 from yesterday</small>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col md={3}>
-              <Card className="h-100" style={{ backgroundColor: "#FFF3E0", border: "none" }}>
-                <Card.Body>
-                  <h3 className="mb-1">{dashboardData.pendingOrders}</h3>
-                  <p className="text-muted mb-0">Pending Orders</p>
-                  <small className="text-warning">Needs attention</small>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col md={3}>
-              <Card className="h-100" style={{ backgroundColor: "#F3E5F5", border: "none" }}>
-                <Card.Body>
-                  <h3 className="mb-1">{dashboardData.customerSupport}</h3>
-                  <p className="text-muted mb-0">Support Requests</p>
-                  <small className="text-info">Active tickets</small>
+                  <OrderStatusPieChart 
+                    recentOrders={recentOrders}
+                    loading={loading}
+                    error={error}
+                  />
                 </Card.Body>
               </Card>
             </Col>
           </Row>
 
-          {/* Recent Orders */}
-          <Row>
-            <Col>
-              <Card>
-                <Card.Header style={{ backgroundColor: appTheme.primary, color: "white" }}>
-                  <h5 className="mb-0">My Assigned Orders</h5>
-                </Card.Header>
+          {/* Line Chart: Number of Orders Over Time (with filter) */}
+          <Row className="mb-4">
+            <Col md={12}>
+              <Card className="h-100">
                 <Card.Body>
-                  <Table responsive hover>
-                    <thead>
-                      <tr>
-                        <th>Order ID</th>
-                        <th>Customer</th>
-                        <th>Items</th>
-                        <th>Status</th>
-                        <th>Amount</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {recentOrders.map((order, index) => (
-                        <tr key={index}>
-                          <td>
-                            <strong>{order.id}</strong>
-                          </td>
-                          <td>{order.customer}</td>
-                          <td>{order.items}</td>
-                          <td>{getStatusBadge(order.status)}</td>
-                          <td>
-                            <strong>{order.amount}</strong>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </Table>
+                  <TimeGranularityOrderChart
+                    recentOrders={recentOrders}
+                    loading={loading}
+                    error={error}
+                  />
+                </Card.Body>
+              </Card>
+            </Col>
+          </Row>
+
+          {/* Bar Chart: Revenue by Day/Month/Year */}
+          <Row className="mb-4">
+            <Col md={12}>
+              <Card className="h-100">
+                <Card.Body>
+                  <RevenueBarChart
+                    recentOrders={recentOrders}
+                    loading={loading}
+                    error={error}
+                  />
                 </Card.Body>
               </Card>
             </Col>
@@ -139,7 +174,7 @@ const StaffDashboard = () => {
         </Container>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default StaffDashboard
+export default StaffDashboard;

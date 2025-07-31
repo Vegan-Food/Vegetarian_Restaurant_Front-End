@@ -132,7 +132,7 @@ const CartPage = () => {
   const showScroll = cartItems.length > 5;
   
   return (
-    <div className="cart-page">
+    <div className="cart-page" style={{ zoom: 0.8 }}>
       <Header />
       <Carousel />
       <main className="cart-container">

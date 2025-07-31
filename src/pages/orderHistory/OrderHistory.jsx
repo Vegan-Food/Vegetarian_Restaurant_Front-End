@@ -283,7 +283,7 @@ const OrderHistory = () => {
   };
 
   return (
-    <div className="order-history-bg">
+    <div className="order-history-bg" style={{ zoom: 0.8 }}>
       <Header />
       <Container className="flex-grow-1 d-flex flex-column align-items-center py-5" style={{ marginTop: '80px', flex: '1 0 auto' }}>
         <Card className="order-history-card-new p-4 w-100" style={{ maxWidth: 1300, borderRadius: 32 }}>
