@@ -108,7 +108,7 @@ const ManagerOrderList = () => {
         </div>
 
         <div className="order-filters">
-          {["all", "pending", "preparing", "shipped", "delivered", "cancelled"].map((status) => (
+          {["all", "pending", "paid", "shipped", "delivered", "cancelled"].map((status) => (
             <button
               key={status}
               className={`filter-btn ${activeFilter === status ? "active" : ""}`}
@@ -198,8 +198,7 @@ const ManagerOrderList = () => {
             <div className="modal-content details-modal" onClick={e => e.stopPropagation()}>
               <div className="modal-header">
                 <div className="header-info">
-                  <h4>Order Details</h4>
-                  <span className="order-id-badge">#{selectedOrder.orderId}</span>
+                  <h4 className="text-white">Order Details</h4>
                 </div>
                 <button className="close-btn" onClick={() => setSelectedOrder(null)}>
                   ×
@@ -309,8 +308,7 @@ const ManagerOrderList = () => {
             <div className="modal-content update-modal" onClick={e => e.stopPropagation()}>
               <div className="modal-header">
                 <div className="header-info">
-                  <h4>Update Order Status</h4>
-                  <span className="order-id-badge">#{orderToUpdate?.orderId || ""}</span>
+                  <h4 className="text-white">Update Order Status</h4>
                 </div>
                 <button className="close-btn" onClick={() => setOrderToUpdate(null)}>
                   ×

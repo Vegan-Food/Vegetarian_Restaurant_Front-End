@@ -162,6 +162,10 @@ body {
   color: #f97316;
 }
 
+.mini-stat-label.color-purple {
+  color: #7c3aed;
+}
+
 .mini-stat-label.color-red {
   color: #ef4444;
 }
@@ -369,21 +373,28 @@ align-items: center;
   text-transform: capitalize;
 }
 
-.status-badge.status-completed {
-  background: #ecfdf5;
-  color: #065f46;
-  border: 1px solid #d1fae5;
-}
-
 .status-badge.status-pending {
   background: #fff7ed;
   color: #9a3412;
   border: 1px solid #fed7aa;
 }
-.status-badge.status-progress {
+
+.status-badge.status-paid {
+  background: #f3e8ff;
+  color: #7c3aed;
+  border: 1px solid #ddd6fe;
+}
+
+.status-badge.status-shipped {
   background: #eff6ff;
   color: #1e40af;
   border: 1px solid #dbeafe;
+}
+
+.status-badge.status-delivered {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #d1fae5;
 }
 
 .status-badge.status-cancelled {

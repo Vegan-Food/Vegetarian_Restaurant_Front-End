@@ -109,7 +109,7 @@ const Header = () => {
             </div>
             <div className="hotline-content">
               <div className="hotline-number">1900-6066</div>
-              <div className="hotline-text">Fast delivery 24/7</div>
+              <div className="hotline-text">Fast delivery</div>
             </div>
           </div>
 
@@ -132,12 +132,6 @@ const Header = () => {
                 >
                   <Search size={30} />
                 </Button>
-                {/* <Button
-                  className="faq-btn ms-2"
-                  onClick={() => navigate("/faq")}
-                >
-                  FAQ
-                </Button> */}
               </InputGroup>
             </Form>
 

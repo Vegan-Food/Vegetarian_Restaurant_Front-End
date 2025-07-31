@@ -8,10 +8,30 @@ import { getBill } from '../../api/order';
 import './OrderDetail.css';
 
 const getStatusText = (status) => {
-  if (!status) return { text: 'N/A' };
-  return {
-    text: status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()
-  };
+  if (!status) return { text: 'N/A', variant: 'secondary', className: 'status-unknown' };
+  
+  const statusLower = status.toLowerCase();
+  switch (statusLower) {
+    case 'pending':
+      return { text: 'Pending', variant: 'warning', className: 'status-pending' };
+    case 'paid':
+      return { text: 'Paid', variant: 'info', className: 'status-paid' };
+    case 'shipping':
+    case 'shipped':
+      return { text: 'Shipping', variant: 'primary', className: 'status-shipping' };
+    case 'delivered':
+      return { text: 'Delivered', variant: 'success', className: 'status-delivered' };
+    case 'cancelled':
+      return { text: 'Cancelled', variant: 'danger', className: 'status-cancelled' };
+    case 'completed':
+      return { text: 'Completed', variant: 'success', className: 'status-completed' };
+    default:
+      return { 
+        text: status.charAt(0).toUpperCase() + status.slice(1).toLowerCase(), 
+        variant: 'secondary', 
+        className: 'status-default' 
+      };
+  }
 };
 
 function formatCurrency(amount) {
@@ -90,16 +110,16 @@ const OrderDetail = () => {
                   <h2 className="order-detail-title">Order Detail</h2>
                   <div className="d-flex justify-content-center">
                     <Badge 
-                      bg="secondary"
-                      className="order-status-badge"
+                      bg={getStatusText(order.status).variant}
+                      className={`order-status-badge status-badge ${getStatusText(order.status).className}`}
                       style={{
-                        backgroundColor: '#6c757d',
-                        color: '#fff',
                         padding: '0.5rem 1.5rem',
                         fontSize: '1rem',
                         minWidth: '120px',
                         textAlign: 'center',
-                        border: 'none'
+                        border: 'none',
+                        fontWeight: '600',
+                        borderRadius: '20px'
                       }}
                     >
                       {getStatusText(order.status).text}

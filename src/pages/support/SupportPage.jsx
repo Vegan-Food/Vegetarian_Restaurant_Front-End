@@ -72,7 +72,7 @@ const SupportPage = () => {
   const getStatusIcon = (status) => {
     switch (status) {
       case 'open': return <AlertCircle size={16} className="text-warning" />;
-      case 'in_progress': return <Clock size={16} className="text-info" />;
+      case 'pending': return <Clock size={16} className="text-info" />;
       case 'closed': return <CheckCircle size={16} className="text-success" />;
       default: return <XCircle size={16} className="text-danger" />;
     }
@@ -80,10 +80,10 @@ const SupportPage = () => {
 
   const getStatusText = (status) => {
     switch (status) {
-      case 'open': return 'Chờ xử lý';
-      case 'in_progress': return 'Đang xử lý';
-      case 'closed': return 'Đã hoàn thành';
-      default: return 'Không xác định';
+      case 'open': return 'Open';
+      case 'pending': return 'Pending';
+      case 'closed': return 'Closed';
+      default: return 'Unknown';
     }
   };
 
@@ -190,22 +190,22 @@ const SupportPage = () => {
                         onClick={() => setFilter('open')}
                         className="me-2"
                       >
-                        Pending
+                        Open
                       </Button>
                       <Button
-                        variant={filter === 'in_progress' ? 'success' : 'outline-success'}
+                        variant={filter === 'pending' ? 'success' : 'outline-success'}
                         size="sm"
-                        onClick={() => setFilter('in_progress')}
+                        onClick={() => setFilter('pending')}
                         className="me-2"
                       >
-                        In Progress
+                        Pending
                       </Button>
                       <Button
                         variant={filter === 'closed' ? 'success' : 'outline-success'}
                         size="sm"
                         onClick={() => setFilter('closed')}
                       >
-                        Completed
+                        Closed
                       </Button>
                     </div>
                   </div>

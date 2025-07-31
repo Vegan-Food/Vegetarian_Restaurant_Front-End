@@ -10,6 +10,7 @@ import { getProducts } from "../../../api/product"
 const StaffFoodList = () => {
   const navigate = useNavigate()
   const [searchTerm, setSearchTerm] = useState("")
+  const [categoryFilter, setCategoryFilter] = useState("All")
   const [foods, setFoods] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -35,10 +36,22 @@ const StaffFoodList = () => {
     navigate(`/staff-food-detail/${foodId}`)
   }
 
+  // Get unique categories from foods list
+  const categories = [...new Set(foods.map(food => food.category).filter(Boolean))].filter(cat => cat && cat.trim())
+
   const filteredFoods = foods.filter(
-    (food) =>
-      food.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      food.category.toLowerCase().includes(searchTerm.toLowerCase()),
+    (food) => {
+      const foodName = food.name || ""
+      const foodCategory = food.category || ""
+      const searchText = searchTerm.toLowerCase()
+      
+      const matchesSearch = foodName.toLowerCase().includes(searchText) ||
+                           foodCategory.toLowerCase().includes(searchText)
+      
+      const matchesCategory = categoryFilter === "All" || foodCategory === categoryFilter
+      
+      return matchesSearch && matchesCategory
+    }
   )
 
   if (loading) {
@@ -61,7 +74,7 @@ const StaffFoodList = () => {
             </Col>
           </Row>
 
-          {/* Search Bar */}
+          {/* Search Bar and Filters */}
           <Row className="mb-4">
             <Col md={6}>
               <InputGroup>
@@ -74,55 +87,141 @@ const StaffFoodList = () => {
                 <Button variant="outline-secondary">🔍</Button>
               </InputGroup>
             </Col>
+            <Col md={4}>
+              <Form.Select
+                value={categoryFilter}
+                onChange={(e) => setCategoryFilter(e.target.value)}
+                style={{ 
+                  borderColor: appTheme.primary,
+                  fontSize: '14px'
+                }}
+              >
+                <option value="All">All Categories</option>
+                {categories.map(category => (
+                  <option key={category} value={category}>{category}</option>
+                ))}
+              </Form.Select>
+            </Col>
+            <Col md={2}>
+              {(searchTerm || categoryFilter !== "All") && (
+                <Button 
+                  variant="outline-danger" 
+                  onClick={() => {
+                    setSearchTerm("")
+                    setCategoryFilter("All")
+                  }}
+                  className="w-100"
+                >
+                  Clear Filters
+                </Button>
+              )}
+            </Col>
+          </Row>
+
+          {/* Results Info */}
+          <Row className="mb-3">
+            <Col>
+              <div className="d-flex justify-content-between align-items-center p-3" style={{ backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+                <span className="text-muted">
+                  Showing {filteredFoods.length} of {foods.length} items
+                  {categoryFilter !== "All" && <span className="text-primary"> in "{categoryFilter}"</span>}
+                </span>
+                {filteredFoods.length === 0 && foods.length > 0 && (
+                  <span className="text-warning">No items match your filters</span>
+                )}
+              </div>
+            </Col>
           </Row>
 
           <Row>
             <Col>
               <Card>
                 <Card.Header style={{ backgroundColor: appTheme.primary, color: "white" }}>
-                  <h5 className="mb-0">Available Food Items</h5>
+                  <div className="d-flex justify-content-between align-items-center">
+                    <h5 className="mb-0">Available Food Items</h5>
+                    <Badge bg="light" text="dark">
+                      {filteredFoods.length} {filteredFoods.length === 1 ? 'item' : 'items'}
+                    </Badge>
+                  </div>
                 </Card.Header>
                 <Card.Body>
-                  <Table responsive hover>
-                    <thead>
-                      <tr>
-                        <th>Image</th>
-                        <th>Name</th>
-                        <th>Category</th>
-                        <th>Price</th>
-                        <th>Status</th>
-                        <th>Description</th>
-                        <th>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredFoods.map((food) => (
-                        <tr key={food.product_id}>
-                          <td>
-                            <img
-                              src={food.image_url || "/placeholder.svg"}
-                              alt={food.name}
-                              style={{ width: "60px", height: "60px", objectFit: "cover", borderRadius: "8px" }}
-                            />
-                          </td>
-                          <td>
-                            <strong>{food.name}</strong>
-                          </td>
-                          <td>{food.category}</td>
-                          <td>
-                            <strong>{food.price.toLocaleString()}đ</strong>
-                          </td>
-                          <td>{getStatusBadge(food.stock_quantity)}</td>
-                          <td>{food.description}</td>
-                          <td>
-                            <Button variant="outline-primary" size="sm" onClick={() => handleViewDetail(food.product_id)}>
-                              View Detail
-                            </Button>
-                          </td>
+                  {filteredFoods.length === 0 ? (
+                    <div className="text-center py-5">
+                      <div style={{ fontSize: '48px', marginBottom: '16px' }}>
+                        {foods.length === 0 ? '🍽️' : '🔍'}
+                      </div>
+                      <h5 className="text-muted">
+                        {foods.length === 0 ? 'No food items available' : 'No items found'}
+                      </h5>
+                      <p className="text-muted">
+                        {foods.length === 0 
+                          ? 'There are no food items in the system yet.' 
+                          : 'Try adjusting your search or filter criteria.'}
+                      </p>
+                      {(searchTerm || categoryFilter !== "All") && (
+                        <Button 
+                          variant="primary" 
+                          onClick={() => {
+                            setSearchTerm("")
+                            setCategoryFilter("All")
+                          }}
+                        >
+                          Clear All Filters
+                        </Button>
+                      )}
+                    </div>
+                  ) : (
+                    <Table responsive hover>
+                      <thead>
+                        <tr>
+                          <th>Image</th>
+                          <th>Name</th>
+                          <th>Category</th>
+                          <th>Price</th>
+                          <th>Status</th>
+                          <th>Description</th>
+                          <th>Actions</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </Table>
+                      </thead>
+                      <tbody>
+                        {filteredFoods.map((food) => (
+                          <tr key={food.product_id}>
+                            <td>
+                              <img
+                                src={food.image_url || "/placeholder.svg"}
+                                alt={food.name || "Food item"}
+                                style={{ width: "60px", height: "60px", objectFit: "cover", borderRadius: "8px" }}
+                              />
+                            </td>
+                            <td>
+                              <strong>{food.name || "Unnamed Item"}</strong>
+                            </td>
+                            <td>
+                              <Badge bg="secondary" className="me-1">
+                                {food.category || "No Category"}
+                              </Badge>
+                            </td>
+                            <td>
+                              <strong style={{ color: appTheme.primary }}>
+                                {(food.price || 0).toLocaleString()}đ
+                              </strong>
+                            </td>
+                            <td>{getStatusBadge(food.stock_quantity || 0)}</td>
+                            <td>
+                              <span style={{ maxWidth: '200px', display: 'inline-block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                {food.description || "No description"}
+                              </span>
+                            </td>
+                            <td>
+                              <Button variant="outline-primary" size="sm" onClick={() => handleViewDetail(food.product_id)}>
+                                View Detail
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
+                  )}
                 </Card.Body>
               </Card>
             </Col>

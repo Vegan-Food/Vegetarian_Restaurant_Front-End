@@ -8,7 +8,7 @@ import quanImage from '../assets/image/quan.jpg';
 
 export default function About() {
   return (
-    <section className="about">
+    <section className="about" style={{zoom: 0.8}}>
       <Header />
       <div className="about-container">
         <div className="about-content">

@@ -14,10 +14,30 @@ import Footer from '../../components/Footer';
 const PAGE_SIZE = 5;
 
 const statusVariant = (status) => {
-  if (!status) return { text: 'N/A' };
-  return {
-    text: status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()
-  };
+  if (!status) return { text: 'N/A', variant: 'secondary', className: 'status-unknown' };
+  
+  const statusLower = status.toLowerCase();
+  switch (statusLower) {
+    case 'pending':
+      return { text: 'Pending', variant: 'warning', className: 'status-pending' };
+    case 'paid':
+      return { text: 'Paid', variant: 'info', className: 'status-paid' };
+    case 'shipping':
+    case 'shipped':
+      return { text: 'Shipping', variant: 'primary', className: 'status-shipping' };
+    case 'delivered':
+      return { text: 'Delivered', variant: 'success', className: 'status-delivered' };
+    case 'cancelled':
+      return { text: 'Cancelled', variant: 'danger', className: 'status-cancelled' };
+    case 'completed':
+      return { text: 'Completed', variant: 'success', className: 'status-completed' };
+    default:
+      return { 
+        text: status.charAt(0).toUpperCase() + status.slice(1).toLowerCase(), 
+        variant: 'secondary', 
+        className: 'status-default' 
+      };
+  }
 };
 
 const formatCurrency = (amount) => {
@@ -443,20 +463,20 @@ const OrderHistory = () => {
                       <td style={{ padding: '16px 18px' }}><span className="fw-bold text-success">{formatCurrency(order.totalAmount)}</span></td>
                       <td style={{ padding: '16px 18px', textAlign: 'center' }}>
                         <Badge
-                          bg="secondary"
+                          bg={statusVariant(order.status).variant}
+                          className={`status-badge ${statusVariant(order.status).className}`}
                           style={{
-                            backgroundColor: '#6c757d',
-                            color: '#fff',
                             padding: '0.5rem 1.5rem',
                             fontSize: '1rem',
                             minWidth: '120px',
                             textAlign: 'center',
-                            border: 'none'
+                            border: 'none',
+                            fontWeight: '600',
+                            borderRadius: '20px'
                           }}
                         >
                           {statusVariant(order.status).text}
                         </Badge>
-
                       </td>
                       <td style={{ padding: '16px 18px' }}>{order.paymentMethod}</td>
                       <td className="rounded-cell-right action-cell" style={{ padding: '16px 18px' }}>

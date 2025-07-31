@@ -90,16 +90,6 @@ const ManageCustomers = () => {
                 value: customers.filter((c) => new Date(c.createdAt) > new Date("2024-01-01")).length,
                 color: "green",
               },
-              {
-                label: "Average Orders",
-                value: Math.round(customers.reduce((acc, c) => acc + c.orders, 0) / customers.length),
-                color: "purple",
-              },
-              {
-                label: "Total Revenue",
-                value: `$${customers.reduce((acc, c) => acc + c.totalSpent, 0).toFixed(2)}`,
-                color: "orange",
-              },
             ].map((stat, index) => (
               <div key={index} className="mini-stat">
                 <div className="mini-stat-value">{stat.value}</div>

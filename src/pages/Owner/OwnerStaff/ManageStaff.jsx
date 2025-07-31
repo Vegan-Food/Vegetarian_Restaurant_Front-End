@@ -6,7 +6,7 @@ import StaffViewModal from "./StaffViewModal"
 import StaffEditModal from "./StaffEditModal"
 import "./ManageStaff.css"
 import "./StaffModal.css"
-import { getEmployees, createEmployee } from "../../../api/user";
+import { getEmployees, createEmployee, deleteUser } from "../../../api/user";
 
 const ManageStaff = () => {
   const [searchTerm, setSearchTerm] = useState("")
@@ -49,9 +49,16 @@ const ManageStaff = () => {
   //   setIsEditModalOpen(true)
   // }
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this staff member?")) {
-      setStaffMembers((prev) => prev.filter((staff) => staff.userId !== id))
+      try {
+        const response = await deleteUser(id);
+        alert(response.message || 'Delete staff member successfully!');
+        window.location.reload();
+      } catch (err) {
+        alert('Delete staff member failed!');
+        console.error('Delete staff error:', err);
+      }
     }
   }
 
@@ -115,22 +122,6 @@ const ManageStaff = () => {
           {/* Staff Stats */}
           <div className="stats-row">
             {[
-              { label: "Total Staff", value: staffMembers.length, color: "blue" },
-              {
-                label: "Active",
-                value: staffMembers.filter((s) => s.status === "Active").length,
-                color: "green",
-              },
-              {
-                label: "Kitchen Staff",
-                value: staffMembers.filter((s) => s.department === "Kitchen").length,
-                color: "purple",
-              },
-              {
-                label: "Service Staff",
-                value: staffMembers.filter((s) => s.department === "Service").length,
-                color: "orange",
-              },
             ].map((stat, i) => (
               <div key={i} className="mini-stat">
                 <div className="mini-stat-value">{stat.value}</div>

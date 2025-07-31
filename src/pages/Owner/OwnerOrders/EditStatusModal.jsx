@@ -22,10 +22,11 @@ const EditStatusModal = ({ order, onClose, onSave }) => {
           onChange={(e) => setNewStatus(e.target.value)}
           style={{ width: "100%", padding: "10px", marginTop: "16px" }}
         >
-          <option value="Pending">Pending</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Completed">Completed</option>
-          <option value="Cancelled">Cancelled</option>
+          <option value="pending">Pending</option>
+          <option value="paid">Paid</option>
+          <option value="shipped">Shipped</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
         </select>
         <button className="close-btn" onClick={handleSave} style={{ marginTop: "20px" }}>
           Save

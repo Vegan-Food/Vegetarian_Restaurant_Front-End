@@ -12,6 +12,7 @@ const EditStatusModal = ({ order, onClose, onSave }) => {
   const [newStatus, setNewStatus] = useState(order.status.toLowerCase())
   const allowedStatuses = [
     { value: "pending", label: "Pending" },
+    { value: "paid", label: "Paid" },
     { value: "shipped", label: "Shipped" },
     { value: "delivered", label: "Delivered" },
     { value: "cancelled", label: "Cancelled" }
@@ -76,12 +77,14 @@ const ManageOrders = () => {
 
   const getStatusIcon = (status) => {
     switch (status.toLowerCase()) {
-      case "delivered":
-        return "✅"
       case "pending":
         return "⏳"
+      case "paid":
+        return "💳"
       case "shipped":
         return "🚚"
+      case "delivered":
+        return "✅"
       case "cancelled":
         return "❌"
       default:
@@ -91,12 +94,14 @@ const ManageOrders = () => {
 
   const getStatusClass = (status) => {
     switch (status.toLowerCase()) {
-      case "delivered":
-        return "status-completed"
       case "pending":
         return "status-pending"
+      case "paid":
+        return "status-paid"
       case "shipped":
-        return "status-progress"
+        return "status-shipped"
+      case "delivered":
+        return "status-delivered"
       case "cancelled":
         return "status-cancelled"
       default:
@@ -108,7 +113,7 @@ const ManageOrders = () => {
     const matchesSearch =
       order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
       order.id.toString().includes(searchTerm)
-    const matchesStatus = statusFilter === "All" || order.status === statusFilter
+    const matchesStatus = statusFilter === "All" || order.status.toLowerCase() === statusFilter.toLowerCase()
     return matchesSearch && matchesStatus
   })
 
@@ -136,9 +141,11 @@ const ManageOrders = () => {
           <div className="stats-row">
             {[
               { label: "Total Orders", value: orderList.length, color: "blue" },
-              { label: "Pending", value: orderList.filter((o) => o.status === "Pending").length, color: "orange" },
-              { label: "Completed", value: orderList.filter((o) => o.status === "Completed").length, color: "green" },
-              { label: "Cancelled", value: orderList.filter((o) => o.status === "Cancelled").length, color: "red" },
+              { label: "Pending", value: orderList.filter((o) => o.status.toLowerCase() === "pending").length, color: "orange" },
+              { label: "Paid", value: orderList.filter((o) => o.status.toLowerCase() === "paid").length, color: "purple" },
+              { label: "Shipped", value: orderList.filter((o) => o.status.toLowerCase() === "shipped").length, color: "blue" },
+              { label: "Delivered", value: orderList.filter((o) => o.status.toLowerCase() === "delivered").length, color: "green" },
+              { label: "Cancelled", value: orderList.filter((o) => o.status.toLowerCase() === "cancelled").length, color: "red" },
             ].map((stat, index) => (
               <div key={index} className="mini-stat">
                 <div className="mini-stat-value">{stat.value}</div>
@@ -173,6 +180,7 @@ const ManageOrders = () => {
                     >
                       <option value="All">All Status</option>
                       <option value="pending">Pending</option>
+                      <option value="paid">Paid</option>
                       <option value="shipped">Shipped</option>
                       <option value="delivered">Delivered</option>
                       <option value="cancelled">Cancelled</option>
@@ -220,13 +228,6 @@ const ManageOrders = () => {
                             onClick={() => setSelectedOrder(order)}
                           >
                             <span>👁️</span>
-                          </button>
-                          <button
-                            className="action-btn edit"
-                            title="Edit Order"
-                            onClick={() => setEditingOrder(order)}
-                          >
-                            <span>✏️</span>
                           </button>
                         </div>
                       </td>

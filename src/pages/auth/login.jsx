@@ -22,6 +22,8 @@ const Login = () => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [loginError, setLoginError] = useState('');
+  const [agreePolicy, setAgreePolicy] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -48,7 +50,7 @@ const Login = () => {
         console.log('Token:', res.token);
       }
     } catch (err) {
-      toast.error('Lỗi gửi thông tin đến server!');
+      toast.error('Error sending information to server!');
     }
     // In ra console thông tin cần thiết
     console.log('Tên:', decoded.name);
@@ -59,17 +61,18 @@ const Login = () => {
   };
 
   const handleError = () => {
-    toast.error('Đăng nhập thất bại. Vui lòng thử lại!');
+    toast.error('Login failed. Please try again!');
   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoginError(''); // Clear previous error
     try {
       const res = await loginWithAdmin(phone, password);
       if (res && res.token) {
         localStorage.setItem('token', res.token);
         localStorage.setItem('user', JSON.stringify({ email: res.email, role: res.role }));
-        toast.success('Đăng nhập thành công!');
+        toast.success('Login successful!');
         setTimeout(() => {
           switch (res.role) {
             case "manager":
@@ -84,10 +87,10 @@ const Login = () => {
           }
         }, 1500);
       } else {
-        toast.error('Đăng nhập thất bại!');
+        setLoginError('Login failed!');
       }
     } catch (err) {
-      toast.error('Sai tài khoản hoặc mật khẩu!');
+      setLoginError('Invalid account or password!');
     }
   };
 
@@ -158,40 +161,66 @@ const Login = () => {
                     </>
                   ) : (
                     <div className="d-flex flex-column align-items-center my-3">
-                      <GoogleLogin
-                        onSuccess={handleSuccess}
-                        onError={handleError}
-                        width="220"
-                        theme="filled_blue"
-                        shape="pill"
-                        text="signin_with"
-                        locale="en"
-                      />
+                      <div style={{ opacity: agreePolicy ? 1 : 0.5, pointerEvents: agreePolicy ? 'auto' : 'none' }}>
+                        <GoogleLogin
+                          onSuccess={handleSuccess}
+                          onError={handleError}
+                          width="220"
+                          theme="filled_blue"
+                          shape="pill"
+                          text="signin_with"
+                          locale="en"
+                        />
+                      </div>
+                      {!agreePolicy && (
+                        <small className="text-muted mt-2" style={{ fontSize: '0.8rem' }}>
+                          Please agree to the Privacy Policy to continue
+                        </small>
+                      )}
                     </div>
                   )}
                   {role !== 'admin' && (
                     <Form.Group className="mb-3" controlId="policy">
                       <Form.Check
                         type="checkbox"
+                        checked={agreePolicy}
+                        onChange={(e) => setAgreePolicy(e.target.checked)}
                         required
                         label={
                           <span>
                             I agree to provide Personal Information and allow Vegetarian Restaurant to use Personal Information in accordance with the{' '}
-                            <a href="#" className="login-link" style={{ color: appTheme.primary }}>Privacy Policy</a>.
+                            <a href="/about" className="login-link" style={{ color: appTheme.primary }}>Privacy Policy</a>.
                           </span>
                         }
                       />
                     </Form.Group>
                   )}
                   {role === 'admin' && (
-                    <Button
-                      type="submit"
-                      variant="success"
-                      className="w-100"
-                      style={{ background: appTheme.primary, border: 'none', fontWeight: 600, fontSize: '1.1rem', borderRadius: 8 }}
-                    >
-                      Login &nbsp;→
-                    </Button>
+                    <>
+                      {loginError && (
+                        <div 
+                          className="alert alert-danger mb-3" 
+                          style={{ 
+                            fontSize: '0.9rem', 
+                            padding: '10px',
+                            borderRadius: '8px',
+                            border: '1px solid #dc3545',
+                            backgroundColor: '#f8d7da',
+                            color: '#721c24'
+                          }}
+                        >
+                          {loginError}
+                        </div>
+                      )}
+                      <Button
+                        type="submit"
+                        variant="success"
+                        className="w-100"
+                        style={{ background: appTheme.primary, border: 'none', fontWeight: 600, fontSize: '1.1rem', borderRadius: 8 }}
+                      >
+                        Login &nbsp;→
+                      </Button>
+                    </>
                   )}
                 </Form>
               </Card.Body>

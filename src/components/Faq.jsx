@@ -68,7 +68,7 @@ const faqs = [
 
 export default function Faq() {
   return (
-    <>
+    <div className="faq-page" style={{zoom: 0.8}}>
       <Header />
       <section className="faq-section">
         <div className="faq-header">
@@ -89,6 +89,6 @@ export default function Faq() {
           ))}
         </div>
       </section>
-    </>
+    </div>
   )
 }
