@@ -41,6 +41,16 @@ export default function Footer() {
                   Beans & Tofu
                 </a>
               </li>
+              <li className="footer-section-item">
+                <a href="#noodles" className="footer-section-link">
+                  noodles
+                </a>
+              </li>
+              <li className="footer-section-item">
+                <a href="#desserts" className="footer-section-link">
+                  Desserts
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -50,22 +60,12 @@ export default function Footer() {
             <ul className="footer-section-list">
               <li className="footer-section-item">
                 <a href="/about" className="footer-section-link">
-                  Online Ordering
-                </a>
-              </li>
-              <li className="footer-section-item">
-                <a href="/about" className="footer-section-link">
-                  Home Delivery
-                </a>
-              </li>
-              <li className="footer-section-item">
-                <a href="/about" className="footer-section-link">
-                  Catering
+                  About
                 </a>
               </li>
               <li className="footer-section-item">
                 <a href="/faq" className="footer-section-link">
-                  Customer Support
+                  FAQ
                 </a>
               </li>
             </ul>
@@ -78,12 +78,12 @@ export default function Footer() {
               <div className="footer-contact-item">
                 <span className="footer-contact-icon">📍</span>
                 <span className="footer-contact-text">
-                  123 ABC Street, District 1, HCMC
+                  FPT University, Da Nang City, Vietnam
                 </span>
               </div>
               <div className="footer-contact-item">
                 <span className="footer-contact-icon">📞</span>
-                <span className="footer-contact-text">(028) 1234 5678</span>
+                <span className="footer-contact-text">19006066</span>
               </div>
               <div className="footer-contact-item">
                 <span className="footer-contact-icon">✉️</span>
@@ -97,7 +97,7 @@ export default function Footer() {
         <div className="footer-bottom">
           <div className="footer-bottom-content">
             <p className="footer-bottom-copyright">
-              &copy; 2024 VeganFood. All rights reserved.
+              &copy; 2025 VeganFood. All rights reserved.
             </p>
             <div className="footer-bottom-links">
               <a href="/about" className="footer-bottom-link">
@@ -106,9 +106,7 @@ export default function Footer() {
               <a href="/about" className="footer-bottom-link">
                 Terms of Use
               </a>
-              <a href="/about" className="footer-bottom-link">
-                Contact Us
-              </a>
+              
             </div>
           </div>
         </div>
