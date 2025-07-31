@@ -108,10 +108,10 @@ const SupportPage = () => {
               <Col lg={8}>
                 <h1 className="support-title">
                   <MessageCircle size={48} className="me-3" />
-                  Hỗ trợ khách hàng
+                  Support Ticket
                 </h1>
                 <p className="support-subtitle">
-                  Chúng tôi luôn sẵn sàng hỗ trợ bạn 24/7.
+                  We are here to help you with any issues or questions you may have.
                 </p>
               </Col>
             </Row>
@@ -123,7 +123,7 @@ const SupportPage = () => {
               <Card className="contact-card text-center">
                 <Card.Body>
                   <Phone size={32} />
-                  <h5>Gọi điện thoại</h5>
+                  <h5>Hotline</h5>
                   <p>1900-6066</p>
                 </Card.Body>
               </Card>
@@ -141,8 +141,8 @@ const SupportPage = () => {
               <Card className="contact-card text-center">
                 <Card.Body>
                   <MapPin size={32} />
-                  <h5>Địa chỉ</h5>
-                  <p>123 Đường ABC, Q1, TP.HCM</p>
+                  <h5>Address</h5>
+                  <p>FPT University, Ngu Hanh Son, Da Nang</p>
                 </Card.Body>
               </Card>
             </Col>
@@ -154,11 +154,11 @@ const SupportPage = () => {
               <Card className="support-actions-card">
                 <Card.Body className="d-flex justify-content-between align-items-center">
                   <div>
-                    <h4>Cần hỗ trợ?</h4>
-                    <p className="text-muted">Tạo ticket để được xử lý.</p>
+                    <h4>Request Support</h4>
+                    <p className="text-muted">Create a ticket to be processed.</p>
                   </div>
                   <Button variant="success" size="lg" onClick={() => setShowCreateTicket(true)}>
-                    <Plus size={20} className="me-2" />Tạo ticket mới
+                    <Plus size={20} className="me-2" />Create a new ticket
                   </Button>
                 </Card.Body>
               </Card>
@@ -173,7 +173,7 @@ const SupportPage = () => {
                   <div className="d-flex justify-content-between align-items-center">
                     <h4 className="mb-0">
                       <FileText size={24} className="me-2" />
-                      Ticket hỗ trợ của bạn
+                      Your support ticket
                     </h4>
                     <div className="filter-buttons">
                       <Button
@@ -182,7 +182,7 @@ const SupportPage = () => {
                         onClick={() => setFilter('all')}
                         className="me-2"
                       >
-                        Tất cả
+                        All
                       </Button>
                       <Button
                         variant={filter === 'open' ? 'success' : 'outline-success'}
@@ -190,7 +190,7 @@ const SupportPage = () => {
                         onClick={() => setFilter('open')}
                         className="me-2"
                       >
-                        Chờ xử lý
+                        Pending
                       </Button>
                       <Button
                         variant={filter === 'in_progress' ? 'success' : 'outline-success'}
@@ -198,14 +198,14 @@ const SupportPage = () => {
                         onClick={() => setFilter('in_progress')}
                         className="me-2"
                       >
-                        Đang xử lý
+                        In Progress
                       </Button>
                       <Button
                         variant={filter === 'closed' ? 'success' : 'outline-success'}
                         size="sm"
                         onClick={() => setFilter('closed')}
                       >
-                        Đã hoàn thành
+                        Completed
                       </Button>
                     </div>
                   </div>
@@ -214,8 +214,8 @@ const SupportPage = () => {
                   {filteredTickets.length === 0 ? (
                     <div className="text-center py-5">
                       <FileText size={64} className="text-muted mb-3" />
-                      <h5 className="text-muted">Không có ticket nào</h5>
-                      <p className="text-muted">Bạn chưa có ticket hỗ trợ nào hoặc không có ticket nào phù hợp với bộ lọc hiện tại.</p>
+                      <h5 className="text-muted">No tickets available</h5>
+                      <p className="text-muted"> You don't have any support tickets or there are no tickets that match the current filter.</p>
                     </div>
                   ) : (
                     <div className="tickets-list">
@@ -241,7 +241,7 @@ const SupportPage = () => {
                             <div className="ticket-footer">
                               <small className="text-muted">
                                 <Calendar size={14} className="me-1" />
-                                Tạo lúc: {formatDate(ticket.createdAt)}
+                                Created at: {formatDate(ticket.createdAt)}
                               </small>
                               <small className="text-muted">
                                 <User size={14} className="me-1" />
@@ -263,29 +263,29 @@ const SupportPage = () => {
       {/* Create Ticket Modal */}
       <Modal show={showCreateTicket} onHide={() => setShowCreateTicket(false)} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title><Plus className="me-2" />Tạo ticket hỗ trợ mới</Modal.Title>
+          <Modal.Title><Plus className="me-2" />Create new support ticket</Modal.Title>
         </Modal.Header>
         <Form onSubmit={handleCreateTicket}>
           <Modal.Body>
             <Form.Group className="mb-3">
-              <Form.Label>Tiêu đề *</Form.Label>
+              <Form.Label>Title *</Form.Label>
               <Form.Control type="text" name="subject" value={formData.subject}
                 onChange={handleInputChange} required />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Số điện thoại</Form.Label>
+              <Form.Label>Phonenumber</Form.Label>
               <Form.Control type="tel" name="phoneNumber" value={formData.phoneNumber}
                 onChange={handleInputChange} />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Mô tả *</Form.Label>
+              <Form.Label>Description *</Form.Label>
               <Form.Control as="textarea" rows={4} name="description"
                 value={formData.description} onChange={handleInputChange} required />
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowCreateTicket(false)}>Hủy</Button>
-            <Button variant="success" type="submit"><Send className="me-2" size={16} />Gửi ticket</Button>
+            <Button variant="secondary" onClick={() => setShowCreateTicket(false)}>Cancel</Button>
+            <Button variant="success" type="submit"><Send className="me-2" size={16} />Send ticket</Button>
           </Modal.Footer>
         </Form>
       </Modal>
@@ -293,20 +293,20 @@ const SupportPage = () => {
       {/* Ticket Detail Modal */}
       <Modal show={showTicketDetail} onHide={() => setShowTicketDetail(false)} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title><FileText className="me-2" />Chi tiết ticket #{selectedTicket?.id}</Modal.Title>
+          <Modal.Title><FileText className="me-2" />Ticket detail #{selectedTicket?.id}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {selectedTicket && (
             <>
               <h5>{selectedTicket.title}</h5>
-              <p className="text-muted"><Calendar size={14} className="me-2" />Tạo lúc: {formatDate(selectedTicket.createdAt)}</p>
-              <h6 className="mt-4">Nội dung:</h6>
+              <p className="text-muted"><Calendar size={14} className="me-2" />Created at: {formatDate(selectedTicket.createdAt)}</p>
+              <h6 className="mt-4">Content:</h6>
               <p>{selectedTicket.description}</p>
 
               {selectedTicket.replyMessage && (
               <>
                 <hr />
-                <h6 className="mt-4">Phản hồi từ nhân viên:</h6>
+                <h6 className="mt-4">Feedback from staff:</h6>
                 <p>{selectedTicket.replyMessage}</p>
                 <small className="text-muted d-block mt-2">
                   👤 {selectedTicket.responder?.name || 'Nhân viên'} • 🕒 {formatDate(selectedTicket.repliedAt)}
@@ -317,7 +317,7 @@ const SupportPage = () => {
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowTicketDetail(false)}>Đóng</Button>
+          <Button variant="secondary" onClick={() => setShowTicketDetail(false)}>Close</Button>
         </Modal.Footer>
       </Modal>
 

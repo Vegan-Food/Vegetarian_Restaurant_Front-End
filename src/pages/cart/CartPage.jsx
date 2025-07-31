@@ -34,7 +34,7 @@ const CartItem = ({ item, onUpdateQuantity, onRemove }) => (
 );
 
 // CartSummary Component
-const CartSummary = ({ subtotal, shippingFee = 30000, cartItems }) => {
+const CartSummary = ({ subtotal, shippingFee = 20000, cartItems }) => {
   const navigate = useNavigate();
 
   const handleCheckout = () => {
