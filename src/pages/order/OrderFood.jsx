@@ -36,6 +36,7 @@ const OrderPage = () => {
     const [provinces, setProvinces] = useState([]);
     const [wards, setWards] = useState([]);
     const [discountCode, setDiscountCode] = useState('');
+    const [errors, setErrors] = useState({});
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -117,13 +118,56 @@ const OrderPage = () => {
             ...prev,
             [name]: value
         }));
+        
+        // Clear error khi user bắt đầu nhập
+        if (errors[name]) {
+            setErrors(prev => ({
+                ...prev,
+                [name]: ''
+            }));
+        }
     };
 
     const handlePaymentChange = (e) => {
         setSelectedPayment(e.target.value);
     };
 
+    const validateForm = () => {
+        const newErrors = {};
+
+        // Validate Phone Number
+        if (!paymentInfo.phone || paymentInfo.phone.trim() === '') {
+            newErrors.phone = 'Phone number is required';
+        } else if (!/^[0-9]{10,11}$/.test(paymentInfo.phone.replace(/\s/g, ''))) {
+            newErrors.phone = 'Phone number must be 10-11 digits';
+        }
+
+        // Validate Address
+        if (!paymentInfo.address || paymentInfo.address.trim() === '') {
+            newErrors.address = 'Address is required';
+        }
+
+        // Validate Province
+        if (!paymentInfo.province || paymentInfo.province.trim() === '') {
+            newErrors.province = 'Province/City is required';
+        }
+
+        // Validate Ward
+        if (!paymentInfo.ward || paymentInfo.ward.trim() === '') {
+            newErrors.ward = 'Ward is required';
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleCheckout = async () => {
+        // Validate form trước khi submit
+        if (!validateForm()) {
+            alert('Please fill in all required fields correctly!');
+            return;
+        }
+
         const paymentMethod = selectedPayment === 'vnpay' ? 'VNPAY' : 'CASH';
         const orderData = {
             paymentMethod,
@@ -144,7 +188,7 @@ const OrderPage = () => {
                 }
                 navigate(`/`);
             } else {
-                navigate(`/billing/${res}`);
+                navigate(`/account/orders`);
             }
         } catch (err) {
             console.error('Order API error:', err);
@@ -194,7 +238,11 @@ const OrderPage = () => {
                                             value={paymentInfo.phone}
                                             onChange={handleInputChange}
                                             required
+                                            isInvalid={!!errors.phone}
                                         />
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.phone}
+                                        </Form.Control.Feedback>
                                     </Form.Group>
                                 </Col>
                             </Row>
@@ -207,7 +255,11 @@ const OrderPage = () => {
                                     value={paymentInfo.address}
                                     onChange={handleInputChange}
                                     required
+                                    isInvalid={!!errors.address}
                                 />
+                                <Form.Control.Feedback type="invalid">
+                                    {errors.address}
+                                </Form.Control.Feedback>
                             </Form.Group>
 
                             <Row>
@@ -219,12 +271,16 @@ const OrderPage = () => {
                                             value={paymentInfo.province}
                                             onChange={handleInputChange}
                                             required
+                                            isInvalid={!!errors.province}
                                         >
                                             <option value="">Select province/city</option>
                                             {provinces.map(province => (
                                                 <option key={province.id} value={province.province}>{province.province}</option>
                                             ))}
                                         </Form.Select>
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.province}
+                                        </Form.Control.Feedback>
                                     </Form.Group>
                                 </Col>
                                 <Col>
@@ -236,12 +292,16 @@ const OrderPage = () => {
                                             onChange={handleInputChange}
                                             required
                                             disabled={!wards.length}
+                                            isInvalid={!!errors.ward}
                                         >
                                             <option value="">Select ward</option>
                                             {wards.map(ward => (
                                                 <option key={ward.name} value={ward.name}>{ward.name}</option>
                                             ))}
                                         </Form.Select>
+                                        <Form.Control.Feedback type="invalid">
+                                            {errors.ward}
+                                        </Form.Control.Feedback>
                                     </Form.Group>
                                 </Col>
                             </Row>

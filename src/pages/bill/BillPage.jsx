@@ -42,9 +42,25 @@ const BillPage = () => {
             }
 
             try {
+                // Fetch bill data trước để kiểm tra status hiện tại
                 const data = await getBill(id);
                 console.log("res", data);
                 setBill(data);
+                
+                // Chỉ cập nhật status thành 'paid' nếu chưa phải là 'paid'
+                if (data?.status && data.status === 'pending') {
+                    try {
+                        await updateOrderStatus(id, { status: 'paid' });
+                        console.log("Đã cập nhật status thành 'paid' thành công");
+                        // Reload lại data sau khi update để có status mới nhất
+                        const updatedData = await getBill(id);
+                        setBill(updatedData);
+                    } catch (updateError) {
+                        console.log("Lỗi khi cập nhật status:", updateError);
+                    }
+                } else {
+                    console.log("Status đã là 'paid', không cần cập nhật lại");
+                }
             } catch (error) {
                 console.error("Error fetching bill:", error);
                 console.log("Lỗi nè", error);
