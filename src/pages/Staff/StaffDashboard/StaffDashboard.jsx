@@ -117,11 +117,16 @@ const StaffDashboard = () => {
                     <PieChartGeneral
                       title="Quantity of dishes by category"
                       data={Object.entries(
-                        products.reduce((acc, p) => {
-                          acc[p.category] = (acc[p.category] || 0) + 1;
-                          return acc;
-                        }, {})
-                      ).map(([name, value]) => ({ name, value }))}
+                        products
+                          .filter(p => p && p.category) // Filter out products without category
+                          .reduce((acc, p) => {
+                            acc[p.category] = (acc[p.category] || 0) + 1;
+                            return acc;
+                          }, {})
+                      ).map(([name, value]) => ({ 
+                        name: name || 'Uncategorized', 
+                        value 
+                      }))}
                     />
                   )}
                 </Card.Body>
