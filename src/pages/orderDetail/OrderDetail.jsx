@@ -72,7 +72,7 @@ const OrderDetail = () => {
   const discountAmount = Math.round(subtotal * (discountPercentage / 100));
 
   return (
-    <div className="order-detail-page">
+    <div className="order-detail-page" style={{ zoom: 0.8 }}>
       <div className="order-detail-bg">
         <Header />
         <div className="order-detail-container">

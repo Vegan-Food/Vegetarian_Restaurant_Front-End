@@ -39,7 +39,7 @@ const Home = () => {
   }, [navigate])
 
   return (
-    <div className="home-page">
+    <div className="home-page" style={{zoom: 0.8}}>
       <SuggestFoodFollowBody />
       <Chatbot />
       <Header />

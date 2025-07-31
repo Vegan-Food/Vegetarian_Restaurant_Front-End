@@ -37,7 +37,7 @@ const Payment = () => {
   };
 
   return (
-    <div className="payment-bg">
+    <div className="payment-bg" style={{ zoom: 0.8 }}>
       <Container className="d-flex justify-content-center align-items-center min-vh-100">
         <Row className="w-100 justify-content-center">
           <Col xs={12} md={8} lg={6}>

@@ -153,7 +153,7 @@ const OrderPage = () => {
     };
 
     return (
-        <div className="d-flex flex-column min-vh-100" style={{ paddingTop: '105px' }}>
+        <div className="d-flex flex-column min-vh-100" style={{ paddingTop: '105px', zoom: 0.8 }}>
             <Header />
             <Container className="py-4 flex-grow-1" style={{ marginTop: '20px' }}>
                 <div className="d-flex justify-content-between align-items-start">
