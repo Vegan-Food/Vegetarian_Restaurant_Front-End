@@ -120,6 +120,10 @@ const SuggestFoodFollowBody = () => {
       alert('Please fill in all information!');
       return;
     }
+    if (Number(userInfo.height) < 100 || Number(userInfo.weight) < 100) {
+      alert('Height and weight must be greater than 100!');
+      return;
+    }
 
     setIsLoading(true);
     try {
@@ -263,7 +267,7 @@ const SuggestFoodFollowBody = () => {
                       value={userInfo.weight}
                       onChange={handleInputChange}
                       placeholder="e.g., 65"
-                      min="30"
+                      min="100"
                       max="200"
                     />
                   </Form.Group>
