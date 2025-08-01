@@ -181,7 +181,6 @@ const ManageStaff = () => {
                       <td>
                         <div className="action-buttons">
                           <button className="action-btn view" onClick={() => handleView(staff)}>👁️</button>
-                          <button className="action-btn delete" onClick={() => handleDelete(staff.userId)}>🗑️</button>
                         </div>
                       </td>
                     </tr>
