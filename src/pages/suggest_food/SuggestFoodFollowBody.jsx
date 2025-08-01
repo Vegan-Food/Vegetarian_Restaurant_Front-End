@@ -120,8 +120,8 @@ const SuggestFoodFollowBody = () => {
       alert('Please fill in all information!');
       return;
     }
-    if (Number(userInfo.height) < 100 || Number(userInfo.weight) < 100) {
-      alert('Height and weight must be greater than 100!');
+    if (Number(userInfo.height) < 100 || Number(userInfo.weight) < 100 || Number(userInfo.height) > 250 || Number(userInfo.weight) > 200) {
+      alert('Height and weight must be greater than 100, and less than 250 for height and 200 for weight!');
       return;
     }
 
