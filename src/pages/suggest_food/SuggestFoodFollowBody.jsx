@@ -289,7 +289,6 @@ const SuggestFoodFollowBody = () => {
                   <option value="underweight">Underweight</option>
                   <option value="heart disease">Heart Disease</option>
                   <option value="stomach problems">Stomach Problems</option>
-                  <option value="other">Other</option>
                 </Form.Select>
               </Form.Group>
 
